@@ -112,7 +112,10 @@ const commands = {
     const { vault } = load();
     const keys = fullAccessKeys(await accessKeys(vault));
     if (!keys.length) throw new Error('no full-access keys to remove');
-    execFileSync('near', ['account', 'delete-keys', vault, 'public-keys', keys.map((k) => k.public_key).join(','),
+    // ML-DSA keys are listed by hash; the CLI needs the full key, e.g. from any transaction the vault signed.
+    const names = keys.map((k) => (k.public_key.startsWith('ml-dsa-65-hash:') ? process.env.GHOST_FULL_KEY : k.public_key));
+    if (names.some((n) => !n)) throw new Error('set GHOST_FULL_KEY to the full ml-dsa-65 public key');
+    execFileSync('near', ['account', 'delete-keys', vault, 'public-keys', names.join(','),
       'network-config', 'testnet', 'sign-with-keychain', 'send'], { stdio: 'inherit' });
     const remaining = fullAccessKeys(await accessKeys(vault));
     if (remaining.length) throw new Error(`FullAccess keys remain: ${JSON.stringify(remaining)}`);
@@ -203,7 +206,13 @@ const commands = {
   async settle([index = '0']) {
     const s = load();
     const { attemptIndex } = latestSigned(await viewCall(s.vault, 'get_state'), Number(index));
-    call('settle', { payout_index: Number(index), attempt_index: attemptIndex }, s.owner);
+    const out = execFileSync('near', nearArgs(s.vault, 'settle', { payout_index: Number(index), attempt_index: attemptIndex }, s.owner), { encoding: 'utf8', stdio: ['inherit', 'pipe', 'pipe'] });
+    const tx = out.match(/Transaction ID: (\w+)/)?.[1];
+    const evidenceFile = new URL('../web/evidence.json', import.meta.url);
+    const evidence = JSON.parse(readFileSync(evidenceFile));
+    evidence.settle[`${index}:${attemptIndex}`] = { tx, sender: s.owner };
+    writeFileSync(evidenceFile, JSON.stringify(evidence, null, 2));
+    console.log(`settle tx ${tx}`);
   },
 
   /** Requests the wishes key from the vault and opens the sealed wishes. Prints a warning, not a claim of enclave custody. */

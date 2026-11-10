@@ -2,80 +2,220 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>GhostProtocol</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>GhostProtocol Verifier</title>
+<meta name="ghost:wasm" content="DBRswoeb9syKVRZJrCpjbw62E3Z6ZL48MAoLN8KfU4E8">
+<meta name="ghost:commit" content="ba25e39">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
 <style>
-:root{--bg:#f4f1ea;--ink:#191816;--muted:#6e6a61;--line:#d8d2c5;--done:#1f6f50;--stop:#a33a2a}
-@media (prefers-color-scheme:dark){:root{--bg:#141412;--ink:#ece8df;--muted:#958f83;--line:#302e29;--done:#63c29b;--stop:#e58a78}}
-*{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 ui-sans-serif,system-ui,sans-serif}
-main{max-width:680px;margin:0 auto;padding:64px 16px}
-h1{font:400 44px/1.1 ui-serif,Georgia,serif;margin:0 0 8px}
-.vault{color:var(--muted);font:13px ui-monospace,monospace;overflow-wrap:anywhere;margin:0 0 48px}
-ol{list-style:none;margin:0;padding:0;border-top:1px solid var(--line)}
-li{display:grid;grid-template-columns:24px 1fr;gap:12px;padding:20px 0;border-bottom:1px solid var(--line)}
-.mark{width:10px;height:10px;margin-top:8px;border-radius:50%;border:1.5px solid var(--muted)}
-.done .mark{background:var(--done);border-color:var(--done)}
-h2{font-size:17px;font-weight:600;margin:0}
-.pending h2{color:var(--muted)}
-p.detail{margin:4px 0 0;color:var(--muted);font-size:14px;overflow-wrap:anywhere}
-p.blocked{margin:4px 0 0;color:var(--stop);font-size:14px}
-a{color:inherit}
+/* One column of checks, each a ledger row: claim, recomputed value, verdict. */
+:root {
+  --bg: #f6f7f5; --panel: #ffffff; --fg: #1b2420; --muted: #5d6b64; --line: #d9dfdb;
+  --pass: #1d7a4c; --fail: #b3261e; --wait: #8a6a12; --accent: #2f5d50;
+  --sans: "IBM Plex Sans", system-ui, sans-serif; --mono: "IBM Plex Mono", ui-monospace, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #111613; --panel: #18201c; --fg: #e4ebe7; --muted: #95a39b; --line: #2b3631;
+  --pass: #5cc98f; --fail: #ff8a80; --wait: #e2bc54; --accent: #8cc7b4; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #111613; --panel: #18201c; --fg: #e4ebe7; --muted: #95a39b; --line: #2b3631;
+  --pass: #5cc98f; --fail: #ff8a80; --wait: #e2bc54; --accent: #8cc7b4; color-scheme: dark }
+* { box-sizing: border-box }
+body { margin: 0; background: var(--bg); color: var(--fg); font: 15px/1.55 var(--sans) }
+main { max-width: 860px; margin: 0 auto; padding-block: 40px 64px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+  display: grid; gap: 28px }
+h1 { margin: 0; font-size: 26px; font-weight: 600; letter-spacing: -0.01em; text-wrap: balance }
+.meta { display: flex; flex-wrap: wrap; gap: 8px 20px; color: var(--muted); font: 13px var(--mono) }
+.meta a { color: var(--accent) }
+form { display: flex; gap: 8px; flex-wrap: wrap }
+input { flex: 1 1 260px; min-width: 0; font: 14px var(--mono); padding: 9px 11px; border: 1px solid var(--line);
+  border-radius: 6px; background: var(--panel); color: var(--fg) }
+button { font: 500 14px var(--sans); padding: 9px 16px; border: 0; border-radius: 6px; background: var(--accent); color: var(--bg); cursor: pointer }
+button:focus-visible, input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px }
+.summary { font: 500 15px var(--sans) }
+ol { list-style: none; margin: 0; padding: 0; border: 1px solid var(--line); border-radius: 8px; background: var(--panel) }
+li { display: grid; grid-template-columns: 76px 1fr; gap: 4px 16px; padding: 14px 16px; border-top: 1px solid var(--line) }
+li:first-child { border-top: 0 }
+.v { font: 600 12px var(--mono); letter-spacing: 0.06em; padding-top: 2px }
+.v.PASS { color: var(--pass) } .v.FAIL { color: var(--fail) } .v.WAIT { color: var(--wait) }
+.claim { font-weight: 500; min-width: 0 }
+.detail { grid-column: 2; min-width: 0; color: var(--muted); font: 12.5px/1.5 var(--mono); overflow-wrap: anywhere }
+.detail a { color: var(--accent) }
+footer { color: var(--muted); font-size: 13px }
 </style>
 </head>
 <body>
 <main>
-<h1>GhostProtocol</h1>
-<p class="vault" id="vault">Loading</p>
-<ol id="steps"></ol>
+  <header style="display:grid;gap:10px">
+    <h1>GhostProtocol Verifier</h1>
+    <div class="meta" id="meta">Reading NEAR testnet and Base Sepolia directly from this browser.</div>
+  </header>
+  <form id="form">
+    <label for="vault" hidden>Vault account</label>
+    <input id="vault" value="ghostprotocol-vault.testnet" spellcheck="false" autocomplete="off">
+    <button type="submit">Recheck</button>
+  </form>
+  <div class="summary" id="summary">Checking…</div>
+  <ol id="checks"></ol>
+  <footer>Every value above is recomputed here from public RPC answers. Nothing comes from a GhostProtocol server.</footer>
 </main>
-<script>
-const RPC = 'https://rpc.testnet.near.org';
-const esc = (t) => String(t).replace(/[&<>"']/g, (c) => `&#${c.charCodeAt(0)};`);
-const params = new URLSearchParams(location.search);
+<script type="module">
+import { keccak256, recoverAddress, serializeTransaction, getAddress, hashMessage } from 'https://cdn.jsdelivr.net/npm/viem@2.21.0/+esm';
 
-async function getJson(url) {
-  const res = await fetch(url, { cache: 'no-store' });
-  return res.ok ? res.json() : null;
+const NEAR = 'https://rpc.testnet.near.org';
+const BASE = 'https://base-sepolia-rpc.publicnode.com';
+const SIGNER = 'v1.signer-prod.testnet';
+const PATH = 'ghost-base-sepolia-1';
+// Hash of contract/target/near/ghost_protocol.wasm from `cargo near build reproducible-wasm` at the published commit.
+const REPRODUCIBLE_HASH = document.querySelector('meta[name="ghost:wasm"]')?.content ?? null;
+const B58 = '123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz';
+
+const hex = (b) => [...b].map((x) => x.toString(16).padStart(2, '0')).join('');
+const unhex = (h) => Uint8Array.from(h.match(/../g).map((x) => parseInt(x, 16)));
+const b64 = (s) => Uint8Array.from(atob(s), (c) => c.charCodeAt(0));
+function b58enc(bytes) {
+  let n = BigInt('0x' + (hex(bytes) || '0')), out = '';
+  while (n > 0n) { out = B58[Number(n % 58n)] + out; n /= 58n; }
+  return out;
+}
+function b58dec(s, len) {
+  let n = 0n;
+  for (const c of s) n = n * 58n + BigInt(B58.indexOf(c));
+  return unhex(n.toString(16).padStart(len * 2, '0'));
+}
+const sha256 = async (bytes) => new Uint8Array(await crypto.subtle.digest('SHA-256', bytes));
+
+async function near(params) {
+  const r = await fetch(NEAR, { method: 'POST', headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({ jsonrpc: '2.0', id: 1, method: 'query', params: { finality: 'final', ...params } }) });
+  const j = await r.json();
+  if (!j.result || j.result.error) throw new Error(JSON.stringify(j.error ?? j.result?.error));
+  return j.result;
+}
+const view = async (account, method, args = {}) => JSON.parse(new TextDecoder().decode(Uint8Array.from((await near({
+  request_type: 'call_function', account_id: account, method_name: method, args_base64: btoa(JSON.stringify(args)) })).result)));
+async function nearTx(hash, sender) {
+  const r = await fetch(NEAR, { method: 'POST', headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({ jsonrpc: '2.0', id: 1, method: 'tx', params: { tx_hash: hash, sender_account_id: sender, wait_until: 'FINAL' } }) });
+  return (await r.json()).result;
+}
+async function base(method, params) {
+  const r = await fetch(BASE, { method: 'POST', headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({ jsonrpc: '2.0', id: 1, method, params }) });
+  return (await r.json()).result;
 }
 
-async function viewState(vault) {
-  const body = {
-    jsonrpc: '2.0', id: 1, method: 'query',
-    params: { request_type: 'call_function', finality: 'final', account_id: vault, method_name: 'get_state', args_base64: 'e30=' },
-  };
-  const res = await fetch(RPC, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body) });
-  const json = await res.json();
-  return JSON.parse(new TextDecoder().decode(new Uint8Array(json.result.result)));
+const list = document.getElementById('checks');
+const rows = [];
+function row(verdict, claim, detail) {
+  rows.push(verdict);
+  const li = document.createElement('li');
+  li.innerHTML = `<span class="v ${verdict}">${verdict}</span><span class="claim"></span><span class="detail"></span>`;
+  li.children[1].textContent = claim;
+  li.children[2].innerHTML = detail;
+  list.append(li);
+}
+const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
+
+function borshPayload(txId) {
+  const out = new Uint8Array(2 + 32 + 4 + 1 + 4);
+  out[1] = 6; out.set(txId, 2); out[38] = 2;
+  return out;
 }
 
-function render(run, s) {
-  const payout = s?.payouts.find((p) => p.signature);
-  const r = run.reasoning;
-  const steps = [
-    ['Wishes sealed', s && `Commitment ${s.sealed_wishes_hash.slice(0, 16)}`],
-    ['False death claim cancelled', run.falseClaimCancelled && 'Owner signed a check-in during the grace period'],
-    ['Death proven', s?.claim && `Witness quorum accepted at ${new Date(s.claim.opened_at * 1000).toISOString()}`],
-    ['Private reasoning verified', r && `${esc(r.decision.reasoning)} (${esc(r.model)}, ${esc(r.signatureKind)} signature)`],
-    ['Attacks blocked', run.attacks?.length && run.attacks.map((a) => `<p class="blocked">${esc(a.label)}: ${esc(a.reason)}</p>`).join('')],
-    ['Contract signed the payout', payout && `${esc(payout.value_wei)} wei to ${esc(payout.to)}`],
-    ['Paid on Sepolia', run.sepoliaTx && `<a href="https://sepolia.etherscan.io/tx/${esc(run.sepoliaTx)}">${esc(run.sepoliaTx)}</a>`],
-  ];
-  document.getElementById('steps').innerHTML = steps.map(([title, detail]) =>
-    `<li class="${detail ? 'done' : 'pending'}"><span class="mark"></span><div><h2>${title}</h2>${
-      detail ? (String(detail).startsWith('<p') ? detail : `<p class="detail">${detail}</p>`) : ''}</div></li>`).join('');
+async function run(vault) {
+  list.replaceChildren(); rows.length = 0;
+  document.getElementById('summary').textContent = 'Checking…';
+  document.getElementById('meta').innerHTML = `<span>vault ${esc(vault)}</span><a href="https://testnet.nearblocks.io/address/${esc(vault)}" target="_blank" rel="noopener">explorer</a>`;
+  const evidence = await fetch('evidence.json').then((r) => (r.ok ? r.json() : {})).catch(() => ({}));
+  try {
+    const [account, code, keys, state] = await Promise.all([
+      near({ request_type: 'view_account', account_id: vault }),
+      near({ request_type: 'view_code', account_id: vault }),
+      near({ request_type: 'view_access_key_list', account_id: vault }),
+      view(vault, 'get_state'),
+    ]);
+
+    const computed = b58enc(await sha256(b64(code.code_base64)));
+    row(computed === account.code_hash ? 'PASS' : 'FAIL', 'Deployed code hash recomputed from the WASM bytes',
+      `sha256 = ${computed}<br>chain code_hash = ${esc(account.code_hash)}`);
+    if (REPRODUCIBLE_HASH) row(computed === REPRODUCIBLE_HASH ? 'PASS' : 'FAIL', 'Matches the reproducible build of the published source',
+      `reproducible = ${esc(REPRODUCIBLE_HASH)}`);
+
+    const full = keys.keys.filter((k) => k.access_key.permission === 'FullAccess');
+    row(full.length === 0 ? 'PASS' : 'FAIL', 'No key can act as the vault, so no one can request its signatures directly',
+      full.length ? `${full.length} FullAccess key(s): ${full.map((k) => esc(k.public_key.slice(0, 24)) + '…').join(', ')}` : `${keys.keys.length} keys, none FullAccess`);
+
+    const derived = await view(SIGNER, 'derived_public_key', { path: PATH, predecessor: vault, domain_id: 0 });
+    const derivedHex = hex(b58dec(derived.split(':')[1], 64));
+    const vaultAddress = getAddress('0x' + keccak256('0x' + derivedHex).slice(-40));
+    row(derivedHex === state.vault_public_key ? 'PASS' : 'FAIL', 'Vault key in the contract equals the MPC network’s derived key',
+      `Base Sepolia address ${vaultAddress} · <a href="https://sepolia.basescan.org/address/${vaultAddress}" target="_blank" rel="noopener">basescan</a>`);
+
+    const rootKey = await view(SIGNER, 'public_key', { domain_id: 3 });
+    const rootHex = hex(b58dec(rootKey.split(':')[1], 64));
+    row(rootHex === state.foreign_tx_public_key ? 'PASS' : 'FAIL', 'Settlement key equals the MPC ForeignTx key (domain 3)', `${rootHex.slice(0, 32)}…`);
+
+    const caps = state.heirs.reduce((t, h) => t + BigInt(h.cap_wei), 0n);
+    row(state.chain_id === 84532 && caps <= BigInt(state.budget_wei) ? 'PASS' : 'FAIL', 'Pays only on Base Sepolia, within a budget that covers every cap',
+      `chain ${state.chain_id} · caps ${caps} ≤ budget ${state.budget_wei} wei · ${state.heirs.length} heir(s)`);
+
+    const balance = BigInt(await base('eth_getBalance', [vaultAddress, 'latest']) ?? '0x0');
+    row(balance > 0n ? 'PASS' : 'WAIT', 'Vault address holds funds on Base Sepolia', `${balance} wei`);
+
+    if (!state.payouts.length) row('WAIT', 'Payouts', 'none requested yet');
+    for (const [i, p] of state.payouts.entries()) {
+      for (const [j, a] of p.attempts.entries()) {
+        const label = `Payout ${i}, attempt ${j}: ${p.value_wei} wei to ${p.to}, nonce ${p.nonce}`;
+        if (!a.r_hex) { row('WAIT', label, 'signature pending'); continue; }
+        const tx = { type: 'eip1559', chainId: 84532, nonce: Number(p.nonce), to: getAddress(p.to), value: BigInt(p.value_wei),
+          gas: BigInt(p.gas_limit), maxFeePerGas: BigInt(a.max_fee_per_gas), maxPriorityFeePerGas: BigInt(a.max_priority_fee_per_gas) };
+        const hash = keccak256(serializeTransaction(tx));
+        const sig = { r: '0x' + a.r_hex, s: '0x' + a.s_hex, yParity: a.y_parity };
+        const recovered = await recoverAddress({ hash, signature: sig });
+        const lowS = BigInt('0x' + a.s_hex) <= 0x7fffffffffffffffffffffffffffffff5d576e7357a4501ddfe92f46681b20a0n;
+        const txHash = keccak256(serializeTransaction(tx, sig));
+        const ok = hash.slice(2) === a.payload_hex && recovered === vaultAddress && lowS && txHash.slice(2) === a.tx_hash_hex;
+        row(ok ? 'PASS' : 'FAIL', `${label}: signature recovers to the vault`, `payload ${hash.slice(2, 18)}… · recovered ${recovered} · low-s ${lowS}`);
+
+        const receipt = await base('eth_getTransactionReceipt', [txHash]);
+        const link = `<a href="https://sepolia.basescan.org/tx/${txHash}" target="_blank" rel="noopener">${txHash.slice(0, 18)}…</a>`;
+        if (!receipt) row('WAIT', `${label}: included on Base Sepolia`, `${link} not found`);
+        else row(receipt.status === '0x1' && getAddress(receipt.from) === vaultAddress ? 'PASS' : 'FAIL',
+          `${label}: included on Base Sepolia`, `${link} · block ${parseInt(receipt.blockNumber, 16)} · status ${receipt.status}`);
+
+        const settleTx = evidence.settle?.[`${i}:${j}`];
+        if (p.status === 'Settled' && p.settled_attempt === j) {
+          if (!settleTx) { row('FAIL', `${label}: MPC attestation`, 'settled on-chain but no settlement transaction listed'); continue; }
+          const status = await nearTx(settleTx.tx, settleTx.sender);
+          const reply = status.receipts_outcome.map((r) => r.outcome).find((o) => o.executor_id === SIGNER && o.status.SuccessValue);
+          const att = reply && JSON.parse(new TextDecoder().decode(b64(reply.status.SuccessValue)));
+          const expected = hex(await sha256(borshPayload(unhex(a.tx_hash_hex))));
+          let signer = null;
+          if (att?.signature) {
+            const sg = att.signature;
+            signer = await recoverAddress({ hash: '0x' + att.payload_hash, signature: { r: '0x' + sg.big_r.affine_point.slice(2), s: '0x' + sg.s.scalar, yParity: sg.recovery_id } });
+          }
+          const rootAddress = getAddress('0x' + keccak256('0x' + rootHex).slice(-40));
+          row(att && att.payload_hash === expected && signer === rootAddress ? 'PASS' : 'FAIL', `${label}: MPC network attested the payment landed`,
+            `sha256(borsh request) ${expected.slice(0, 16)}… signed by the domain 3 key · <a href="https://testnet.nearblocks.io/txns/${settleTx.tx}" target="_blank" rel="noopener">settlement tx</a> · heir ${state.heirs[p.heir_index].status}`);
+        }
+      }
+    }
+  } catch (e) {
+    row('FAIL', 'Could not read the chain', esc(e.message));
+  }
+  const fails = rows.filter((r) => r === 'FAIL').length, waits = rows.filter((r) => r === 'WAIT').length;
+  document.getElementById('summary').textContent = fails ? `${fails} check(s) failed` : `${rows.length - waits} of ${rows.length} checks pass${waits ? `, ${waits} waiting` : ''}`;
 }
 
-async function refresh() {
-  const run = (await getJson(params.get('run') ?? 'run.json')) ?? {};
-  const vault = params.get('vault') ?? run.vault;
-  document.getElementById('vault').textContent = vault ?? 'No vault deployed';
-  let state = run.sampleState ?? null;
-  if (vault && !state) { try { state = await viewState(vault); } catch { state = null; } }
-  render(run, state);
-}
-refresh();
-setInterval(refresh, 5000);
+const input = document.getElementById('vault');
+const fromHash = location.hash.slice(1);
+if (fromHash) input.value = decodeURIComponent(fromHash);
+document.getElementById('form').addEventListener('submit', (e) => { e.preventDefault(); location.hash = input.value; run(input.value.trim()); });
+run(input.value.trim());
 </script>
 </body>
 </html>

@@ -1,26 +1,45 @@
 # GhostProtocol
 
-A NEAR contract that pays your heirs on Ethereum after your death is proven. An AI reasons privately about your sealed wishes, but it can only propose a payout within limits the contract enforces.
+After its owner dies, a vault pays the right heirs, and no single person, key, model or operator can change that.
 
-Built at the NEAR Hackathon. Tracks: Privacy & Private AI, AI Security & Defense.
+A NEAR contract controls a Base Sepolia address through Chain Signatures. It pays listed heirs after a witnessed death claim. An AI may choose each amount, but only between owner-set limits, and if the AI never answers, a fallback pays anyway.
 
-## Problem
+Tracks: Privacy & Private AI, AI Security & Defense. Testnet only.
 
-Crypto is lost when its owner dies, and a simple dead man's switch can pay out because someone lost their phone. An AI executor with wallet keys adds the risk that it is tricked into stealing the money.
+## Check it yourself
+
+Open the verifier: `web/index.html`, served by `npm run web` at http://localhost:4173. It reads NEAR testnet and Base Sepolia from your browser and recomputes every claim below. A failing claim shows FAIL.
+
+Live vault: [`ghostprotocol-vault.testnet`](https://testnet.nearblocks.io/address/ghostprotocol-vault.testnet). Its Base Sepolia address: [`0xAf8105c7e876f38Bf0A9f09e4c97029BCf74d0Cc`](https://sepolia.basescan.org/address/0xAf8105c7e876f38Bf0A9f09e4c97029BCf74d0Cc).
+
+| Claim | Proof |
+|---|---|
+| The deployed code is this source | Chain code hash `DBRswoeb9syKVRZJrCpjbw62E3Z6ZL48MAoLN8KfU4E8` equals `cargo near build reproducible-wasm` at commit `ba25e39`, rebuilt from a clean clone ([log](docs/evidence/live/clean-rebuild.txt)) |
+| Nobody holds a key to the vault | `view_access_key_list` returns `[]` after [lock tx](https://testnet.nearblocks.io/txns/2AwB18KpkUaPoBAJhJUSVtyHDW5jPGJtZvCDBDn2pUAa) |
+| A missed check-in alone moves nothing | Live claim refused with `owner is not inactive` ([log](docs/evidence/live/false-claim.txt)) |
+| The owner cancels a false claim | [claim](https://testnet.nearblocks.io/txns/6TjeYW5JvMYY9DR2B4vvwBqVn15JaMk1QPR5K78KZFCc), then [check-in](https://testnet.nearblocks.io/txns/Dm1JPDN2js5FVp6phEZHzcczJDbyKHmuyCQUpAUU5VVw) |
+| A registrar proof cannot be replayed | Live `heir age already proven` |
+| A hostile agent cannot overpay, underpay, redirect, or act as anyone else | Five live attacks, all BLOCKED ([log](docs/evidence/live/false-claim.txt)) |
+| With no AI at all, the heir is still paid | [Fallback tx](https://testnet.nearblocks.io/txns/GH1TmBiumNAzJmVsdfmo4RPkxjWGtKqXrQKYzCFQedJV): real MPC signature, checked on-chain with `ecrecover` against the vault key |
+| A stuck transaction is replaced, not abandoned | [Re-price tx](https://testnet.nearblocks.io/txns/niToN6tTZiQ7VcAG53xxCUggQ8gNHerUHPWQU8E12R1): attempt 2 has the same nonce, recipient and amount, so only one can land |
+| A signature is not a payment | [Settle tx](https://testnet.nearblocks.io/txns/9EivMJaKZbAjB6yih8CA8YVsx6FENebo9Fu9vQ1o9wmh) on an unbroadcast transaction: the MPC network declined to attest, and the heir stays `Pending` |
+| The wishes were sealed before any key existed | Encrypted to the vault's CKD identity using public values only. The key came from the [vault's own request](https://testnet.nearblocks.io/txns/8Uw6tGnSf6G49MavWf3LZHKbZ128cVhGzCqSp3XKbuwx) after the trigger, and passed a pairing check before decrypting |
 
 ## How it works
 
-1. The owner funds an Ethereum address controlled by the vault contract through NEAR Chain Signatures. Existing wallets are not touched.
-2. A missed check-in alone moves nothing. A claim also needs signatures from 2 of 3 named witnesses.
-3. During a grace period, one owner check-in cancels the claim.
-4. A registrar-signed time proves the heir is an adult without putting a birth date on-chain.
-5. The agent reasons over the wishes through NEAR AI Cloud and verifies the response signature.
-6. The agent submits only a heir number, an amount and a reasoning hash. The contract checks them, sets the nonce and fees, builds the Ethereum transaction and requests its signature.
-7. Anyone can broadcast the signed transaction. The relay refuses anything that differs from what the contract approved.
+1. The owner checks in. Silence plus a 2-of-3 witness quorum opens a claim. One check-in during grace cancels it.
+2. If the owner's check-in key is stolen, all witnesses together open an override claim that check-ins cannot cancel. Only the owner's cold recovery key can.
+3. Any witness can extend grace once, for an owner in hospital. A court can pause once, for a bounded time.
+4. The agent proposes an amount between each heir's floor and cap. The contract accepts it only with a response signed by a registered NEAR AI enclave key, whose signed body names this vault, heir and amount.
+5. The contract builds the Base Sepolia transaction itself, requests its signature, and keeps it only if it recovers to the vault key.
+6. Anyone broadcasts. The heir is marked paid only when the MPC network's `verify_foreign_transaction` attests that the contract-computed transaction succeeded on a finalized Base Sepolia block.
+7. After a long timeout, anyone can pay each heir its cap without the agent.
 
-## Try it without accounts
+Why Base Sepolia: the testnet signer's `verify_foreign_transaction` supports `Base`, pinned to chain ID 84532, but not `Ethereum` ([sources](docs/threat-model.md#sources-checked)).
 
-Needs Node 24.22.1 or later and Rust with `cargo-near`.
+Full design and invariants: [docs/threat-model.md](docs/threat-model.md).
+
+## Tests
 
 ```bash
 npm install
@@ -30,78 +49,43 @@ npm install
 npm test
 ```
 
-See 7 JavaScript tests pass.
+14 JavaScript tests pass, including the CKD sealing round trip.
 
 ```bash
 cd contract && cargo test
 ```
 
-See 18 contract tests pass, including forged witnesses, over-cap payouts, unlisted heirs, replays and legal freezes.
+83 contract tests pass, including 256 random sequences of every method checked against the invariants after each step.
+
+| Layer | What it shows |
+|---|---|
+| `contract/diff` | Encoding agrees with alloy and 1,500 viem vectors. The settlement payload agrees with `near/mpc` 3.18.0's own types. Hash-to-curve agrees with `blstrs` |
+| `contract/sandbox` | 5 near-workspaces tests with real promises: forged signatures dropped, a signer failure cleaned up, a transaction that never landed not paid, callbacks private |
+| `cargo mutants` | 167 of 167 viable mutants caught |
+| `cargo fuzz` | Parsers and RLP, about 2.5M runs, no crashes |
+| `docs/evidence/v1/` | The original contract's ten breaks, each shown failing before the fix |
+
+## Not proven yet
+
+- A funded Base Sepolia payout and its MPC settlement. The verifier shows these as WAIT until they happen.
+- An attested decision from NEAR AI accepted on-chain. Unit and sandbox tests cover it with a local key.
+- The wishes key is unwrapped on the operator's machine, not inside an attested enclave.
+- A live injection evaluation. A hostile-model set is scored by the contract: it rejects every out-of-bounds decision and accepts the cap, which is the limit a compromised model always has.
+
+## Limits
+
+- A compromised model can always choose the cap. The bound is the floor and cap, not the model.
+- The contract binds a decision to an enclave key, not to the prompt. Anyone with an API key can get a genuine signature on a crafted response.
+- The link between that key and the enclave measurement is checked off-chain.
+- The MPC network cannot attest a failed transaction. A witness quorum reopens a reverted payment once per heir, and a lying quorum can overpay that heir once.
+- Stealing both of the owner's keys is indistinguishable from being the owner.
+- The MPC network itself is trusted.
+- This is not a legal will.
 
 ## Run it on testnet
 
-Needs a funded NEAR testnet account you created, `NEARAI_API_KEY`, and Sepolia test ETH.
-
-```bash
-cd contract && cargo near build non-reproducible-wasm --no-abi && cd ..
-```
-
-```bash
-npm run ghost -- init YOUR_ACCOUNT.testnet 0xHEIR_ADDRESS
-```
-
-```bash
-npm run ghost -- accounts
-```
-
-Run the printed commands yourself to create the owner, agent and court sub-accounts.
-
-```bash
-npm run ghost -- address
-```
-
-Send about 0.01 Sepolia ETH to the printed address, then run these in order:
-
-| Command | You should see |
-|---|---|
-| `npm run ghost -- deploy` | Contract deployed with a 60-second inactivity window and 60-second grace |
-| `npm run ghost -- claim` after 60 seconds | Witness quorum accepted |
-| `npm run ghost -- checkin` | Claim cancelled |
-| `npm run ghost -- claim` after 60 more seconds | New claim opened |
-| `npm run ghost -- attack` after 60 seconds | Every attack prints `BLOCKED` with the contract's reason |
-| `npm run ghost -- reason "Ada is safe and enrolled at university."` | A decision with its verified signature kind |
-| `npm run ghost -- pay` | Contract stores a signature |
-| `npm run ghost -- broadcast` | A Sepolia Etherscan link |
-| `npm run web` | Timeline at http://localhost:4173 |
-
-Test the deferral path with a report saying someone is pressuring the heir.
-
-## What is proven and what is not
-
-| Part | Status |
-|---|---|
-| Contract rules | Tested in unit tests |
-| Ethereum transaction hash | Matches viem |
-| Live testnet deploy, Chain Signature and Sepolia payout | Scripted, not yet run |
-| NEAR AI verified inference | Scripted with the official SDK, not yet run |
-| Sealed storage | Wishes are AES-encrypted, but the demo key is in local `.ghost/state.json`. Not yet held in a TEE |
-| Agent key | A normal NEAR account, not yet TEE-bound |
-
-## Known limits
-
-- Colluding witnesses can open a false claim. The owner's check-in is the defense, so the grace period must be long enough for real life.
-- The agent chooses the amount up to each heir's cap, so a bad agent can underpay once per heir or decline to pay.
-- A freeze stops only payouts not yet requested. Transfers cannot be undone.
-- Enclaves can be attacked, especially with physical access.
-- The vault's Ethereum address must only be used by this contract, because the contract counts its nonce from 0.
-- This is not a legal will and has no legal force.
-
-## NEAR components
-
-Chain Signatures through `v1.signer-prod.testnet`, NEAR AI Cloud, and `ed25519_verify` in a NEAR contract.
+[docs/live-runbook.md](docs/live-runbook.md).
 
 ## Libraries and AI use
 
-`near-sdk`, `ed25519-dalek` (tests), `viem`, `@nearai/inference-sdk`, and the `near` CLI. The code and documentation were written with Claude Code.
-
-All code was written during the hackathon window. MIT licensed.
+`near-sdk`, `viem`, `@noble/curves`, `@noble/hashes`, `near-workspaces`, `proptest`, `alloy`, `blstrs` and `near-mpc-contract-interface` (tests), and the `near` CLI. The code and documentation were written with Claude Code. MIT licensed.
