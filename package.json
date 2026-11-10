@@ -1,0 +1,21 @@
+{
+  "name": "ghost-protocol",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=24.22.1"
+  },
+  "scripts": {
+    "ghost": "node scripts/ghost.mjs",
+    "web": "python3 -m http.server 4173 -d web",
+    "test": "node --test"
+  },
+  "dependencies": {
+    "@nearai/inference-sdk": "^0.1.0",
+    "@noble/curves": "1.9.1",
+    "@noble/hashes": "^1.8.0",
+    "viem": "^2.57.17"
+  },
+  "license": "MIT"
+}

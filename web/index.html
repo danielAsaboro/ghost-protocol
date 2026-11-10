@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GhostProtocol</title>
+<style>
+:root{--bg:#f4f1ea;--ink:#191816;--muted:#6e6a61;--line:#d8d2c5;--done:#1f6f50;--stop:#a33a2a}
+@media (prefers-color-scheme:dark){:root{--bg:#141412;--ink:#ece8df;--muted:#958f83;--line:#302e29;--done:#63c29b;--stop:#e58a78}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 ui-sans-serif,system-ui,sans-serif}
+main{max-width:680px;margin:0 auto;padding:64px 16px}
+h1{font:400 44px/1.1 ui-serif,Georgia,serif;margin:0 0 8px}
+.vault{color:var(--muted);font:13px ui-monospace,monospace;overflow-wrap:anywhere;margin:0 0 48px}
+ol{list-style:none;margin:0;padding:0;border-top:1px solid var(--line)}
+li{display:grid;grid-template-columns:24px 1fr;gap:12px;padding:20px 0;border-bottom:1px solid var(--line)}
+.mark{width:10px;height:10px;margin-top:8px;border-radius:50%;border:1.5px solid var(--muted)}
+.done .mark{background:var(--done);border-color:var(--done)}
+h2{font-size:17px;font-weight:600;margin:0}
+.pending h2{color:var(--muted)}
+p.detail{margin:4px 0 0;color:var(--muted);font-size:14px;overflow-wrap:anywhere}
+p.blocked{margin:4px 0 0;color:var(--stop);font-size:14px}
+a{color:inherit}
+</style>
+</head>
+<body>
+<main>
+<h1>GhostProtocol</h1>
+<p class="vault" id="vault">Loading</p>
+<ol id="steps"></ol>
+</main>
+<script>
+const RPC = 'https://rpc.testnet.near.org';
+const esc = (t) => String(t).replace(/[&<>"']/g, (c) => `&#${c.charCodeAt(0)};`);
+const params = new URLSearchParams(location.search);
+
+async function getJson(url) {
+  const res = await fetch(url, { cache: 'no-store' });
+  return res.ok ? res.json() : null;
+}
+
+async function viewState(vault) {
+  const body = {
+    jsonrpc: '2.0', id: 1, method: 'query',
+    params: { request_type: 'call_function', finality: 'final', account_id: vault, method_name: 'get_state', args_base64: 'e30=' },
+  };
+  const res = await fetch(RPC, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body) });
+  const json = await res.json();
+  return JSON.parse(new TextDecoder().decode(new Uint8Array(json.result.result)));
+}
+
+function render(run, s) {
+  const payout = s?.payouts.find((p) => p.signature);
+  const r = run.reasoning;
+  const steps = [
+    ['Wishes sealed', s && `Commitment ${s.sealed_wishes_hash.slice(0, 16)}`],
+    ['False death claim cancelled', run.falseClaimCancelled && 'Owner signed a check-in during the grace period'],
+    ['Death proven', s?.claim && `Witness quorum accepted at ${new Date(s.claim.opened_at * 1000).toISOString()}`],
+    ['Private reasoning verified', r && `${esc(r.decision.reasoning)} (${esc(r.model)}, ${esc(r.signatureKind)} signature)`],
+    ['Attacks blocked', run.attacks?.length && run.attacks.map((a) => `<p class="blocked">${esc(a.label)}: ${esc(a.reason)}</p>`).join('')],
+    ['Contract signed the payout', payout && `${esc(payout.value_wei)} wei to ${esc(payout.to)}`],
+    ['Paid on Sepolia', run.sepoliaTx && `<a href="https://sepolia.etherscan.io/tx/${esc(run.sepoliaTx)}">${esc(run.sepoliaTx)}</a>`],
+  ];
+  document.getElementById('steps').innerHTML = steps.map(([title, detail]) =>
+    `<li class="${detail ? 'done' : 'pending'}"><span class="mark"></span><div><h2>${title}</h2>${
+      detail ? (String(detail).startsWith('<p') ? detail : `<p class="detail">${detail}</p>`) : ''}</div></li>`).join('');
+}
+
+async function refresh() {
+  const run = (await getJson(params.get('run') ?? 'run.json')) ?? {};
+  const vault = params.get('vault') ?? run.vault;
+  document.getElementById('vault').textContent = vault ?? 'No vault deployed';
+  let state = run.sampleState ?? null;
+  if (vault && !state) { try { state = await viewState(vault); } catch { state = null; } }
+  render(run, state);
+}
+refresh();
+setInterval(refresh, 5000);
+</script>
+</body>
+</html>

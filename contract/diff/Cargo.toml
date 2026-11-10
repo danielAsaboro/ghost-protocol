@@ -1,0 +1,22 @@
+[package]
+name = "ghost-diff"
+version = "0.0.0"
+edition = "2021"
+publish = false
+
+[workspace]
+
+[dependencies]
+ghost-protocol = { path = "..", default-features = false }
+near-sdk = { version = "5.30", features = ["unit-testing", "unstable"] }
+
+[dev-dependencies]
+alloy-consensus = "1"
+alloy-primitives = "1"
+alloy-eips = "1"
+near-mpc-contract-interface = { git = "https://github.com/near/mpc", tag = "3.18.0" }
+borsh = "1"
+proptest = "1"
+serde_json = "1"
+blstrs = "0.7"
+hex = "0.4"

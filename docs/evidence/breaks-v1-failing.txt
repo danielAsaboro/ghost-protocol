@@ -1,0 +1,350 @@
+warning: unused `near_sdk::Promise` that must be used
+  --> src/tests.rs:75:5
+   |
+75 |     v.propose_payout(0, U128(amount), "reason".into());
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+help: use `let _ = ...` to ignore the resulting value
+   |
+75 |     let _ = v.propose_payout(0, U128(amount), "reason".into());
+   |     +++++++
+
+warning: unused `near_sdk::Promise` that must be used
+   --> src/tests.rs:168:5
+    |
+168 |     v.propose_payout(2, U128(1), "x".into());
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |
+help: use `let _ = ...` to ignore the resulting value
+    |
+168 |     let _ = v.propose_payout(2, U128(1), "x".into());
+    |     +++++++
+
+warning: unused `near_sdk::Promise` that must be used
+   --> src/tests.rs:218:5
+    |
+218 |     v.propose_payout(1, U128(1), "x".into());
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |
+help: use `let _ = ...` to ignore the resulting value
+    |
+218 |     let _ = v.propose_payout(1, U128(1), "x".into());
+    |     +++++++
+
+warning: unused `near_sdk::Promise` that must be used
+  --> src/breaks_v1.rs:67:9
+   |
+67 |         v.propose_payout(0, U128(1), "x".into());
+   |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+help: use `let _ = ...` to ignore the resulting value
+   |
+67 |         let _ = v.propose_payout(0, U128(1), "x".into());
+   |         +++++++
+
+warning: unused `near_sdk::Promise` that must be used
+  --> src/breaks_v1.rs:76:5
+   |
+76 |     v.propose_payout(0, U128(1_000), "x".into());
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+help: use `let _ = ...` to ignore the resulting value
+   |
+76 |     let _ = v.propose_payout(0, U128(1_000), "x".into());
+   |     +++++++
+
+warning: unused `near_sdk::Promise` that must be used
+  --> src/breaks_v1.rs:85:5
+   |
+85 |     v.propose_payout(0, U128(1_000), "x".into());
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+help: use `let _ = ...` to ignore the resulting value
+   |
+85 |     let _ = v.propose_payout(0, U128(1_000), "x".into());
+   |     +++++++
+
+warning: unused `near_sdk::Promise` that must be used
+  --> src/breaks_v1.rs:94:5
+   |
+94 |     v.propose_payout(0, U128(1_000), "x".into());
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+help: use `let _ = ...` to ignore the resulting value
+   |
+94 |     let _ = v.propose_payout(0, U128(1_000), "x".into());
+   |     +++++++
+
+warning: `ghost-protocol` (lib test) generated 7 warnings
+
+running 9 tests
+test breaks_v1::a_stolen_owner_key_cannot_block_forever ... FAILED
+test breaks_v1::replaying_a_registrar_proof_cannot_rewrite_adult_at ... FAILED
+test breaks_v1::a_dead_agent_has_a_fallback ... FAILED
+test breaks_v1::gas_limit_is_not_fixed_for_contract_wallet_heirs ... FAILED
+test breaks_v1::caps_cannot_exceed_a_declared_budget ... FAILED
+test breaks_v1::a_signature_alone_does_not_mark_an_heir_paid ... FAILED
+test breaks_v1::forged_signature_is_not_stored ... FAILED
+test breaks_v1::agent_cannot_dust_an_heir_with_one_wei ... FAILED
+test breaks_v1::nonce_does_not_advance_on_a_signature_alone ... FAILED
+
+failures:
+
+---- breaks_v1::a_stolen_owner_key_cannot_block_forever stdout ----
+
+thread 'breaks_v1::a_stolen_owner_key_cannot_block_forever' (5050905) panicked at src/breaks_v1.rs:134:5:
+a thief who checks in blocks every claim forever
+
+---- breaks_v1::replaying_a_registrar_proof_cannot_rewrite_adult_at stdout ----
+
+thread 'breaks_v1::replaying_a_registrar_proof_cannot_rewrite_adult_at' (5050911) panicked at src/breaks_v1.rs:106:5:
+adult_at overwritten by anyone
+
+---- breaks_v1::a_dead_agent_has_a_fallback stdout ----
+
+thread 'breaks_v1::a_dead_agent_has_a_fallback' (5050903) panicked at src/breaks_v1.rs:127:5:
+without the agent the funds are locked forever
+
+---- breaks_v1::gas_limit_is_not_fixed_for_contract_wallet_heirs stdout ----
+
+thread 'breaks_v1::gas_limit_is_not_fixed_for_contract_wallet_heirs' (5050909) panicked at src/breaks_v1.rs:113:5:
+every heir is forced to 21000 gas
+
+---- breaks_v1::caps_cannot_exceed_a_declared_budget stdout ----
+
+thread 'breaks_v1::caps_cannot_exceed_a_declared_budget' (5050907) panicked at src/breaks_v1.rs:120:5:
+no budget: caps may exceed the vault balance
+
+---- breaks_v1::a_signature_alone_does_not_mark_an_heir_paid stdout ----
+
+thread 'breaks_v1::a_signature_alone_does_not_mark_an_heir_paid' (5050904) panicked at src/breaks_v1.rs:78:5:
+marked paid with no transaction on any chain
+
+---- breaks_v1::forged_signature_is_not_stored stdout ----
+
+thread 'breaks_v1::forged_signature_is_not_stored' (5050908) panicked at src/breaks_v1.rs:96:5:
+unverifiable signature stored
+
+---- breaks_v1::agent_cannot_dust_an_heir_with_one_wei stdout ----
+
+thread 'breaks_v1::agent_cannot_dust_an_heir_with_one_wei' (5050906) panicked at src/breaks_v1.rs:69:5:
+1 wei accepted: heir would be permanently paid
+
+---- breaks_v1::nonce_does_not_advance_on_a_signature_alone stdout ----
+
+thread 'breaks_v1::nonce_does_not_advance_on_a_signature_alone' (5050910) panicked at src/breaks_v1.rs:87:5:
+assertion `left == right` failed: nonce advanced with nothing landed
+  left: 1
+ right: 0
+
+
+failures:
+    breaks_v1::a_dead_agent_has_a_fallback
+    breaks_v1::a_signature_alone_does_not_mark_an_heir_paid
+    breaks_v1::a_stolen_owner_key_cannot_block_forever
+    breaks_v1::agent_cannot_dust_an_heir_with_one_wei
+    breaks_v1::caps_cannot_exceed_a_declared_budget
+    breaks_v1::forged_signature_is_not_stored
+    breaks_v1::gas_limit_is_not_fixed_for_contract_wallet_heirs
+    breaks_v1::nonce_does_not_advance_on_a_signature_alone
+    breaks_v1::replaying_a_registrar_proof_cannot_rewrite_adult_at
+
+test result: FAILED. 0 passed; 9 failed; 0 ignored; 0 measured; 18 filtered out; finished in 0.10s
+
+error: test failed, to rerun pass `--lib`
+✖ ghost.mjs has a lock step that removes the full-access key (1.303791ms)
+ℹ tests 1
+ℹ suites 0
+ℹ pass 0
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 50.725542
+
+✖ failing tests:
+
+test at test/lock.test.js:5:1
+✖ ghost.mjs has a lock step that removes the full-access key (1.303791ms)
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /delete-keys?/. Input:
+  
+  '#!/usr/bin/env node\n' +
+    "import { execFileSync, spawnSync } from 'node:child_process';\n" +
+    "import crypto from 'node:crypto';\n" +
+    "import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';\n" +
+    "import { createPublicClient, http, parseEther, parseGwei } from 'viem';\n" +
+    "import { sepolia } from 'viem/chains';\n" +
+    "import { openWishes, reason, sealKey, sealWishes, sha256 } from '../agent/reason.mjs';\n" +
+    "import { assembleSignedTx, deriveVaultAddress, SIGNER, viewCall } from '../relay/sepolia.mjs';\n" +
+    '\n' +
+    "const STATE = new URL('../.ghost/state.json', import.meta.url);\n" +
+    "const RUN = new URL('../web/run.json', import.meta.url);\n" +
+    "const WASM = new URL('../contract/target/near/ghost_protocol.wasm', import.meta.url).pathname;\n" +
+    "const SEPOLIA_RPC = process.env.SEPOLIA_RPC ?? 'https://ethereum-sepolia-rpc.publicnode.com';\n" +
+    '\n' +
+    'const load = () => JSON.parse(readFileSync(STATE));\n' +
+    'const save = (s) => writeFileSync(STATE, JSON.stringify(s, null, 2), { mode: 0o600 });\n' +
+    'const run = (o) => (existsSync(RUN) ? JSON.parse(readFileSync(RUN)) : o);\n' +
+    'const record = (patch) => {\n' +
+    '  const s = load();\n' +
+    '  writeFileSync(RUN, JSON.stringify({ vault: s.vault, ...run({}), ...patch }, null, 2));\n' +
+    '};\n' +
+    '\n' +
+    'function newKey() {\n' +
+    "  const { publicKey, privateKey } = crypto.generateKeyPairSync('ed25519');\n" +
+    '  return {\n' +
+    "    pub: publicKey.export({ type: 'spki', format: 'der' }).subarray(-32).toString('base64'),\n" +
+    "    priv: privateKey.export({ type: 'pkcs8', format: 'pem' }),\n" +
+    '  };\n' +
+    '}\n' +
+    "const signText = (key, text) => crypto.sign(null, Buffer.from(text), key.priv).toString('base64');\n" +
+    '\n' +
+    "function nearArgs(contract, method, args, signer, gas = '300 Tgas') {\n" +
+    "  return ['contract', 'call-function', 'as-transaction', contract, method, 'json-args', JSON.stringify(args),\n" +
+    "    'prepaid-gas', gas, 'attached-deposit', '0 NEAR', 'sign-as', signer, 'network-config', 'testnet',\n" +
+    "    'sign-with-keychain', 'send'];\n" +
+    '}\n' +
+    'const call = (method, args, signer, gas) => {\n' +
+    '  const { vault } = load();\n' +
+    "  execFileSync('near', nearArgs(vault, method, args, signer, gas), { stdio: 'inherit' });\n" +
+    '};\n' +
+    'function expectFailure(label, method, args, signer) {\n' +
+    '  const { vault } = load();\n' +
+    "  const r = spawnSync('near', nearArgs(vault, method, args, signer), { encoding: 'utf8' });\n" +
+    '  const output = `${r.stdout}\\n${r.stderr}`;\n' +
+    '  const blocked = r.status !== 0 || /Failure|panicked/i.test(output);\n' +
+    `  const reason_ = output.match(/Smart contract panicked: ([^\\n"]+)/)?.[1] ?? 'failed';\n` +
+    "  console.log(`${blocked ? 'BLOCKED' : 'NOT BLOCKED'}  ${label}: ${reason_}`);\n" +
+    '  return { label, blocked, reason: reason_ };\n' +
+    '}\n' +
+    '\n' +
+    'const commands = {\n' +
+    '  /** Generates local demo keys. Requires an existing funded testnet account. */\n' +
+    '  init([vault, ...heirAddresses]) {\n' +
+    "    if (!vault || !heirAddresses.length) throw new Error('usage: init <vault.testnet> <0xHeir> [0xHeir...]');\n" +
+    "    mkdirSync(new URL('../.ghost/', import.meta.url), { recursive: true });\n" +
+    "    const key = crypto.randomBytes(32).toString('hex');\n" +
+    '    const wishes = process.env.GHOST_WISHES ??\n' +
+    "      'Give Ada her gift once she is an adult. If anyone is pressuring her for the money, wait.';\n" +
+    '    save({\n' +
+    '      vault, owner: `owner.${vault}`, agent: `agent.${vault}`, court: `court.${vault}`,\n' +
+    '      witnesses: [newKey(), newKey(), newKey()], registrar: newKey(),\n' +
+    '      sealKey: key, sealed: sealWishes(sealKey(key), wishes), heirs: heirAddresses,\n' +
+    '    });\n' +
+    "    console.log('Keys written to .ghost/state.json');\n" +
+    '  },\n' +
+    '\n' +
+    '  async address() {\n' +
+    '    console.log(await deriveVaultAddress(load().vault));\n' +
+    '  },\n' +
+    '\n' +
+    '  /** Prints account commands for the human to run. Nothing here creates an account. */\n' +
+    '  accounts() {\n' +
+    '    const s = load();\n' +
+    '    for (const role of [s.owner, s.agent, s.court]) {\n' +
+    "      console.log(`near account create-account fund-myself ${role} '1 NEAR' autogenerate-new-keypair save-to-keychain sign-as ${s.vault} network-config testnet sign-with-keychain send`);\n" +
+    '    }\n' +
+    '  },\n' +
+    '\n' +
+    '  deploy() {\n' +
+    '    const s = load();\n' +
+    '    const config = {\n' +
+    '      owner: s.owner, agent: s.agent, legal_authority: s.court, signer_contract: SIGNER,\n' +
+    '      witnesses: s.witnesses.map((w) => w.pub), witness_threshold: 2, registrar: s.registrar.pub,\n' +
+    '      inactivity_secs: Number(process.env.GHOST_INACTIVITY ?? 60), grace_secs: Number(process.env.GHOST_GRACE ?? 60),\n' +
+    "      chain_id: 11155111, max_fee_per_gas: parseGwei('50').toString(), max_priority_fee_per_gas: parseGwei('2').toString(),\n" +
+    '      sealed_wishes_hash: sha256(JSON.stringify(s.sealed)),\n' +
+    "      heirs: s.heirs.map((a) => [a, parseEther('0.001').toString()]),\n" +
+    '    };\n' +
+    "    execFileSync('near', ['contract', 'deploy', s.vault, 'use-file', WASM, 'with-init-call', 'new', 'json-args',\n" +
+    "      JSON.stringify({ config }), 'prepaid-gas', '100 Tgas', 'attached-deposit', '0 NEAR', 'network-config', 'testnet',\n" +
+    "      'sign-with-keychain', 'send'], { stdio: 'inherit' });\n" +
+    '    record({ deployed: true });\n' +
+    '  },\n' +
+    '\n' +
+    '  checkin() {\n' +
+    "    call('check_in', {}, load().owner);\n" +
+    '    record({ falseClaimCancelled: run({}).claimed === true });\n' +
+    '  },\n' +
+    '\n' +
+    '  claim() {\n' +
+    '    const s = load();\n' +
+    '    const deathAt = Math.floor(Date.now() / 1000) - 5;\n' +
+    '    const message = `ghost:death:${s.vault}:${deathAt}`;\n' +
+    '    const proofs = [0, 1].map((i) => ({ witness_index: i, signature: signText(s.witnesses[i], message) }));\n' +
+    "    call('open_claim', { death_at: deathAt, proofs }, s.owner);\n" +
+    '    const adultAt = Math.floor(Date.now() / 1000) - 86400;\n' +
+    "    call('prove_adult', { adult_at: adultAt, signature: signText(s.registrar, `ghost:adult:${s.vault}:${adultAt}`) }, s.owner);\n" +
+    '    record({ claimed: true });\n' +
+    '  },\n' +
+    '\n' +
+    '  async reason([report]) {\n' +
+    '    const apiKey = process.env.NEARAI_API_KEY;\n' +
+    "    if (!apiKey) throw new Error('NEARAI_API_KEY is required');\n" +
+    `    if (!report) throw new Error('usage: reason "<situation report>"');\n` +
+    '    const s = load();\n' +
+    "    const chain = await viewCall(s.vault, 'get_state');\n" +
+    '    const result = await reason({ apiKey, wishes: openWishes(sealKey(s.sealKey), s.sealed), heirs: chain.heirs, report });\n' +
+    '    console.log(JSON.stringify(result, null, 2));\n' +
+    '    record({ reasoning: { report, ...result } });\n' +
+    '  },\n' +
+    '\n' +
+    '  attack() {\n' +
+    '    const s = load();\n' +
+    '    const results = [\n' +
+    "      expectFailure('Over-cap payout', 'propose_payout', { heir_index: 0, value_wei: parseEther('1').toString(), reasoning_hash: 'attack' }, s.agent),\n" +
+    "      expectFailure('Recipient not on the heir list', 'propose_payout', { heir_index: 99, value_wei: '1', reasoning_hash: 'attack' }, s.agent),\n" +
+    "      expectFailure('Payout from a non-agent account', 'propose_payout', { heir_index: 0, value_wei: '1', reasoning_hash: 'attack' }, s.owner),\n" +
+    "      expectFailure('Freeze from a non-court account', 'freeze', {}, s.agent),\n" +
+    '    ];\n' +
+    '    record({ attacks: results });\n' +
+    '    if (results.some((r) => !r.blocked)) process.exitCode = 1;\n' +
+    '  },\n' +
+    '\n' +
+    '  pay() {\n' +
+    '    const s = load();\n' +
+    '    const { reasoning } = run({});\n' +
+    "    if (reasoning?.decision?.action !== 'pay') throw new Error('latest verified decision is not a payment');\n" +
+    "    call('propose_payout', {\n" +
+    '      heir_index: reasoning.decision.heir_index, value_wei: String(reasoning.decision.value_wei),\n' +
+    '      reasoning_hash: reasoning.reasoningHash,\n' +
+    '    }, s.agent);\n' +
+    '  },\n' +
+    '\n' +
+    '  async broadcast() {\n' +
+    '    const s = load();\n' +
+    "    const chain = await viewCall(s.vault, 'get_state');\n" +
+    '    const payout = chain.payouts.filter((p) => p.signature).at(-1);\n' +
+    "    if (!payout) throw new Error('no signed payout yet');\n" +
+    '    const signer = await deriveVaultAddress(s.vault);\n' +
+    '    const serializedTransaction = await assembleSignedTx(payout, signer);\n' +
+    '    const client = createPublicClient({ chain: sepolia, transport: http(SEPOLIA_RPC) });\n' +
+    '    const hash = await client.sendRawTransaction({ serializedTransaction });\n' +
+    '    console.log(`https://sepolia.etherscan.io/tx/${hash}`);\n' +
+    '    record({ sepoliaTx: hash, sepoliaFrom: signer });\n' +
+    '  },\n' +
+    '\n' +
+    '  async status() {\n' +
+    "    console.log(JSON.stringify(await viewCall(load().vault, 'get_state'), null, 2));\n" +
+    '  },\n' +
+    '};\n' +
+    '\n' +
+    'const [name, ...args] = process.argv.slice(2);\n' +
+    'if (!commands[name]) {\n' +
+    "  console.error(`commands: ${Object.keys(commands).join(', ')}`);\n" +
+    '  process.exit(1);\n' +
+    '}\n' +
+    'await commands[name](args);\n'
+  
+      at TestContext.<anonymous> (file:///Users/MAC/development/afterlife-clause/test/lock.test.js:7:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1201:25)
+      at Test.start (node:internal/test_runner/test:1096:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:385:17) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '#!/usr/bin/env node\nimport { execFileSync, spawnSync } from \'node:child_process\';\nimport crypto from \'node:crypto\';\nimport { existsSync, mkdirSync, readFileSync, writeFileSync } from \'node:fs\';\nimport { createPublicClient, http, parseEther, parseGwei } from \'viem\';\nimport { sepolia } from \'viem/chains\';\nimport { openWishes, reason, sealKey, sealWishes, sha256 } from \'../agent/reason.mjs\';\nimport { assembleSignedTx, deriveVaultAddress, SIGNER, viewCall } from \'../relay/sepolia.mjs\';\n\nconst STATE = new URL(\'../.ghost/state.json\', import.meta.url);\nconst RUN = new URL(\'../web/run.json\', import.meta.url);\nconst WASM = new URL(\'../contract/target/near/ghost_protocol.wasm\', import.meta.url).pathname;\nconst SEPOLIA_RPC = process.env.SEPOLIA_RPC ?? \'https://ethereum-sepolia-rpc.publicnode.com\';\n\nconst load = () => JSON.parse(readFileSync(STATE));\nconst save = (s) => writeFileSync(STATE, JSON.stringify(s, null, 2), { mode: 0o600 });\nconst run = (o) => (existsSync(RUN) ? JSON.parse(readFileSync(RUN)) : o);\nconst record = (patch) => {\n  const s = load();\n  writeFileSync(RUN, JSON.stringify({ vault: s.vault, ...run({}), ...patch }, null, 2));\n};\n\nfunction newKey() {\n  const { publicKey, privateKey } = crypto.generateKeyPairSync(\'ed25519\');\n  return {\n    pub: publicKey.export({ type: \'spki\', format: \'der\' }).subarray(-32).toString(\'base64\'),\n    priv: privateKey.export({ type: \'pkcs8\', format: \'pem\' }),\n  };\n}\nconst signText = (key, text) => crypto.sign(null, Buffer.from(text), key.priv).toString(\'base64\');\n\nfunction nearArgs(contract, method, args, signer, gas = \'300 Tgas\') {\n  return [\'contract\', \'call-function\', \'as-transaction\', contract, method, \'json-args\', JSON.stringify(args),\n    \'prepaid-gas\', gas, \'attached-deposit\', \'0 NEAR\', \'sign-as\', signer, \'network-config\', \'testnet\',\n    \'sign-with-keychain\', \'send\'];\n}\nconst call = (method, args, signer, gas) => {\n  const { vault } = load();\n  execFileSync(\'near\', nearArgs(vault, method, args, signer, gas), { stdio: \'inherit\' });\n};\nfunction expectFailure(label, method, args, signer) {\n  const { vault } = load();\n  const r = spawnSync(\'near\', nearArgs(vault, method, args, signer), { encoding: \'utf8\' });\n  const output = `${r.stdout}\\n${r.stderr}`;\n  const blocked = r.status !== 0 || /Failure|panicked/i.test(output);\n  const reason_ = output.match(/Smart contract panicked: ([^\\n"]+)/)?.[1] ?? \'failed\';\n  console.log(`${blocked ? \'BLOCKED\' : \'NOT BLOCKED\'}  ${label}: ${reason_}`);\n  return { label, blocked, reason: reason_ };\n}\n\nconst commands = {\n  /** Generates local demo keys. Requires an existing funded testnet account. */\n  init([vault, ...heirAddresses]) {\n    if (!vault || !heirAddresses.length) throw new Error(\'usage: init <vault.testnet> <0xHeir> [0xHeir...]\');\n    mkdirSync(new URL(\'../.ghost/\', import.meta.url), { recursive: true });\n    const key = crypto.randomBytes(32).toString(\'hex\');\n    const wishes = process.env.GHOST_WISHES ??\n      \'Give Ada her gift once she is an adult. If anyone is pressuring her for the money, wait.\';\n    save({\n      vault, owner: `owner.${vault}`, agent: `agent.${vault}`, court: `court.${vault}`,\n      witnesses: [newKey(), newKey(), newKey()], registrar: newKey(),\n      sealKey: key, sealed: sealWishes(sealKey(key), wishes), heirs: heirAddresses,\n    });\n    console.log(\'Keys written to .ghost/state.json\');\n  },\n\n  async address() {\n    console.log(await deriveVaultAddress(load().vault));\n  },\n\n  /** Prints account commands for the human to run. Nothing here creates an account. */\n  accounts() {\n    const s = load();\n    for (const role of [s.owner, s.agent, s.court]) {\n      console.log(`near account create-account fund-myself ${role} \'1 NEAR\' autogenerate-new-keypair save-to-keychain sign-as ${s.vault} network-config testnet sign-with-keychain send`);\n    }\n  },\n\n  deploy() {\n    const s = load();\n    const config = {\n      owner: s.owner, agent: s.agent, legal_authority: s.court, signer_contract: SIGNER,\n      witnesses: s.witnesses.map((w) => w.pub), witness_threshold: 2, registrar: s.registrar.pub,\n      inactivity_secs: Number(process.env.GHOST_INACTIVITY ?? 60), grace_secs: Number(process.env.GHOST_GRACE ?? 60),\n      chain_id: 11155111, max_fee_per_gas: parseGwei(\'50\').toString(), max_priority_fee_per_gas: parseGwei(\'2\').toString(),\n      sealed_wishes_hash: sha256(JSON.stringify(s.sealed)),\n      heirs: s.heirs.map((a) => [a, parseEther(\'0.001\').toString()]),\n    };\n    execFileSync(\'near\', [\'contract\', \'deploy\', s.vault, \'use-file\', WASM, \'with-init-call\', \'new\', \'json-args\',\n      JSON.stringify({ config }), \'prepaid-gas\', \'100 Tgas\', \'attached-deposit\', \'0 NEAR\', \'network-config\', \'testnet\',\n      \'sign-with-keychain\', \'send\'], { stdio: \'inherit\' });\n    record({ deployed: true });\n  },\n\n  checkin() {\n    call(\'check_in\', {}, load().owner);\n    record({ falseClaimCancelled: run({}).claimed === true });\n  },\n\n  claim() {\n    const s = load();\n    const deathAt = Math.floor(Date.now() / 1000) - 5;\n    const message = `ghost:death:${s.vault}:${deathAt}`;\n    const proofs = [0, 1].map((i) => ({ witness_index: i, signature: signText(s.witnesses[i], message) }));\n    call(\'open_claim\', { death_at: deathAt, proofs }, s.owner);\n    const adultAt = Math.floor(Date.now() / 1000) - 86400;\n    call(\'prove_adult\', { adult_at: adultAt, signature: signText(s.registrar, `ghost:adult:${s.vault}:${adultAt}`) }, s.owner);\n    record({ claimed: true });\n  },\n\n  async reason([report]) {\n    const apiKey = process.env.NEARAI_API_KEY;\n    if (!apiKey) throw new Error(\'NEARAI_API_KEY is required\');\n    if (!report) throw new Error(\'usage: reason "<situation report>"\');\n    const s = load();\n    const chain = await viewCall(s.vault, \'get_state\');\n    const result = await reason({ apiKey, wishes: openWishes(sealKey(s.sealKey), s.sealed), heirs: chain.heirs, report });\n    console.log(JSON.stringify(result, null, 2));\n    record({ reasoning: { report, ...result } });\n  },\n\n  attack() {\n    const s = load();\n    const results = [\n      expectFailure(\'Over-cap payout\', \'propose_payout\', { heir_index: 0, value_wei: parseEther(\'1\').toString(), reasoning_hash: \'attack\' }, s.agent),\n      expectFailure(\'Recipient not on the heir list\', \'propose_payout\', { heir_index: 99, value_wei: \'1\', reasoning_hash: \'attack\' }, s.agent),\n      expectFailure(\'Payout from a non-agent account\', \'propose_payout\', { heir_index: 0, value_wei: \'1\', reasoning_hash: \'attack\' }, s.owner),\n      expectFailure(\'Freeze from a non-court account\', \'freeze\', {}, s.agent),\n    ];\n    record({ attacks: results });\n    if (results.some((r) => !r.blocked)) process.exitCode = 1;\n  },\n\n  pay() {\n    const s = load();\n    const { reasoning } = run({});\n    if (reasoning?.decision?.action !== \'pay\') throw new Error(\'latest verified decision is not a payment\');\n    call(\'propose_payout\', {\n      heir_index: reasoning.decision.heir_index, value_wei: String(reasoning.decision.value_wei),\n      reasoning_hash: reasoning.reasoningHash,\n    }, s.agent);\n  },\n\n  async broadcast() {\n    const s = load();\n    const chain = await viewCall(s.vault, \'get_state\');\n    const payout = chain.payouts.filter((p) => p.signature).at(-1);\n    if (!payout) throw new Error(\'no signed payout yet\');\n    const signer = await deriveVaultAddress(s.vault);\n    const serializedTransaction = await assembleSignedTx(payout, signer);\n    const client = createPublicClient({ chain: sepolia, transport: http(SEPOLIA_RPC) });\n    const hash = await client.sendRawTransaction({ serializedTransaction });\n    console.log(`https://sepolia.etherscan.io/tx/${hash}`);\n    record({ sepoliaTx: hash, sepoliaFrom: signer });\n  },\n\n  async status() {\n    console.log(JSON.stringify(await viewCall(load().vault, \'get_state\'), null, 2));\n  },\n};\n\nconst [name, ...args] = process.argv.slice(2);\nif (!commands[name]) {\n  console.error(`commands: ${Object.keys(commands).join(\', \')}`);\n  process.exit(1);\n}\nawait commands[name](args);\n',
+    expected: /delete-keys?/,
+    operator: 'match',
+    diff: 'simple'
+  }

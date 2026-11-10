@@ -1,0 +1,22 @@
+## early claim refused (previous run): owner is not inactive
+## claim
+│    Transaction ID: 6TjeYW5JvMYY9DR2B4vvwBqVn15JaMk1QPR5K78KZFCc
+The "open_claim" call to <ghostprotocol-vault.testnet> on behalf of <owner.ghostprotocol-vault.testnet> succeeded.
+│    Transaction ID: CK7t5S887BBgTECRLLng9eefC2FaA3KRVCD7wuqdR1cZ
+The "prove_adult" call to <ghostprotocol-vault.testnet> on behalf of <owner.ghostprotocol-vault.testnet> succeeded.
+claim open epoch 0 heir adult_at 1794194761
+## owner check-in cancels
+│    Transaction ID: Dm1JPDN2js5FVp6phEZHzcczJDbyKHmuyCQUpAUU5VVw
+The "check_in" call to <ghostprotocol-vault.testnet> on behalf of <owner.ghostprotocol-vault.testnet> succeeded.
+no claim epoch 1 heir adult_at 1794194761
+## second claim
+│    Transaction ID: 8bCHdgihoFGLKEFgmMN2naciNbZFfrerSmB9QzVKYfdH
+The "open_claim" call to <ghostprotocol-vault.testnet> on behalf of <owner.ghostprotocol-vault.testnet> succeeded.
+      ExecutionError("Smart contract panicked: heir age already proven")
+claim open epoch 1 heir adult_at 1794194761
+## attacks after grace
+BLOCKED  Over-cap payout: amount exceeds heir cap
+BLOCKED  Payout below floor: amount below heir floor
+BLOCKED  Recipient not on the heir list: recipient is not an heir
+BLOCKED  Payout from a non-agent account: only the agent can propose
+BLOCKED  Freeze from a non-court account: only the legal authority can freeze
