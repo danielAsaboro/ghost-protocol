@@ -1,17 +1,17 @@
 # Verifier design
 
-Feel: probate register, quiet, exact.
+Direction: dark vault console, after the Dribbble shot "DeFi Investment Dashboard — Crypto Vaults & Web3 Platform UI" by Alamin Hossen. Layout and palette are adapted; no assets were copied.
 
-| Token | Light | Dark | Use |
-|---|---|---|---|
-| `--bg` | #f4f5f2 | #0f1412 | page |
-| `--sheet` | #ffffff | #161d1a | ledgers, panels |
-| `--ink` | #18211d | #e3eae6 | text |
-| `--accent` | #24584a | #86c4b0 | links, current lifecycle step, Recheck. Never a status |
-| `--pass` / `--fail` / `--wait` | green / red / amber | lighter | verdicts only |
+| Token | Value | Use |
+|---|---|---|
+| `--bg` / `--panel` / `--panel-2` | #07090e / #0e121a / #131824 | page, panels, icon wells |
+| `--line` / `--line-2` | #1d2331 / #262e3f | borders |
+| `--violet` | #7557ff | primary actions, active tab, current lifecycle step |
+| `--magenta` | #b4479a | glow only |
+| `--mint` / `--red` / `--amber` | #3fe0a5 / #ff6b6b / #f2c14e | PASS / FAIL / WAIT only |
 
-Type: IBM Plex Serif for the one headline, Plex Sans for text, Plex Mono only for hashes, addresses and verdicts.
+Type: Inter for everything, JetBrains Mono only for hashes and addresses.
 
-Layout: one 920px column. Lifecycle strip, vault facts, proof ledger, on-chain record, terminal recheck. Rows are ruled, not carded.
+Layout: icon rail; hero with the vault's actors in orbit; 2×2 stat tiles; lifecycle cards; tabbed evidence (proofs, on-chain record, heirs and payouts); recheck panel with copyable commands.
 
-Rules: every number on the page is recomputed from RPC; nothing is hard-coded except the published build hash and commit. A check that cannot be confirmed yet is WAIT, never PASS.
+Rule: every number is recomputed from RPC. A check that cannot be confirmed yet is WAIT, never PASS.

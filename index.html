@@ -4,231 +4,382 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>GhostProtocol</title>
-<meta name="description" content="A NEAR vault that pays heirs after a witnessed death claim. Every claim on this page is recomputed from public RPC in your browser.">
+<meta name="description" content="A NEAR vault that pays heirs after a witnessed death claim. Every number on this page is recomputed from public RPC in your browser.">
 <meta name="ghost:wasm" content="DBRswoeb9syKVRZJrCpjbw62E3Z6ZL48MAoLN8KfU4E8">
 <meta name="ghost:commit" content="ba25e39">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Serif:wght@500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
 <script type="importmap">{ "imports": { "viem": "https://cdn.jsdelivr.net/npm/viem@2.21.0/+esm" } }</script>
 <style>
-/* A probate ledger: one column, entries ruled like a register, hashes in mono, a single ink accent. */
+/* Dark vault console: icon rail, glowing hero with the vault's actors in orbit, stat tiles, tabbed ledger, card rows. Dark only by design. */
 :root {
-  --bg: #f4f5f2; --sheet: #ffffff; --ink: #18211d; --muted: #5b6862; --rule: #dde2de; --soft: #eef1ee;
-  --accent: #24584a; --pass: #1f7a4d; --fail: #b42318; --wait: #8a6512;
-  --serif: "IBM Plex Serif", Georgia, serif; --sans: "IBM Plex Sans", system-ui, sans-serif; --mono: "IBM Plex Mono", ui-monospace, monospace;
+  color-scheme: dark;
+  --bg: #07090e; --panel: #0e121a; --panel-2: #131824; --line: #1d2331; --line-2: #262e3f;
+  --text: #eef0f6; --muted: #8a92a6; --dim: #5d6579;
+  --violet: #7557ff; --violet-2: #9b86ff; --magenta: #b4479a; --mint: #3fe0a5; --red: #ff6b6b; --amber: #f2c14e;
+  --sans: "Inter", system-ui, sans-serif; --mono: "JetBrains Mono", ui-monospace, monospace;
+  --r: 16px;
 }
-@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
-  --bg: #0f1412; --sheet: #161d1a; --ink: #e3eae6; --muted: #92a199; --rule: #27322d; --soft: #1c2521;
-  --accent: #86c4b0; --pass: #5fd09a; --fail: #ff8b7e; --wait: #e5c25c; color-scheme: dark } }
-:root[data-theme="dark"] {
-  --bg: #0f1412; --sheet: #161d1a; --ink: #e3eae6; --muted: #92a199; --rule: #27322d; --soft: #1c2521;
-  --accent: #86c4b0; --pass: #5fd09a; --fail: #ff8b7e; --wait: #e5c25c; color-scheme: dark }
 * { box-sizing: border-box }
 html { -webkit-text-size-adjust: 100% }
-body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.55 var(--sans) }
-a { color: var(--accent); text-underline-offset: 2px }
-a:focus-visible, button:focus-visible, input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px }
-main { max-width: 920px; margin: 0 auto; padding-block: 48px 72px;
-  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
-  display: grid; gap: 40px }
-.mono { font-family: var(--mono); font-size: 12.5px; overflow-wrap: anywhere }
-.muted { color: var(--muted) }
+body { margin: 0; background: var(--bg); color: var(--text); font: 14px/1.5 var(--sans); min-height: 100vh;
+  background-image: radial-gradient(60% 50% at 100% 100%, rgba(117, 87, 255, .16), transparent 70%), radial-gradient(40% 40% at 0% 0%, rgba(117, 87, 255, .07), transparent 70%); background-attachment: fixed }
+a { color: var(--violet-2); text-decoration: none }
+a:hover { text-decoration: underline; text-underline-offset: 2px }
+:focus-visible { outline: 2px solid var(--violet-2); outline-offset: 2px }
+.mono { font-family: var(--mono); font-size: 12px; overflow-wrap: anywhere }
 
-header { display: grid; gap: 18px }
-.brand { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap }
-.brand b { font: 600 14px var(--sans); letter-spacing: 0.08em; text-transform: uppercase }
-h1 { margin: 0; font: 500 clamp(26px, 4.4vw, 38px)/1.18 var(--serif); letter-spacing: -0.01em; text-wrap: balance; max-width: 30ch }
-.verdict { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; font-size: 16px }
-.verdict strong { font: 600 32px var(--sans); font-variant-numeric: tabular-nums }
-form { display: flex; gap: 8px; flex: 0 1 380px; min-width: 0 }
-input { flex: 1 1 auto; min-width: 0; font: 13px var(--mono); padding: 8px 10px; border: 1px solid var(--rule); border-radius: 6px; background: var(--sheet); color: var(--ink) }
-button { font: 500 14px var(--sans); padding: 8px 16px; border: 0; border-radius: 6px; background: var(--accent); color: var(--bg); cursor: pointer }
+.shell { display: grid; grid-template-columns: 76px minmax(0, 1fr); max-width: 1320px; margin: 0 auto; min-height: 100vh;
+  padding-left: env(safe-area-inset-left, 0px); padding-right: env(safe-area-inset-right, 0px) }
+.rail { position: sticky; top: 0; height: 100vh; display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 22px 0; border-right: 1px solid var(--line) }
+.logo { width: 38px; height: 38px; border-radius: 12px; display: grid; place-items: center; background: linear-gradient(140deg, var(--violet), var(--magenta)); margin-bottom: 14px }
+.rail a { width: 40px; height: 40px; border-radius: 12px; display: grid; place-items: center; background: var(--panel-2); border: 1px solid var(--line); color: var(--muted) }
+.rail a:hover { color: var(--text); text-decoration: none }
+.rail a[aria-current="true"] { background: var(--violet); border-color: var(--violet); color: #fff }
+.rail svg { width: 18px; height: 18px }
+.rail .net { margin-top: auto; font: 500 10px var(--mono); color: var(--dim); writing-mode: vertical-rl; transform: rotate(180deg); letter-spacing: .08em }
 
-.life { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); border: 1px solid var(--rule); border-radius: 8px; background: var(--sheet); overflow: hidden }
-.life div { padding: 12px 12px 14px; border-left: 1px solid var(--rule); display: grid; gap: 2px; min-width: 0 }
-.life div:first-child { border-left: 0 }
-.life span { font: 500 11px var(--mono); color: var(--muted); letter-spacing: 0.04em }
-.life b { font-weight: 500; font-size: 14px }
-.life small { color: var(--muted); font-size: 12px; overflow-wrap: anywhere }
-.life .done { background: var(--soft) }
-.life .now { box-shadow: inset 0 3px 0 var(--accent) }
-.life .now b { color: var(--accent) }
-@media (max-width: 600px) { form { flex-basis: 100% } }
-@media (max-width: 720px) { .life { grid-template-columns: repeat(2, minmax(0, 1fr)) } .life div:nth-child(odd) { border-left: 0 } .life div:nth-child(n+3) { border-top: 1px solid var(--rule) } }
+main { padding: 22px 24px 48px; display: grid; gap: 16px; min-width: 0 }
+.panel { background: var(--panel); border: 1px solid var(--line); border-radius: var(--r); min-width: 0 }
+.top { display: grid; grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr); gap: 16px }
 
-section { display: grid; gap: 14px }
-h2 { margin: 0; font: 600 13px var(--sans); letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted) }
-.facts { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 0; border: 1px solid var(--rule); border-radius: 8px; background: var(--sheet) }
-.facts dl { margin: 0; padding: 14px 16px; display: grid; gap: 10px; min-width: 0 }
-.facts dl + dl { border-left: 1px solid var(--rule) }
-@media (max-width: 600px) { .facts dl + dl { border-left: 0; border-top: 1px solid var(--rule) } }
-.facts div { display: grid; gap: 1px; min-width: 0 }
-dt { font-size: 12px; color: var(--muted) }
-dd { margin: 0; min-width: 0 }
+.hero { position: relative; overflow: hidden; padding: 30px 32px; display: grid; grid-template-columns: minmax(0, 1fr) 260px; gap: 16px; align-items: center;
+  background: radial-gradient(80% 90% at 85% 120%, rgba(117, 87, 255, .55), transparent 60%), radial-gradient(50% 70% at 100% 100%, rgba(180, 71, 154, .45), transparent 70%), var(--panel) }
+.hero h1 { margin: 0 0 10px; font: 500 30px/1.15 var(--sans); letter-spacing: -.02em; text-wrap: balance }
+.hero p { margin: 0 0 22px; color: var(--muted); max-width: 46ch }
+.cta { display: flex; gap: 10px; flex-wrap: wrap; align-items: center }
+.btn { font: 500 13.5px var(--sans); padding: 10px 18px; border-radius: 9px; border: 1px solid var(--violet); background: var(--violet); color: #fff; cursor: pointer; text-decoration: none }
+.btn:hover { background: #8469ff; text-decoration: none }
+.btn.ghost { background: transparent; border-color: var(--line-2); color: var(--text) }
+.btn.ghost:hover { border-color: var(--muted); background: transparent }
 
-.ledger { list-style: none; margin: 0; padding: 0; border: 1px solid var(--rule); border-radius: 8px; background: var(--sheet) }
-.ledger li { display: grid; grid-template-columns: 72px minmax(0, 1fr) auto; gap: 2px 14px; padding: 12px 16px; border-top: 1px solid var(--rule); align-items: baseline }
-.ledger li:first-child { border-top: 0 }
-.ledger .group { grid-column: 1 / -1; padding: 8px 16px; background: var(--soft); font: 600 11px var(--mono); letter-spacing: 0.06em; color: var(--muted); display: block }
-.v { font: 600 11.5px var(--mono); letter-spacing: 0.06em }
-.v.PASS { color: var(--pass) } .v.FAIL { color: var(--fail) } .v.WAIT { color: var(--wait) }
-.claim { min-width: 0 }
-.detail { grid-column: 2 / -1; color: var(--muted) }
-.when { font: 12px var(--mono); color: var(--muted); white-space: nowrap }
-.tag { font: 500 11px var(--mono); padding: 1px 6px; border-radius: 4px; border: 1px solid var(--rule); color: var(--muted); margin-right: 6px }
-.tag.fail { color: var(--fail); border-color: color-mix(in srgb, var(--fail) 40%, transparent) }
-@media (max-width: 560px) { .ledger li { grid-template-columns: 56px minmax(0, 1fr) } .when { grid-column: 2 } }
+.orbit { position: relative; width: 260px; height: 250px; justify-self: end }
+.orbit .ring { position: absolute; inset: 0; border-radius: 50%; border: 1px dashed rgba(255, 255, 255, .09) }
+.orbit .ring { inset: 15px 20px }
+.orbit .ring.in { inset: 58px 63px }
+.orbit .core { position: absolute; left: 50%; top: 50%; width: 46px; height: 46px; margin: -23px 0 0 -23px; border-radius: 14px; display: grid; place-items: center;
+  background: linear-gradient(140deg, var(--violet), var(--magenta)); box-shadow: 0 0 30px rgba(117, 87, 255, .7) }
+.actor { position: absolute; transform: translate(-50%, -50%); display: grid; justify-items: center; gap: 3px }
+.actor i { width: 26px; height: 26px; border-radius: 50%; background: var(--panel-2); border: 1px solid var(--line-2); display: grid; place-items: center; font: 600 10px var(--sans); font-style: normal; color: var(--text) }
+.actor span { font: 500 9.5px var(--sans); color: var(--muted); white-space: nowrap }
 
-pre { margin: 0; padding: 14px 16px; background: var(--sheet); border: 1px solid var(--rule); border-radius: 8px; overflow-x: auto; font: 12.5px/1.6 var(--mono) }
-footer { color: var(--muted); font-size: 13px; display: flex; gap: 16px; flex-wrap: wrap }
-.loading { color: var(--muted) }
-@media (prefers-reduced-motion: no-preference) { .loading::after { content: "…"; animation: blink 1.2s steps(1) infinite } @keyframes blink { 50% { opacity: 0 } } }
+.stats { display: grid; grid-template-columns: 1fr 1fr; gap: 16px }
+.stat { padding: 18px; display: grid; gap: 18px; align-content: space-between }
+.stat header { display: flex; gap: 12px; align-items: center; color: var(--muted) }
+.ico { width: 38px; height: 38px; flex: none; border-radius: 11px; background: var(--panel-2); border: 1px solid var(--line); display: grid; place-items: center; color: var(--muted) }
+.ico svg { width: 18px; height: 18px }
+.stat b { font: 500 22px var(--sans); letter-spacing: -.01em; font-variant-numeric: tabular-nums }
+.stat small { color: var(--dim); font-size: 12px; margin-left: 6px }
+
+.section-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; padding: 18px 20px 4px }
+.section-head h2 { margin: 0; font: 500 16px var(--sans) }
+.section-head h2 span { color: var(--muted); font-weight: 400 }
+.tabs { display: flex; gap: 6px; flex-wrap: wrap }
+.tabs button { font: 500 13px var(--sans); padding: 7px 14px; border-radius: 9px; border: 1px solid var(--line); background: var(--panel-2); color: var(--muted); cursor: pointer }
+.tabs button[aria-selected="true"] { background: var(--violet); border-color: var(--violet); color: #fff }
+
+.steps { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 12px; padding: 14px 20px 20px }
+.step { border: 1px solid var(--line-2); border-radius: 14px; padding: 14px; display: grid; gap: 10px; background: var(--panel); min-width: 0 }
+.step .row { display: flex; justify-content: space-between; align-items: center; gap: 8px }
+.num { width: 30px; height: 30px; border-radius: 9px; display: grid; place-items: center; background: var(--panel-2); border: 1px solid var(--line); font: 500 11px var(--mono); color: var(--muted) }
+.step b { font-weight: 500; font-size: 14px }
+.step p { margin: 0; color: var(--muted); font-size: 12px; overflow-wrap: anywhere }
+.step.done .num { background: rgba(63, 224, 165, .12); border-color: rgba(63, 224, 165, .3); color: var(--mint) }
+.step.now { border-color: var(--violet); box-shadow: 0 0 0 1px var(--violet), 0 10px 40px -18px var(--violet) }
+.step.now .num { background: var(--violet); border-color: var(--violet); color: #fff }
+
+.pill { font: 500 11px var(--sans); padding: 3px 8px; border-radius: 999px; white-space: nowrap; display: inline-flex; gap: 5px; align-items: center }
+.pill::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: currentColor }
+.pill.PASS, .pill.ok { color: var(--mint); background: rgba(63, 224, 165, .1) }
+.pill.FAIL, .pill.bad { color: var(--red); background: rgba(255, 107, 107, .1) }
+.pill.WAIT, .pill.wait { color: var(--amber); background: rgba(242, 193, 78, .1) }
+.pill.ref { color: var(--violet-2); background: rgba(117, 87, 255, .14) }
+
+.work { display: grid; grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr); gap: 16px; align-items: start }
+.list { list-style: none; margin: 0; padding: 6px 12px 12px }
+.list li { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 4px 14px; padding: 12px 10px; border-bottom: 1px solid var(--line); align-items: start }
+.list li:last-child { border-bottom: 0 }
+.list .t { font-weight: 500 }
+.list .d { grid-column: 1 / -1; color: var(--muted); font: 12px var(--mono); overflow-wrap: anywhere }
+.list .grp { display: block; padding: 14px 10px 6px; border: 0; font: 500 11px var(--sans); letter-spacing: .08em; text-transform: uppercase; color: var(--dim) }
+.when { color: var(--dim); font-size: 12px; white-space: nowrap }
+
+.cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px; padding: 14px 20px 20px }
+.card { border: 1px solid var(--line-2); border-radius: 14px; padding: 16px; display: grid; gap: 12px; background: var(--panel); min-width: 0 }
+.card .row { display: flex; justify-content: space-between; gap: 10px; align-items: center }
+.card dl { margin: 0; display: grid; gap: 7px }
+.card dl div { display: flex; justify-content: space-between; gap: 10px }
+.card dt { color: var(--muted); white-space: nowrap }
+.card dd { margin: 0; text-align: right; min-width: 0; overflow-wrap: anywhere }
+.big { font: 500 24px var(--sans); letter-spacing: -.01em }
+.big small { font-size: 12px; color: var(--muted); font-weight: 400; margin-left: 4px }
+.track { display: flex; gap: 4px }
+.track span { flex: 1; height: 6px; border-radius: 3px; background: var(--line-2) }
+.track span.on { background: var(--mint) }
+.track span.cur { background: var(--violet) }
+
+.side { padding: 22px; display: grid; gap: 14px; position: relative; overflow: hidden;
+  background: radial-gradient(90% 80% at 110% 0%, rgba(117, 87, 255, .35), transparent 60%), var(--panel) }
+.side h2 { margin: 0; font: 500 22px/1.2 var(--sans); letter-spacing: -.01em }
+.side p { margin: 0; color: var(--muted) }
+pre { margin: 0; padding: 14px; border-radius: 12px; background: var(--bg); border: 1px solid var(--line); overflow-x: auto; font: 11.5px/1.65 var(--mono); color: #c9cde0 }
+pre .c { color: var(--dim) }
+.copy { justify-self: start }
+
+.foot { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; padding: 20px 24px; color: var(--muted) }
+.foot b { color: var(--text); font-weight: 500; font-size: 16px }
+.foot nav { display: flex; gap: 22px; flex-wrap: wrap }
+.skeleton { color: var(--dim) }
+@media (prefers-reduced-motion: no-preference) { .skeleton { animation: pulse 1.4s ease-in-out infinite } @keyframes pulse { 50% { opacity: .45 } } }
+
+@media (max-width: 1100px) { .top, .work { grid-template-columns: minmax(0, 1fr) } .steps { grid-template-columns: repeat(3, minmax(0, 1fr)) } }
+@media (max-width: 760px) {
+  .shell { grid-template-columns: minmax(0, 1fr) }
+  .rail { position: static; height: auto; flex-direction: row; justify-content: flex-start; padding: 14px max(16px, env(safe-area-inset-left, 0px)); border-right: 0; border-bottom: 1px solid var(--line); overflow-x: auto }
+  .logo { margin: 0 8px 0 0 }
+  .rail .net { display: none }
+  main { padding: 16px max(16px, env(safe-area-inset-right, 0px)) 40px max(16px, env(safe-area-inset-left, 0px)) }
+  .hero { grid-template-columns: minmax(0, 1fr); padding: 24px }
+  .orbit { justify-self: center }
+  .hero h1 { font-size: 24px }
+  .steps { grid-template-columns: repeat(2, minmax(0, 1fr)); padding: 12px }
+  .cards { padding: 12px }
+  .stats { gap: 12px }
+}
 </style>
 </head>
 <body>
-<main>
-  <header>
-    <div class="brand">
-      <b>GhostProtocol</b>
-      <form id="form">
-        <label for="vault" hidden>Vault account</label>
-        <input id="vault" value="ghostprotocol-vault.testnet" spellcheck="false" autocomplete="off">
-        <button type="submit">Recheck</button>
-      </form>
+<div class="shell">
+  <nav class="rail" aria-label="Sections">
+    <div class="logo" aria-hidden="true"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 20V11a6 6 0 0 1 12 0v9l-2-1.5L14 20l-2-1.5L10 20l-2-1.5z"/><circle cx="10" cy="11" r=".6" fill="#fff"/><circle cx="14" cy="11" r=".6" fill="#fff"/></svg></div>
+    <a href="#overview" aria-current="true" aria-label="Overview"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="m15.5 8.5-2 5-5 2 2-5z"/></svg></a>
+    <a href="#lifecycle" aria-label="Lifecycle"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h4l3-7 4 14 3-7h2"/></svg></a>
+    <a href="#ledger" aria-label="Proofs and record"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12l2 2 4-4"/><path d="M12 3l7 3v6c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6z"/></svg></a>
+    <a href="#recheck" aria-label="Recheck yourself"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 8 4 4-4 4M12 16h7"/></svg></a>
+    <span class="net">NEAR TESTNET · BASE SEPOLIA</span>
+  </nav>
+
+  <main>
+    <div class="top" id="overview">
+      <section class="panel hero" aria-labelledby="claim">
+        <div>
+          <h1 id="claim">After its owner dies, this vault pays the right heirs.</h1>
+          <p>No single person, key, model or operator can change that. Every number here is recomputed in your browser from NEAR testnet and Base Sepolia.</p>
+          <div class="cta">
+            <button class="btn" id="recheck-btn" type="button">Recheck now</button>
+            <a class="btn ghost" id="vault-link" target="_blank" rel="noopener" href="https://testnet.nearblocks.io/address/ghostprotocol-vault.testnet">ghostprotocol-vault.testnet</a>
+          </div>
+        </div>
+        <div class="orbit" id="orbit" aria-label="Who can act on this vault">
+          <div class="ring"></div><div class="ring in"></div>
+          <div class="core" title="Vault contract"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="5" width="16" height="14" rx="2"/><circle cx="12" cy="12" r="3"/><path d="M12 9V7m3 5h2"/></svg></div>
+        </div>
+      </section>
+
+      <div class="stats">
+        <section class="panel stat"><header><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="9"/></svg></span>Checks passing</header><div><b id="s-checks" class="skeleton">–</b><small id="s-checks-sub"></small></div></section>
+        <section class="panel stat"><header><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="15" r="4"/><path d="m11 12 9-9m-4 4 3 3"/></svg></span>Keys on the vault</header><div><b id="s-keys" class="skeleton">–</b><small id="s-keys-sub"></small></div></section>
+        <section class="panel stat"><header><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v6c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6z"/><path d="m9 9 6 6m0-6-6 6"/></svg></span>Attacks refused</header><div><b id="s-attacks" class="skeleton">–</b><small id="s-attacks-sub"></small></div></section>
+        <section class="panel stat"><header><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 5 12l7 4 7-4z"/><path d="m5 12 7 10 7-10"/></svg></span>Vault balance</header><div><b id="s-balance" class="skeleton">–</b><small>Base Sepolia</small></div></section>
+      </div>
     </div>
-    <h1>After its owner dies, this vault pays the right heirs, and no single person, key, model or operator can change that.</h1>
-    <div class="verdict" id="verdict"><span class="loading">Recomputing from NEAR testnet and Base Sepolia</span></div>
-  </header>
 
-  <section aria-labelledby="life-h">
-    <h2 id="life-h">Where this vault is</h2>
-    <div class="life" id="life"></div>
-  </section>
+    <section class="panel" id="lifecycle" aria-labelledby="life-h">
+      <div class="section-head"><h2 id="life-h">Lifecycle <span id="life-sub"></span></h2></div>
+      <div class="steps" id="steps"></div>
+    </section>
 
-  <section aria-labelledby="facts-h">
-    <h2 id="facts-h">Vault</h2>
-    <div class="facts" id="facts"></div>
-  </section>
+    <div class="work" id="ledger">
+      <section class="panel" aria-labelledby="ledger-h">
+        <div class="section-head">
+          <h2 id="ledger-h">Evidence <span id="ledger-count"></span></h2>
+          <div class="tabs" role="tablist" aria-label="Evidence views">
+            <button role="tab" aria-selected="true" data-tab="proofs" id="tab-proofs">Proofs</button>
+            <button role="tab" aria-selected="false" data-tab="record" id="tab-record">On-chain record</button>
+            <button role="tab" aria-selected="false" data-tab="payouts" id="tab-payouts">Heirs &amp; payouts</button>
+          </div>
+        </div>
+        <div role="tabpanel" id="panel-proofs"><ol class="list" id="proofs"><li><span class="t skeleton">Recomputing from RPC</span></li></ol></div>
+        <div role="tabpanel" id="panel-record" hidden><ol class="list" id="record"></ol></div>
+        <div role="tabpanel" id="panel-payouts" hidden><div class="cards" id="payouts"></div></div>
+      </section>
 
-  <section aria-labelledby="checks-h">
-    <h2 id="checks-h">Proofs</h2>
-    <ol class="ledger" id="checks"></ol>
-  </section>
+      <aside class="panel side" id="recheck" aria-labelledby="recheck-h">
+        <span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 8 4 4-4 4M12 16h7"/></svg></span>
+        <h2 id="recheck-h">Recheck without this page</h2>
+        <p>Rebuild the contract from source, read the keys yourself, and run every check above from a terminal.</p>
+        <pre id="cli"></pre>
+        <button class="btn copy" id="copy" type="button">Copy commands</button>
+      </aside>
+    </div>
 
-  <section aria-labelledby="events-h">
-    <h2 id="events-h">On-chain record</h2>
-    <ol class="ledger" id="events"></ol>
-  </section>
-
-  <section aria-labelledby="cli-h">
-    <h2 id="cli-h">Recheck without this page</h2>
-    <pre id="cli"></pre>
-  </section>
-
-  <footer>
-    <span>Every value here comes from public RPC. Nothing comes from a GhostProtocol server.</span>
-    <a href="https://github.com/danielAsaboro/ghost-protocol/blob/main/docs/threat-model.md">Threat model</a>
-    <a href="https://github.com/danielAsaboro/ghost-protocol">Source</a>
-  </footer>
-</main>
+    <footer class="panel foot">
+      <b>GhostProtocol</b>
+      <nav>
+        <a href="https://github.com/danielAsaboro/ghost-protocol/blob/main/docs/threat-model.md">Threat model</a>
+        <a href="https://github.com/danielAsaboro/ghost-protocol">Source</a>
+        <a id="foot-vault" href="https://sepolia.basescan.org/address/0xAf8105c7e876f38Bf0A9f09e4c97029BCf74d0Cc" target="_blank" rel="noopener">Vault on Basescan</a>
+      </nav>
+    </footer>
+  </main>
+</div>
 <script type="module">
 import { verifyVault } from './verify.mjs';
 
+const VAULT = 'ghostprotocol-vault.testnet';
 const $ = (id) => document.getElementById(id);
 const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
-const short = (h, n = 10) => (h.length > 2 * n + 1 ? `${h.slice(0, n)}…${h.slice(-6)}` : h);
-const nearTx = (h) => `https://testnet.nearblocks.io/txns/${h}`;
+const short = (h, a = 8, b = 6) => (h.length > a + b + 1 ? `${h.slice(0, a)}…${h.slice(-b)}` : h);
 const eth = (wei) => `${(Number(BigInt(wei)) / 1e18).toLocaleString(undefined, { maximumFractionDigits: 6 })} ETH`;
-const ago = (secs) => { const d = Math.floor(Date.now() / 1000) - secs; return d < 3600 ? `${Math.floor(d / 60)} min ago` : d < 86400 ? `${Math.floor(d / 3600)} h ago` : `${Math.floor(d / 86400)} d ago`; };
+const ago = (secs) => { const d = Math.max(0, Math.floor(Date.now() / 1000) - secs); return d < 3600 ? `${Math.floor(d / 60)} min ago` : d < 86400 ? `${Math.floor(d / 3600)} h ago` : `${Math.floor(d / 86400)} d ago`; };
 const reproducibleHash = document.querySelector('meta[name="ghost:wasm"]').content;
 const commit = document.querySelector('meta[name="ghost:commit"]').content;
 
-function life(r) {
+function orbit(state) {
+  const actors = [['O', 'Owner'], ['W', 'Witness 1'], ['W', 'Witness 2'], ['W', 'Witness 3'], ['A', 'Agent'], ['C', 'Court'], ['R', 'Registrar'], ['M', 'MPC'],
+    ...state.heirs.map((_, i) => ['H', `Heir ${i}`])];
+  const el = $('orbit');
+  el.querySelectorAll('.actor').forEach((a) => a.remove());
+  actors.forEach(([letter, name], i) => {
+    const angle = (i / actors.length) * Math.PI * 2 - Math.PI / 2;
+    const r = i % 2 ? 66 : 108;
+    const a = document.createElement('div');
+    a.className = 'actor';
+    a.style.left = `${130 + r * Math.cos(angle)}px`;
+    a.style.top = `${125 + r * Math.sin(angle)}px`;
+    a.innerHTML = `<i>${letter}</i><span>${esc(name)}</span>`;
+    el.append(a);
+  });
+}
+
+function stats(r, all) {
+  const fail = all.filter((x) => x.verdict === 'FAIL').length, wait = all.filter((x) => x.verdict === 'WAIT').length, pass = all.length - fail - wait;
+  const keys = r.checks.find((c) => c.id === 'no-keys');
+  const refused = r.events.filter((e) => e.expect === 'fail');
+  for (const id of ['s-checks', 's-keys', 's-attacks', 's-balance']) $(id).classList.remove('skeleton');
+  $('s-checks').textContent = `${pass}/${all.length}`;
+  $('s-checks').style.color = fail ? 'var(--red)' : '';
+  $('s-checks-sub').textContent = fail ? `${fail} failed` : wait ? `${wait} waiting` : 'all pass';
+  $('s-keys').textContent = keys.verdict === 'PASS' ? '0' : keys.detail.split(' ')[0];
+  $('s-keys-sub').textContent = keys.verdict === 'PASS' ? 'locked' : 'not locked';
+  $('s-attacks').textContent = `${refused.filter((e) => e.verdict === 'PASS').length}`;
+  $('s-attacks-sub').textContent = `of ${refused.length}, from receipts`;
+  $('s-balance').textContent = eth(r.balance);
+}
+
+function steps(r) {
   const s = r.state, c = s.claim, p = s.payouts[0], now = Math.floor(Date.now() / 1000);
   const locked = r.checks.find((x) => x.id === 'no-keys')?.verdict === 'PASS';
   const paid = s.heirs.every((h) => h.status === 'Paid');
-  const steps = [
-    ['01', 'Sealed', 'wishes encrypted to a key no one holds', true],
-    ['02', 'Locked', locked ? 'no keys on the account' : 'keys still present', locked],
-    ['03', 'Claimed', c ? `witness quorum, ${ago(c.opened_at)}` : 'owner still checking in', Boolean(c)],
-    ['04', 'Grace', c ? (now < c.pay_after ? `${c.pay_after - now}s left to cancel` : 'over, not cancelled') : 'not started', Boolean(c) && now >= c.pay_after],
-    ['05', 'Paying', p ? `${p.attempts.filter((a) => a.r_hex).length} signed attempt(s), nonce ${p.nonce}` : 'no payout yet', Boolean(p)],
-    ['06', 'Settled', paid ? 'MPC network attested every payment' : 'waiting for a landed transaction', paid],
+  const list = [
+    ['Sealed', 'Wishes encrypted to a key no one holds yet', true],
+    ['Locked', locked ? 'No keys on the vault account' : 'Keys still present', locked],
+    ['Claimed', c ? `Witness quorum, ${ago(c.opened_at)}` : 'Owner still checking in', Boolean(c)],
+    ['Grace', c ? (now < c.pay_after ? `${c.pay_after - now}s left to cancel` : 'Over, owner did not cancel') : 'Not started', Boolean(c) && now >= c.pay_after],
+    ['Paying', p ? `${p.attempts.filter((a) => a.r_hex).length} signed attempts on nonce ${p.nonce}` : 'No payout yet', Boolean(p)],
+    ['Settled', paid ? 'MPC network attested every payment' : 'Waiting for a landed transaction', paid],
   ];
-  const current = steps.findIndex((x) => !x[3]);
-  $('life').innerHTML = steps.map(([n, title, note, done], i) =>
-    `<div class="${done ? 'done' : ''} ${i === current ? 'now' : ''}"><span>${n}</span><b>${title}</b><small>${esc(note)}</small></div>`).join('');
+  const cur = list.findIndex((x) => !x[2]);
+  $('life-sub').textContent = cur < 0 ? '· complete' : `· step ${cur + 1} of ${list.length}`;
+  $('steps').innerHTML = list.map(([t, note, done], i) => {
+    const state = done ? 'done' : i === cur ? 'now' : '';
+    const pill = done ? '<span class="pill ok">done</span>' : i === cur ? '<span class="pill ref">now</span>' : '<span class="pill wait">next</span>';
+    return `<div class="step ${state}"><div class="row"><span class="num">${String(i + 1).padStart(2, '0')}</span>${pill}</div><b>${t}</b><p>${esc(note)}</p></div>`;
+  }).join('');
+  return { list, cur };
 }
 
-function facts(r) {
-  const s = r.state;
-  const heirs = s.heirs.map((h, i) => `<div><dt>Heir ${i}</dt><dd><span class="mono">${esc(h.address)}</span><br>${h.status} · floor ${eth(h.floor_wei)} · cap ${eth(h.cap_wei)}</dd></div>`).join('');
-  const payouts = r.payouts.map((p) => `<div><dt>Payout ${p.index} · ${p.source}</dt><dd>${eth(p.value)} to heir ${p.heir} · nonce ${p.nonce} · ${p.status}<br>${p.attempts.map((a) => `<span class="mono">attempt ${a.index}: ${a.txHash ? `<a href="https://sepolia.basescan.org/tx/${a.txHash}" target="_blank" rel="noopener">${short(a.txHash)}</a> ${a.landed === null ? 'not mined' : a.landed ? 'landed' : 'reverted'}` : 'signing'}</span>`).join('<br>')}</dd></div>`).join('');
-  $('facts').innerHTML = `
-    <dl>
-      <div><dt>NEAR account</dt><dd><a href="https://testnet.nearblocks.io/address/${esc(r.vault)}" target="_blank" rel="noopener" class="mono">${esc(r.vault)}</a></dd></div>
-      <div><dt>Base Sepolia address, controlled only by this contract</dt><dd><a href="https://sepolia.basescan.org/address/${r.vaultAddress}" target="_blank" rel="noopener" class="mono">${r.vaultAddress}</a></dd></div>
-      <div><dt>Balance</dt><dd>${eth(r.balance)}</dd></div>
-      <div><dt>Code hash</dt><dd class="mono">${r.codeHash}</dd></div>
-    </dl>
-    <dl>${heirs}${payouts || '<div><dt>Payouts</dt><dd>none yet</dd></div>'}</dl>`;
-}
-
-function checks(r) {
-  let group = '';
-  $('checks').innerHTML = r.checks.map((c) => {
-    const head = c.group !== group ? `<li class="group">${esc((group = c.group))}</li>` : '';
-    return `${head}<li><span class="v ${c.verdict}">${c.verdict}</span><span class="claim">${esc(c.claim)}</span><span></span><span class="detail mono">${esc(c.detail)}</span></li>`;
+function proofs(r) {
+  let g = '';
+  $('proofs').innerHTML = r.checks.map((c) => {
+    const head = c.group !== g ? `<li class="grp">${esc((g = c.group))}</li>` : '';
+    return `${head}<li><span class="t">${esc(c.claim)}</span><span class="pill ${c.verdict}">${c.verdict}</span><span class="d">${esc(c.detail)}</span></li>`;
   }).join('');
 }
 
-function events(r) {
+function record(r) {
   const list = [...r.events].sort((a, b) => b.at.localeCompare(a.at));
-  $('events').innerHTML = list.map((e) => {
-    const blocked = e.expect === 'fail';
-    const tag = blocked ? '<span class="tag fail">refused</span>' : '<span class="tag">done</span>';
-    const said = blocked ? `contract: “${esc(e.observed)}”` : esc(e.note ?? e.method);
+  $('record').innerHTML = list.map((e) => {
+    const refused = e.expect === 'fail';
     const when = new Date(e.at).toLocaleString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
-    return `<li><span class="v ${e.verdict}">${e.verdict}</span><span class="claim">${tag}${esc(e.label)}</span><span class="when">${when}</span><span class="detail mono">${said} · <a href="${nearTx(e.tx)}" target="_blank" rel="noopener">${short(e.tx)}</a></span></li>`;
+    const said = refused ? `contract: “${esc(e.observed)}”` : esc(e.note ?? `${e.method} succeeded`);
+    return `<li><span class="t">${refused ? '<span class="pill ref">refused</span> ' : ''}${esc(e.label)}</span><span class="pill ${e.verdict}">${e.verdict}</span>
+      <span class="d">${said} · <a href="https://testnet.nearblocks.io/txns/${e.tx}" target="_blank" rel="noopener">${short(e.tx)}</a> · ${when}</span></li>`;
   }).join('');
+}
+
+function payouts(r, life) {
+  const s = r.state;
+  const heirCards = s.heirs.map((h, i) => {
+    const pill = h.status === 'Paid' ? 'ok' : h.status === 'Pending' ? 'ref' : 'wait';
+    return `<article class="card">
+      <div class="row"><span style="display:flex;gap:10px;align-items:center"><span class="ico">H${i}</span><b>Heir ${i}</b></span><span class="pill ${pill}">${h.status}</span></div>
+      <dl><div><dt>Address</dt><dd class="mono"><a href="https://sepolia.basescan.org/address/${h.address}" target="_blank" rel="noopener">${short(h.address, 8, 6)}</a></dd></div>
+      <div><dt>Floor</dt><dd>${eth(h.floor_wei)}</dd></div><div><dt>Gas limit</dt><dd>${h.gas_limit.toLocaleString()}</dd></div></dl>
+      <div class="big">${eth(h.cap_wei)}<small>cap</small></div>
+      <div class="track" aria-label="Lifecycle progress">${life.list.map((x, k) => `<span class="${x[2] ? 'on' : k === life.cur ? 'cur' : ''}"></span>`).join('')}</div>
+    </article>`;
+  });
+  const payoutCards = r.payouts.map((p) => `<article class="card">
+      <div class="row"><span style="display:flex;gap:10px;align-items:center"><span class="ico">P${p.index}</span><b>Payout ${p.index}</b></span><span class="pill ${p.status === 'Settled' ? 'ok' : 'ref'}">${p.status}</span></div>
+      <dl><div><dt>Started by</dt><dd>${p.source === 'fallback' ? 'No-AI fallback' : 'Attested agent'}</dd></div><div><dt>To</dt><dd>Heir ${p.heir}</dd></div><div><dt>Nonce</dt><dd>${p.nonce}</dd></div></dl>
+      <div class="big">${eth(p.value)}<small>MPC-signed</small></div>
+      <dl>${p.attempts.map((a) => `<div><dt>Attempt ${a.index} · ${Number(a.fee) / 1e9} gwei</dt><dd class="mono">${a.txHash ? `<a href="https://sepolia.basescan.org/tx/${a.txHash}" target="_blank" rel="noopener">${short(a.txHash)}</a> ${a.landed === null ? 'not mined' : a.landed ? 'landed' : 'reverted'}` : 'signing'}</dd></div>`).join('')}</dl>
+    </article>`);
+  $('payouts').innerHTML = [...heirCards, ...payoutCards].join('');
 }
 
 function cli(r) {
-  $('cli').textContent = [
-    `# keys on the vault account: expect "keys": []`,
-    `curl -s https://rpc.testnet.near.org -H 'content-type: application/json' -d '{"jsonrpc":"2.0","id":1,"method":"query","params":{"request_type":"view_access_key_list","finality":"final","account_id":"${r.vault}"}}'`,
-    ``,
-    `# rebuild the contract and compare with ${reproducibleHash}`,
-    `git clone https://github.com/danielAsaboro/ghost-protocol && cd ghost-protocol && git checkout ${commit} && cd contract && cargo near build reproducible-wasm`,
-    ``,
-    `# every check on this page, from the terminal`,
-    `npm install && npm run test:live`,
-  ].join('\n');
+  const lines = [
+    ['# no keys on the vault: expect "keys":[]', `curl -s https://rpc.testnet.near.org -H 'content-type: application/json' -d '{"jsonrpc":"2.0","id":1,"method":"query","params":{"request_type":"view_access_key_list","finality":"final","account_id":"${VAULT}"}}'`],
+    [`# rebuild: expect ${reproducibleHash}`, `git clone https://github.com/danielAsaboro/ghost-protocol && cd ghost-protocol && git checkout ${commit} && (cd contract && cargo near build reproducible-wasm)`],
+    ['# every check on this page', 'npm install && npm run test:live'],
+  ];
+  $('cli').innerHTML = lines.map(([c, cmd]) => `<span class="c">${esc(c)}</span>\n${esc(cmd)}`).join('\n\n');
+  $('copy').onclick = async () => {
+    const text = lines.map(([, cmd]) => cmd).join('\n');
+    try { await navigator.clipboard.writeText(text); $('copy').textContent = 'Copied'; }
+    catch { const sel = getSelection(); sel.selectAllChildren($('cli')); $('copy').textContent = 'Selected, press ⌘C'; }
+    setTimeout(() => { $('copy').textContent = 'Copy commands'; }, 1800);
+  };
 }
 
-async function run(vault) {
-  for (const id of ['life', 'facts', 'checks', 'events']) $(id).replaceChildren();
-  $('verdict').innerHTML = '<span class="loading">Recomputing from NEAR testnet and Base Sepolia</span>';
+for (const b of document.querySelectorAll('[role="tab"]')) {
+  b.addEventListener('click', () => {
+    for (const t of document.querySelectorAll('[role="tab"]')) {
+      const on = t === b;
+      t.setAttribute('aria-selected', String(on));
+      $(`panel-${t.dataset.tab}`).hidden = !on;
+    }
+  });
+}
+const rail = [...document.querySelectorAll('.rail a')];
+addEventListener('scroll', () => {
+  let current = rail[0];
+  for (const a of rail) { const t = document.querySelector(a.getAttribute('href')); if (t && t.getBoundingClientRect().top < 140) current = a; }
+  for (const a of rail) a.setAttribute('aria-current', String(a === current));
+}, { passive: true });
+
+async function run() {
+  $('recheck-btn').disabled = true;
+  $('recheck-btn').textContent = 'Rechecking…';
   try {
-    const evidence = await fetch('evidence.json').then((x) => (x.ok ? x.json() : null)).catch(() => null);
-    const own = evidence?.vault === vault ? evidence : { events: [], settle: {} };
-    const r = { vault, ...(await verifyVault({ vault, evidence: own, reproducibleHash: vault === evidence?.vault ? reproducibleHash : null })) };
+    const evidence = await fetch('evidence.json').then((x) => (x.ok ? x.json() : { events: [], settle: {} })).catch(() => ({ events: [], settle: {} }));
+    const r = await verifyVault({ vault: VAULT, evidence, reproducibleHash });
     const all = [...r.checks, ...r.events];
-    const fail = all.filter((x) => x.verdict === 'FAIL').length, wait = all.filter((x) => x.verdict === 'WAIT').length, pass = all.length - fail - wait;
-    $('verdict').innerHTML = fail
-      ? `<strong style="color:var(--fail)">${fail}</strong><span>check${fail > 1 ? 's' : ''} failed. The list below shows which.</span>`
-      : `<strong>${pass}/${all.length}</strong><span>rechecked in your browser just now${wait ? `, ${wait} waiting for something that has not happened yet` : ''}.</span>`;
-    life(r); facts(r); checks(r); events(r); cli(r);
+    orbit(r.state); stats(r, all); const life = steps(r); proofs(r); record(r); payouts(r, life); cli(r);
+    $('ledger-count').textContent = `· ${r.checks.length} proofs, ${r.events.length} transactions`;
+    $('foot-vault').href = `https://sepolia.basescan.org/address/${r.vaultAddress}`;
   } catch (e) {
-    $('verdict').innerHTML = `<strong style="color:var(--fail)">FAIL</strong><span>Could not read the chain: ${esc(e.message)}</span>`;
+    $('proofs').innerHTML = `<li><span class="t">Could not read the chain</span><span class="pill FAIL">FAIL</span><span class="d">${esc(e.message)}</span></li>`;
+  } finally {
+    $('recheck-btn').disabled = false;
+    $('recheck-btn').textContent = 'Recheck now';
   }
 }
-
-const input = $('vault');
-if (location.hash.length > 1) input.value = decodeURIComponent(location.hash.slice(1));
-$('form').addEventListener('submit', (e) => { e.preventDefault(); location.hash = input.value.trim(); run(input.value.trim()); });
-run(input.value.trim());
+$('recheck-btn').addEventListener('click', run);
+run();
 </script>
 </body>
 </html>
