@@ -17,7 +17,6 @@ Vault `ghostprotocol-vault.testnet`. Base Sepolia address `0xAf8105c7e876f38Bf0A
 | Redeploy of the reproducible build, state intact | `7H9Fi6ydDzHtZzbzLSc5hHHBGcPxWyCjqLeCXaRmm3r1`, code hash `DBRswoeb9syKVRZJrCpjbw62E3Z6ZL48MAoLN8KfU4E8` |
 | Settlement refused for an unbroadcast transaction | `9EivMJaKZbAjB6yih8CA8YVsx6FENebo9Fu9vQ1o9wmh`, heir stays `Pending` |
 | Lock | `2AwB18KpkUaPoBAJhJUSVtyHDW5jPGJtZvCDBDn2pUAa`, `view_access_key_list` returns `[]` |
-
 | 13 attacks after lock, each refused on-chain | `attacks-after-lock.txt`, hashes in `web/evidence.json` |
 
 Open: funded broadcast, MPC settlement of a landed transaction, attested NEAR AI decision.
