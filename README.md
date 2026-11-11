@@ -8,7 +8,13 @@ Tracks: Privacy & Private AI, AI Security & Defense. Testnet only.
 
 ## Check it yourself
 
-Open the verifier: `web/index.html`, served by `npm run web` at http://localhost:4173. It reads NEAR testnet and Base Sepolia from your browser and recomputes every claim below. A failing claim shows FAIL.
+Open the verifier (`npm run web`, then http://localhost:4173). It reads NEAR testnet and Base Sepolia from your browser, recomputes every claim below, and replays every recorded transaction from its receipt. A failing claim shows FAIL.
+
+The same checks run from a terminal against the live chain:
+
+```bash
+npm install && npm run test:live
+```
 
 Live vault: [`ghostprotocol-vault.testnet`](https://testnet.nearblocks.io/address/ghostprotocol-vault.testnet). Its Base Sepolia address: [`0xAf8105c7e876f38Bf0A9f09e4c97029BCf74d0Cc`](https://sepolia.basescan.org/address/0xAf8105c7e876f38Bf0A9f09e4c97029BCf74d0Cc).
 
@@ -19,7 +25,7 @@ Live vault: [`ghostprotocol-vault.testnet`](https://testnet.nearblocks.io/addres
 | A missed check-in alone moves nothing | Live claim refused with `owner is not inactive` ([log](docs/evidence/live/false-claim.txt)) |
 | The owner cancels a false claim | [claim](https://testnet.nearblocks.io/txns/6TjeYW5JvMYY9DR2B4vvwBqVn15JaMk1QPR5K78KZFCc), then [check-in](https://testnet.nearblocks.io/txns/Dm1JPDN2js5FVp6phEZHzcczJDbyKHmuyCQUpAUU5VVw) |
 | A registrar proof cannot be replayed | Live `heir age already proven` |
-| A hostile agent cannot overpay, underpay, redirect, or act as anyone else | Five live attacks, all BLOCKED ([log](docs/evidence/live/false-claim.txt)) |
+| Hostile calls are refused by the contract itself | 13 attacks after the lock, each a real transaction whose receipt carries the contract's error: unlisted recipient, impostor agent, forged witnesses, faked MPC callbacks, a fee above the ceiling, a fee nudged to burn attempts, the owner cancelling after payout began ([record](web/evidence.json), [log](docs/evidence/live/attacks-after-lock.txt)). Five earlier attacks before payout began: over-cap, below floor, unlisted heir, non-agent, non-court freeze ([log](docs/evidence/live/false-claim.txt)) |
 | With no AI at all, the heir is still paid | [Fallback tx](https://testnet.nearblocks.io/txns/GH1TmBiumNAzJmVsdfmo4RPkxjWGtKqXrQKYzCFQedJV): real MPC signature, checked on-chain with `ecrecover` against the vault key |
 | A stuck transaction is replaced, not abandoned | [Re-price tx](https://testnet.nearblocks.io/txns/niToN6tTZiQ7VcAG53xxCUggQ8gNHerUHPWQU8E12R1): attempt 2 has the same nonce, recipient and amount, so only one can land |
 | A signature is not a payment | [Settle tx](https://testnet.nearblocks.io/txns/9EivMJaKZbAjB6yih8CA8YVsx6FENebo9Fu9vQ1o9wmh) on an unbroadcast transaction: the MPC network declined to attest, and the heir stays `Pending` |
@@ -49,7 +55,13 @@ npm install
 npm test
 ```
 
-14 JavaScript tests pass, including the CKD sealing round trip.
+17 JavaScript tests pass, including the CKD sealing round trip.
+
+```bash
+npm run test:live
+```
+
+3 tests recheck the deployed vault on real testnet: every check passes, and the verifier reports FAIL when given a wrong build hash or a false attack record.
 
 ```bash
 cd contract && cargo test
@@ -60,7 +72,6 @@ cd contract && cargo test
 | Layer | What it shows |
 |---|---|
 | `contract/diff` | Encoding agrees with alloy and 1,500 viem vectors. The settlement payload agrees with `near/mpc` 3.18.0's own types. Hash-to-curve agrees with `blstrs` |
-| `contract/sandbox` | 5 near-workspaces tests with real promises: forged signatures dropped, a signer failure cleaned up, a transaction that never landed not paid, callbacks private |
 | `cargo mutants` | 167 of 167 viable mutants caught |
 | `cargo fuzz` | Parsers and RLP, about 2.5M runs, no crashes |
 | `docs/evidence/v1/` | The original contract's ten breaks, each shown failing before the fix |
@@ -68,7 +79,7 @@ cd contract && cargo test
 ## Not proven yet
 
 - A funded Base Sepolia payout and its MPC settlement. The verifier shows these as WAIT until they happen.
-- An attested decision from NEAR AI accepted on-chain. Unit and sandbox tests cover it with a local key.
+- An attested decision from NEAR AI accepted on-chain. Unit tests cover the check with a locally generated secp256k1 key.
 - The wishes key is unwrapped on the operator's machine, not inside an attested enclave.
 - A live injection evaluation. A hostile-model set is scored by the contract: it rejects every out-of-bounds decision and accepts the cap, which is the limit a compromised model always has.
 
@@ -88,4 +99,4 @@ cd contract && cargo test
 
 ## Libraries and AI use
 
-`near-sdk`, `viem`, `@noble/curves`, `@noble/hashes`, `near-workspaces`, `proptest`, `alloy`, `blstrs` and `near-mpc-contract-interface` (tests), and the `near` CLI. The code and documentation were written with Claude Code. MIT licensed.
+`near-sdk`, `viem`, `@noble/curves`, `@noble/hashes`, `proptest`, `alloy`, `blstrs` and `near-mpc-contract-interface` (tests), and the `near` CLI. The code and documentation were written with Claude Code. MIT licensed.

@@ -1,26 +1,32 @@
 #!/usr/bin/env node
-import { execFileSync, spawnSync } from 'node:child_process';
+import { execFileSync } from 'node:child_process';
 import crypto from 'node:crypto';
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
-import { createPublicClient, http, parseEther, parseGwei } from 'viem';
+import { createPublicClient, formatEther, http, parseEther, parseGwei } from 'viem';
 import { baseSepolia } from 'viem/chains';
 import { attestation, reason, sha256 } from '../agent/reason.mjs';
-import { openWithIdentityKey, sealToIdentity, newAppKey, unwrapCkd } from '../agent/seal.mjs';
+import { newAppKey, openWithIdentityKey, sealToIdentity, unwrapCkd } from '../agent/seal.mjs';
 import {
-  accessKeys, assembleSignedTx, assertFunded, base58Decode, base58Encode, ckdMasterKey, derivedKey, deriveVaultAddress, foreignTxKey,
-  fullAccessKeys, nearKeyBytes, SIGNER, viewCall, WISHES_PATH,
+  accessKeys, assembleSignedTx, assertFunded, base58Decode, base58Encode, ckdMasterKey, derivedKey, deriveVaultAddress,
+  foreignTxKey, fullAccessKeys, nearKeyBytes, SIGNER, viewCall, WISHES_PATH,
 } from '../relay/base.mjs';
+import { callContract } from '../relay/near.mjs';
+
+try { process.loadEnvFile(new URL('../.env', import.meta.url).pathname); } catch { /* no .env */ }
 
 const STATE = new URL('../.ghost/state.json', import.meta.url);
-const RUN = new URL('../web/run.json', import.meta.url);
+const OPENED = new URL('../.ghost/opened.json', import.meta.url);
+const EVIDENCE = new URL('../web/evidence.json', import.meta.url);
 const WASM = process.env.GHOST_WASM ?? new URL('../contract/target/near/ghost_protocol.wasm', import.meta.url).pathname;
 const BASE_RPC = process.env.BASE_SEPOLIA_RPC ?? 'https://base-sepolia-rpc.publicnode.com';
 
 const load = () => JSON.parse(readFileSync(STATE));
 const save = (s) => writeFileSync(STATE, JSON.stringify(s, null, 2), { mode: 0o600 });
-const run = () => (existsSync(RUN) ? JSON.parse(readFileSync(RUN)) : {});
-const record = (patch) => writeFileSync(RUN, JSON.stringify({ vault: load().vault, ...run(), ...patch }, null, 2));
 const client = () => createPublicClient({ chain: baseSepolia, transport: http(BASE_RPC) });
+const chain = () => viewCall(load().vault, 'get_state');
+
+const evidence = () => (existsSync(EVIDENCE) ? JSON.parse(readFileSync(EVIDENCE)) : { vault: load().vault, events: [], settle: {} });
+const writeEvidence = (e) => writeFileSync(EVIDENCE, `${JSON.stringify(e, null, 2)}\n`);
 
 function newKey() {
   const { publicKey, privateKey } = crypto.generateKeyPairSync('ed25519');
@@ -32,30 +38,31 @@ function newKey() {
 const signText = (key, text) => crypto.sign(null, Buffer.from(text), key.priv).toString('base64');
 const proofs = (s, message, n = 2) => s.witnesses.slice(0, n).map((w, i) => ({ witness_index: i, signature: signText(w, message) }));
 
-function nearArgs(contract, method, args, signer, gas = '300 Tgas') {
-  return ['contract', 'call-function', 'as-transaction', contract, method, 'json-args', JSON.stringify(args),
-    'prepaid-gas', gas, 'attached-deposit', '0 NEAR', 'sign-as', signer, 'network-config', 'testnet',
-    'sign-with-keychain', 'send'];
-}
-const call = (method, args, signer, gas) => execFileSync('near', nearArgs(load().vault, method, args, signer, gas), { stdio: 'inherit' });
-function expectFailure(label, method, args, signer) {
-  const r = spawnSync('near', nearArgs(load().vault, method, args, signer), { encoding: 'utf8' });
-  const output = `${r.stdout}\n${r.stderr}`;
-  const blocked = r.status !== 0 || /Failure|panicked/i.test(output);
-  const why = output.match(/Smart contract panicked: ([^\n"]+)/)?.[1] ?? 'failed';
-  console.log(`${blocked ? 'BLOCKED' : 'NOT BLOCKED'}  ${label}: ${why}`);
-  return { label, blocked, reason: why };
+/**
+ * Sends one call, logs it to web/evidence.json so the verifier can recheck it, and prints one line.
+ * `expect` is 'ok' for an action and 'fail' for an attack the contract must refuse.
+ */
+async function act(label, method, args, signer, { expect = 'ok', gas } = {}) {
+  const r = await callContract({ contract: load().vault, method, args, signer, gas });
+  const held = expect === 'ok' ? r.ok : !r.ok;
+  const verdict = expect === 'ok' ? (r.ok ? 'OK     ' : 'FAILED ') : (r.ok ? 'NOT BLOCKED' : 'BLOCKED');
+  console.log(`${verdict}  ${label}${r.error ? `: ${r.error}` : ''}\n         https://testnet.nearblocks.io/txns/${r.hash}`);
+  const e = evidence();
+  e.events.push({ label, method, tx: r.hash, sender: signer, expect, ...(r.error ? { error: r.error } : {}), at: new Date().toISOString() });
+  writeEvidence(e);
+  if (!held) process.exitCode = 1;
+  return r;
 }
 
-const latestSigned = (chain, index) => {
-  const payout = chain.payouts[index];
+const latestSigned = (state, index) => {
+  const payout = state.payouts[index];
   const attemptIndex = payout?.attempts.findLastIndex((a) => a.r_hex);
   if (attemptIndex === undefined || attemptIndex < 0) throw new Error('payout has no signed attempt');
   return { payout, attempt: payout.attempts[attemptIndex], attemptIndex };
 };
 
 const commands = {
-  /** Generates local test keys and seals the wishes to the MPC identity. */
+  /** Generates local test keys and seals the wishes to the vault's MPC identity. */
   async init([vault, ...heirs]) {
     if (!vault || !heirs.length) throw new Error('usage: init <vault.testnet> <0xHeir> [0xHeir...]');
     mkdirSync(new URL('../.ghost/', import.meta.url), { recursive: true });
@@ -68,6 +75,7 @@ const commands = {
       appSecret: app.secret.toString(16), appPublicHex: Buffer.from(app.publicKey).toString('hex'),
       sealed: sealToIdentity(mpk, vault, WISHES_PATH, wishes),
     });
+    writeEvidence({ vault, events: [], settle: {} });
     console.log('Keys written to .ghost/state.json');
   },
 
@@ -75,12 +83,10 @@ const commands = {
     console.log(await deriveVaultAddress(load().vault));
   },
 
-  /** Prints account commands for the human to run. Nothing here creates an account. */
+  /** Prints the account commands for the human to run. Nothing here creates an account. */
   accounts() {
     const s = load();
-    for (const role of [s.owner, s.agent, s.court]) {
-      console.log(`near account create-account fund-myself ${role} '1 NEAR' autogenerate-new-keypair save-to-keychain sign-as ${s.vault} network-config testnet sign-with-keychain send`);
-    }
+    console.log(`for r in owner agent court; do near account create-account fund-myself $r.${s.vault} '1 NEAR' autogenerate-new-keypair --signature-scheme ed25519 save-to-keychain sign-as ${s.vault} network-config testnet sign-with-keychain send; done`);
   },
 
   async deploy() {
@@ -104,15 +110,17 @@ const commands = {
     execFileSync('near', ['contract', 'deploy', s.vault, 'use-file', WASM, 'with-init-call', 'new', 'json-args',
       JSON.stringify({ config }), 'prepaid-gas', '100 Tgas', 'attached-deposit', '0 NEAR', 'network-config', 'testnet',
       'sign-with-keychain', 'send'], { stdio: 'inherit' });
-    record({ deployed: true });
   },
 
   /** I1: removes every full-access key, then proves none remain by reading the chain. */
   async lock() {
     const { vault } = load();
     const keys = fullAccessKeys(await accessKeys(vault));
-    if (!keys.length) throw new Error('no full-access keys to remove');
-    // ML-DSA keys are listed by hash; the CLI needs the full key, e.g. from any transaction the vault signed.
+    if (!keys.length) {
+      console.log('LOCKED: view_access_key_list returns no FullAccess key');
+      return;
+    }
+    // ML-DSA keys are listed by hash; the CLI needs the full key, which any transaction the vault signed contains.
     const names = keys.map((k) => (k.public_key.startsWith('ml-dsa-65-hash:') ? process.env.GHOST_FULL_KEY : k.public_key));
     if (names.some((n) => !n)) throw new Error('set GHOST_FULL_KEY to the full ml-dsa-65 public key');
     execFileSync('near', ['account', 'delete-keys', vault, 'public-keys', names.join(','),
@@ -120,114 +128,147 @@ const commands = {
     const remaining = fullAccessKeys(await accessKeys(vault));
     if (remaining.length) throw new Error(`FullAccess keys remain: ${JSON.stringify(remaining)}`);
     console.log('LOCKED: view_access_key_list returns no FullAccess key');
-    record({ locked: true });
   },
 
   checkin() {
-    call('check_in', {}, load().owner);
-    record({ falseClaimCancelled: run().claimed === true });
+    return act('Owner checks in', 'check_in', {}, load().owner);
   },
 
-  claim() {
+  async claim() {
     const s = load();
+    const state = await chain();
     const deathAt = Math.floor(Date.now() / 1000) - 5;
-    return viewCall(s.vault, 'get_state').then((chain) => {
-      call('open_claim', { death_at: deathAt, proofs: proofs(s, `ghost:death:${s.vault}:${chain.claim_epoch}:${deathAt}`), override_claim: false }, s.owner);
-      const adultAt = deathAt - 86400;
-      s.heirs.forEach((_, i) => chain.heirs[i].adult_at === null && call('prove_adult', { heir_index: i, adult_at: adultAt, signature: signText(s.registrar, `ghost:adult:${s.vault}:${i}:${adultAt}`) }, s.owner));
-      record({ claimed: true });
-    });
+    await act('Witnesses open a claim', 'open_claim',
+      { death_at: deathAt, proofs: proofs(s, `ghost:death:${s.vault}:${state.claim_epoch}:${deathAt}`), override_claim: false }, s.owner);
+    const adultAt = deathAt - 86400;
+    for (const [i, heir] of state.heirs.entries()) {
+      if (heir.adult_at === null) {
+        await act(`Registrar proves heir ${i} is an adult`, 'prove_adult',
+          { heir_index: i, adult_at: adultAt, signature: signText(s.registrar, `ghost:adult:${s.vault}:${i}:${adultAt}`) }, s.owner);
+      }
+    }
+  },
+
+  /** Every call here must be refused by the contract. Each refusal is a transaction anyone can recheck. */
+  async attack() {
+    const s = load();
+    const state = await chain();
+    const forged = { signed_text: `${'ab'.repeat(32)}:${'cd'.repeat(32)}`, signature: '00'.repeat(65), response_body: '{}' };
+    const witnessForgery = proofs({ witnesses: [newKey(), newKey()] }, 'forged');
+    const stuck = state.payouts.findIndex((p) => p.status === 'Active');
+    const attacks = [
+      ['Agent pays an unlisted recipient', 'propose_payout', { heir_index: 7, value_wei: '1', proof: forged }, s.agent],
+      ['Agent pays an heir already being paid', 'propose_payout', { heir_index: 0, value_wei: parseEther('1').toString(), proof: forged }, s.agent],
+      ['Owner account poses as the agent', 'propose_payout', { heir_index: 0, value_wei: '1', proof: forged }, s.owner],
+      ['Agent freezes the vault', 'freeze', {}, s.agent],
+      ['Owner cancels after payout started', 'check_in', {}, s.owner],
+      ['Anyone fakes the MPC settlement callback', 'on_settled', { payout_index: 0, attempt_index: 0 }, s.agent],
+      ['Anyone fakes the MPC signature callback', 'on_signed', { payout_index: 0, attempt_index: 0 }, s.agent],
+      ['Forged witnesses reopen a payout', 'reopen_reverted', { payout_index: 0, attempt_index: 0, proofs: witnessForgery }, s.agent],
+      ['Forged witnesses register a signing key', 'register_signer',
+        { address: '0x000000000000000000000000000000000000dEaD', quote_sha256: 'x', expires_at: 4_000_000_000, proofs: witnessForgery }, s.agent],
+      ['Registrar proof replayed', 'prove_adult', { heir_index: 0, adult_at: 1, signature: signText(s.registrar, `ghost:adult:${s.vault}:0:1`) }, s.agent],
+      ['Second claim while one is open', 'open_claim', { death_at: 1, proofs: [], override_claim: false }, s.agent],
+      ...(stuck >= 0 ? [
+        ['Fee raised above the ceiling', 'request_signature', { payout_index: stuck, max_fee_per_gas: parseGwei('6').toString() }, s.agent],
+        ['Fee nudged to burn attempts', 'request_signature', { payout_index: stuck, max_fee_per_gas: parseGwei('0.21').toString() }, s.agent],
+      ] : []),
+    ];
+    for (const [label, method, args, signer] of attacks) await act(label, method, args, signer, { expect: 'fail', gas: '100 Tgas' });
   },
 
   async reason([report]) {
     const apiKey = process.env.NEARAI_API_KEY;
-    if (!apiKey || !report) throw new Error('usage: NEARAI_API_KEY=... reason "<situation report>"');
+    if (!apiKey || !report) throw new Error('usage: reason "<situation report>" with NEARAI_API_KEY in .env');
     const s = load();
-    const chain = await viewCall(s.vault, 'get_state');
-    const wishes = JSON.parse(readFileSync(new URL('../.ghost/opened.json', import.meta.url))).wishes;
-    const result = await reason({ apiKey, vault: s.vault, wishes, heirs: chain.heirs, report });
+    const state = await chain();
+    const wishes = JSON.parse(readFileSync(OPENED)).wishes;
+    const result = await reason({ apiKey, vault: s.vault, wishes, heirs: state.heirs, report });
     const att = await attestation({ apiKey, signingAddress: result.signingAddress });
     writeFileSync(new URL('../web/attestation.json', import.meta.url), att.text);
+    writeFileSync(new URL('../.ghost/reasoning.json', import.meta.url), JSON.stringify({ report, ...result, quoteSha256: att.quoteSha256 }, null, 2));
     console.log(JSON.stringify(result.decision, null, 2));
-    record({ reasoning: { report, ...result, quoteSha256: att.quoteSha256 } });
-  },
-
-  async attack() {
-    const s = load();
-    const hostile = { signed_text: 'a:b', signature: '00', response_body: '{}' };
-    const results = [
-      expectFailure('Over-cap payout', 'propose_payout', { heir_index: 0, value_wei: parseEther('1').toString(), proof: hostile }, s.agent),
-      expectFailure('Payout below floor', 'propose_payout', { heir_index: 0, value_wei: '1', proof: hostile }, s.agent),
-      expectFailure('Recipient not on the heir list', 'propose_payout', { heir_index: 99, value_wei: '1', proof: hostile }, s.agent),
-      expectFailure('Payout from a non-agent account', 'propose_payout', { heir_index: 0, value_wei: '1', proof: hostile }, s.owner),
-      expectFailure('Freeze from a non-court account', 'freeze', {}, s.agent),
-    ];
-    record({ attacks: results });
-    if (results.some((r) => !r.blocked)) process.exitCode = 1;
   },
 
   register() {
     const s = load();
-    const { reasoning } = run();
+    const r = JSON.parse(readFileSync(new URL('../.ghost/reasoning.json', import.meta.url)));
     const expires = Math.floor(Date.now() / 1000) + 86400 * 30;
-    const message = `ghost:signer:${s.vault}:${reasoning.signingAddress.toLowerCase()}:${reasoning.quoteSha256}:${expires}`;
-    call('register_signer', { address: reasoning.signingAddress, quote_sha256: reasoning.quoteSha256, expires_at: expires, proofs: proofs(s, message) }, s.owner);
+    const message = `ghost:signer:${s.vault}:${r.signingAddress.toLowerCase()}:${r.quoteSha256}:${expires}`;
+    return act('Witness quorum registers the NEAR AI enclave key', 'register_signer',
+      { address: r.signingAddress, quote_sha256: r.quoteSha256, expires_at: expires, proofs: proofs(s, message) }, s.owner);
   },
 
   pay() {
-    const s = load();
-    const { reasoning } = run();
-    if (reasoning?.decision?.action !== 'pay') throw new Error('latest decision is not a payment');
-    call('propose_payout', { heir_index: reasoning.decision.heir_index, value_wei: String(reasoning.decision.value_wei), proof: reasoning.proof }, s.agent);
+    const r = JSON.parse(readFileSync(new URL('../.ghost/reasoning.json', import.meta.url)));
+    if (r.decision?.action !== 'pay') throw new Error('latest decision is not a payment');
+    return act('Agent proposes the attested payout', 'propose_payout',
+      { heir_index: r.decision.heir_index, value_wei: String(r.decision.value_wei), proof: r.proof }, load().agent);
   },
 
-  fallback([heir]) {
-    call('execute_fallback', { heir_index: Number(heir) }, load().owner);
+  fallback([heir = '0']) {
+    return act(`Anyone starts the no-AI fallback for heir ${heir}`, 'execute_fallback', { heir_index: Number(heir) }, load().owner);
   },
 
   /** Asks for the same payout at a higher fee. Anyone can do this. */
-  reprice([payout, gwei]) {
-    call('request_signature', { payout_index: Number(payout), max_fee_per_gas: parseGwei(gwei).toString() }, load().owner);
+  reprice([payout = '0', gwei]) {
+    return act(`Payout ${payout} re-signed at ${gwei} gwei`, 'request_signature',
+      { payout_index: Number(payout), max_fee_per_gas: parseGwei(gwei).toString() }, load().owner);
   },
 
   async broadcast([index = '0']) {
     const s = load();
-    const chain = await viewCall(s.vault, 'get_state');
-    const { payout, attempt } = latestSigned(chain, Number(index));
+    const { payout, attempt } = latestSigned(await chain(), Number(index));
     const signer = await deriveVaultAddress(s.vault);
     const serializedTransaction = await assembleSignedTx(payout, attempt, signer);
     assertFunded(await client().getBalance({ address: signer }), payout, attempt);
     const hash = await client().sendRawTransaction({ serializedTransaction });
-    console.log(`https://sepolia.basescan.org/tx/${hash}`);
-    record({ baseTx: hash, baseFrom: signer });
+    console.log(`BROADCAST  https://sepolia.basescan.org/tx/${hash}`);
   },
 
-  /** Asks the MPC network to attest the landed transaction. Run after it is finalized. */
+  /** Asks the MPC network to attest the landed transaction. Run after Base Sepolia finalizes it. */
   async settle([index = '0']) {
     const s = load();
-    const { attemptIndex } = latestSigned(await viewCall(s.vault, 'get_state'), Number(index));
-    const out = execFileSync('near', nearArgs(s.vault, 'settle', { payout_index: Number(index), attempt_index: attemptIndex }, s.owner), { encoding: 'utf8', stdio: ['inherit', 'pipe', 'pipe'] });
-    const tx = out.match(/Transaction ID: (\w+)/)?.[1];
-    const evidenceFile = new URL('../web/evidence.json', import.meta.url);
-    const evidence = JSON.parse(readFileSync(evidenceFile));
-    evidence.settle[`${index}:${attemptIndex}`] = { tx, sender: s.owner };
-    writeFileSync(evidenceFile, JSON.stringify(evidence, null, 2));
-    console.log(`settle tx ${tx}`);
+    const { attemptIndex } = latestSigned(await chain(), Number(index));
+    const r = await act(`MPC network asked to attest payout ${index}`, 'settle', { payout_index: Number(index), attempt_index: attemptIndex }, s.owner);
+    if (r.ok && r.value === true) {
+      const e = evidence();
+      e.settle[`${index}:${attemptIndex}`] = { tx: r.hash, sender: s.owner };
+      writeEvidence(e);
+    }
+    console.log(r.value === true ? 'SETTLED  heir marked Paid' : 'NOT SETTLED  the network has not attested a landed transaction yet');
   },
 
-  /** Requests the wishes key from the vault and opens the sealed wishes. Prints a warning, not a claim of enclave custody. */
-  async open([bigY, bigC]) {
+  /** Has the vault request the wishes key, then opens the sealed wishes after a pairing check. */
+  async open() {
     const s = load();
+    const r = await act('Vault requests the wishes key from the MPC network', 'request_wishes_key', {}, s.owner);
+    if (!r.ok || !r.value?.big_y) throw new Error('no CKD response');
     const mpk = base58Decode((await ckdMasterKey()).split(':')[1], 96);
     const g1 = (v) => base58Decode(v.split(':').pop(), 48);
-    const key = unwrapCkd(g1(bigY), g1(bigC), BigInt(`0x${s.appSecret}`));
+    const key = unwrapCkd(g1(r.value.big_y), g1(r.value.big_c), BigInt(`0x${s.appSecret}`));
     const wishes = openWithIdentityKey(mpk, s.vault, WISHES_PATH, key, s.sealed);
-    writeFileSync(new URL('../.ghost/opened.json', import.meta.url), JSON.stringify({ wishes }), { mode: 0o600 });
-    console.warn('Key unwrapped on this machine, not inside an attested enclave.');
+    writeFileSync(OPENED, JSON.stringify({ wishes }), { mode: 0o600 });
+    console.log('OPENED  key passed the pairing check; unwrapped on this machine, not in an enclave');
   },
 
-  async status() {
-    console.log(JSON.stringify(await viewCall(load().vault, 'get_state'), null, 2));
+  async status([flag]) {
+    const state = await chain();
+    if (flag === '--json') return console.log(JSON.stringify(state, null, 2));
+    const s = load();
+    const now = Math.floor(Date.now() / 1000);
+    const address = await deriveVaultAddress(s.vault);
+    const balance = await client().getBalance({ address });
+    const keys = fullAccessKeys(await accessKeys(s.vault));
+    const c = state.claim;
+    const phase = !c ? 'no claim' : now < c.pay_after ? `claim open, grace ends in ${c.pay_after - now}s` : 'claim matured';
+    console.log(`vault     ${s.vault}  ${keys.length ? `${keys.length} full-access key(s)` : 'locked'}`);
+    console.log(`address   ${address}  ${formatEther(balance)} ETH on Base Sepolia`);
+    console.log(`claim     ${phase}`);
+    for (const [i, h] of state.heirs.entries()) console.log(`heir ${i}    ${h.address}  ${h.status}  floor ${formatEther(BigInt(h.floor_wei))}  cap ${formatEther(BigInt(h.cap_wei))}`);
+    for (const [i, p] of state.payouts.entries()) {
+      console.log(`payout ${i}  ${formatEther(BigInt(p.value_wei))} ETH  nonce ${p.nonce}  ${p.source}  ${p.status}  ${p.attempts.length} attempt(s)`);
+    }
   },
 };
 
@@ -236,4 +277,9 @@ if (!commands[name]) {
   console.error(`commands: ${Object.keys(commands).join(', ')}`);
   process.exit(1);
 }
-await commands[name](args);
+try {
+  await commands[name](args);
+} catch (e) {
+  console.error(`error: ${e.message}`);
+  process.exit(1);
+}

@@ -1,1 +1,212 @@
-{ "settle": {} }
+{
+  "vault": "ghostprotocol-vault.testnet",
+  "events": [
+    {
+      "label": "Contract deployed and initialized",
+      "method": "new",
+      "tx": "6GuPaXDMPukwwerbHStheoJcAme6NWpmZKRhDVk8DtsC",
+      "sender": "ghostprotocol-vault.testnet",
+      "expect": "ok",
+      "at": "2026-11-10T08:43:00Z"
+    },
+    {
+      "label": "Witnesses open a claim",
+      "method": "open_claim",
+      "tx": "6TjeYW5JvMYY9DR2B4vvwBqVn15JaMk1QPR5K78KZFCc",
+      "sender": "owner.ghostprotocol-vault.testnet",
+      "expect": "ok",
+      "at": "2026-11-10T08:47:00Z"
+    },
+    {
+      "label": "Registrar proves heir 0 is an adult",
+      "method": "prove_adult",
+      "tx": "CK7t5S887BBgTECRLLng9eefC2FaA3KRVCD7wuqdR1cZ",
+      "sender": "owner.ghostprotocol-vault.testnet",
+      "expect": "ok",
+      "at": "2026-11-10T08:47:10Z"
+    },
+    {
+      "label": "Owner checks in and cancels the false claim",
+      "method": "check_in",
+      "tx": "Dm1JPDN2js5FVp6phEZHzcczJDbyKHmuyCQUpAUU5VVw",
+      "sender": "owner.ghostprotocol-vault.testnet",
+      "expect": "ok",
+      "at": "2026-11-10T08:47:30Z"
+    },
+    {
+      "label": "Witnesses open a new claim",
+      "method": "open_claim",
+      "tx": "8bCHdgihoFGLKEFgmMN2naciNbZFfrerSmB9QzVKYfdH",
+      "sender": "owner.ghostprotocol-vault.testnet",
+      "expect": "ok",
+      "at": "2026-11-10T08:48:45Z"
+    },
+    {
+      "label": "Vault requests the wishes key from the MPC network",
+      "method": "request_wishes_key",
+      "tx": "8Uw6tGnSf6G49MavWf3LZHKbZ128cVhGzCqSp3XKbuwx",
+      "sender": "owner.ghostprotocol-vault.testnet",
+      "expect": "ok",
+      "at": "2026-11-10T08:52:00Z"
+    },
+    {
+      "label": "Anyone starts the no-AI fallback for heir 0",
+      "method": "execute_fallback",
+      "tx": "GH1TmBiumNAzJmVsdfmo4RPkxjWGtKqXrQKYzCFQedJV",
+      "sender": "owner.ghostprotocol-vault.testnet",
+      "expect": "ok",
+      "at": "2026-11-10T08:58:10Z"
+    },
+    {
+      "label": "Payout 0 re-signed at 0.2 gwei",
+      "method": "request_signature",
+      "tx": "niToN6tTZiQ7VcAG53xxCUggQ8gNHerUHPWQU8E12R1",
+      "sender": "owner.ghostprotocol-vault.testnet",
+      "expect": "ok",
+      "at": "2026-11-10T09:00:00Z"
+    },
+    {
+      "label": "Reproducible build deployed over the same state",
+      "method": "deploy",
+      "tx": "7H9Fi6ydDzHtZzbzLSc5hHHBGcPxWyCjqLeCXaRmm3r1",
+      "sender": "ghostprotocol-vault.testnet",
+      "expect": "ok",
+      "at": "2026-11-10T09:02:00Z"
+    },
+    {
+      "label": "MPC network asked to attest a payout never broadcast",
+      "method": "settle",
+      "tx": "9EivMJaKZbAjB6yih8CA8YVsx6FENebo9Fu9vQ1o9wmh",
+      "sender": "owner.ghostprotocol-vault.testnet",
+      "expect": "ok",
+      "note": "returns false; the heir stays Pending",
+      "at": "2026-11-10T09:04:00Z"
+    },
+    {
+      "label": "Vault's last key deleted",
+      "method": "delete_key",
+      "tx": "2AwB18KpkUaPoBAJhJUSVtyHDW5jPGJtZvCDBDn2pUAa",
+      "sender": "ghostprotocol-vault.testnet",
+      "expect": "ok",
+      "at": "2026-11-10T09:08:00Z"
+    },
+    {
+      "label": "Agent pays an unlisted recipient",
+      "method": "propose_payout",
+      "tx": "EiYTLqPoyNiP6cCGKoYupyUEjbz2ihaPxJ5qSkweMrk7",
+      "sender": "agent.ghostprotocol-vault.testnet",
+      "expect": "fail",
+      "error": "recipient is not an heir",
+      "at": "2026-11-11T19:56:31.239Z"
+    },
+    {
+      "label": "Agent pays an heir already being paid",
+      "method": "propose_payout",
+      "tx": "AQDhKLtcYfPAtouQQhRKaHBPhyMP28evrHZbrbeDtv7m",
+      "sender": "agent.ghostprotocol-vault.testnet",
+      "expect": "fail",
+      "error": "heir already paid or pending",
+      "at": "2026-11-11T19:56:39.243Z"
+    },
+    {
+      "label": "Owner account poses as the agent",
+      "method": "propose_payout",
+      "tx": "7i1P3Jnq7VC5rTpVhqGSMqgQ7QojbPbZFYUnBvXWoj4k",
+      "sender": "owner.ghostprotocol-vault.testnet",
+      "expect": "fail",
+      "error": "only the agent can propose",
+      "at": "2026-11-11T19:56:48.478Z"
+    },
+    {
+      "label": "Agent freezes the vault",
+      "method": "freeze",
+      "tx": "AV1GQRCxaRzVheVd7e4HdPeDzozBXcvnBbBgCxQh6n5h",
+      "sender": "agent.ghostprotocol-vault.testnet",
+      "expect": "fail",
+      "error": "only the legal authority can freeze",
+      "at": "2026-11-11T19:56:57.577Z"
+    },
+    {
+      "label": "Owner cancels after payout started",
+      "method": "check_in",
+      "tx": "aiLmHHL2puzeJKkWjhCd33zuR5y89V5yugbXPtQVSLi",
+      "sender": "owner.ghostprotocol-vault.testnet",
+      "expect": "fail",
+      "error": "payout already started",
+      "at": "2026-11-11T19:57:05.826Z"
+    },
+    {
+      "label": "Anyone fakes the MPC settlement callback",
+      "method": "on_settled",
+      "tx": "9dv4bwyRrN75UDGyA3CT734s5QGQaKe7DjmQi8KY9QYA",
+      "sender": "agent.ghostprotocol-vault.testnet",
+      "expect": "fail",
+      "error": "Method on_settled is private",
+      "at": "2026-11-11T19:57:14.421Z"
+    },
+    {
+      "label": "Anyone fakes the MPC signature callback",
+      "method": "on_signed",
+      "tx": "4FecK5QhUSQkyndn151teSSw4LDh5GzKR2CyWrvrGA4X",
+      "sender": "agent.ghostprotocol-vault.testnet",
+      "expect": "fail",
+      "error": "Method on_signed is private",
+      "at": "2026-11-11T19:57:22.761Z"
+    },
+    {
+      "label": "Forged witnesses reopen a payout",
+      "method": "reopen_reverted",
+      "tx": "3xsmEMw1J9sPKs5Uxz22GbwfoPjQq9eF5M8iWZUoe8L6",
+      "sender": "agent.ghostprotocol-vault.testnet",
+      "expect": "fail",
+      "error": "invalid witness signature",
+      "at": "2026-11-11T19:57:31.280Z"
+    },
+    {
+      "label": "Forged witnesses register a signing key",
+      "method": "register_signer",
+      "tx": "AaXt4kq55ZNrP772V3JFrM7HSoUpNh3Qso3byUvALG1k",
+      "sender": "agent.ghostprotocol-vault.testnet",
+      "expect": "fail",
+      "error": "invalid witness signature",
+      "at": "2026-11-11T19:57:39.314Z"
+    },
+    {
+      "label": "Registrar proof replayed",
+      "method": "prove_adult",
+      "tx": "6QJE6Fz7GA51hREaLJhFk8mopiUvdttrasJ9VznUqvH5",
+      "sender": "agent.ghostprotocol-vault.testnet",
+      "expect": "fail",
+      "error": "heir age already proven",
+      "at": "2026-11-11T19:57:47.857Z"
+    },
+    {
+      "label": "Second claim while one is open",
+      "method": "open_claim",
+      "tx": "Gb768RxHRojntf1Dr31dgrmWUoYSnJuCF2wsoUxieXdF",
+      "sender": "agent.ghostprotocol-vault.testnet",
+      "expect": "fail",
+      "error": "claim already open",
+      "at": "2026-11-11T19:57:56.258Z"
+    },
+    {
+      "label": "Fee raised above the ceiling",
+      "method": "request_signature",
+      "tx": "5m8sUCGzqmfbSwxARvKFUq1dKfL5XbE9sQPjW1aKDE5d",
+      "sender": "agent.ghostprotocol-vault.testnet",
+      "expect": "fail",
+      "error": "fee above ceiling",
+      "at": "2026-11-11T19:58:04.699Z"
+    },
+    {
+      "label": "Fee nudged to burn attempts",
+      "method": "request_signature",
+      "tx": "BWRv6fuU3Neb4csfU6zepVmBQfpKpFMmQt3GeUmu8gP3",
+      "sender": "agent.ghostprotocol-vault.testnet",
+      "expect": "fail",
+      "error": "fee must double or reach the ceiling",
+      "at": "2026-11-11T19:58:13.103Z"
+    }
+  ],
+  "settle": {}
+}
