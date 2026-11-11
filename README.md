@@ -8,7 +8,12 @@ Tracks: Privacy & Private AI, AI Security & Defense. Testnet only.
 
 ## Check it yourself
 
-Open the verifier (`npm run web`, then http://localhost:4173). It reads NEAR testnet and Base Sepolia from your browser, recomputes every claim below, and replays every recorded transaction from its receipt. A failing claim shows FAIL.
+Run the site with `npm run web` and open http://localhost:4173.
+
+- `index.html` is the landing page: what GhostProtocol does, who can't change the outcome, and live proof numbers.
+- `app.html` is the app for the live test vault, with Overview, Heirs & payouts, Activity, Proofs and Verify views.
+
+Both read NEAR testnet and Base Sepolia from your browser, recompute every claim below, and replay every recorded transaction from its receipt. A failing claim shows as failed. A node that does not answer shows as waiting, never as passed.
 
 The same checks run from a terminal against the live chain:
 

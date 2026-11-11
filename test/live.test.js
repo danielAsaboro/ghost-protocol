@@ -5,8 +5,8 @@ import test from 'node:test';
 import { verifyVault } from '../web/verify.mjs';
 
 const evidence = JSON.parse(readFileSync(new URL('../web/evidence.json', import.meta.url)));
-const html = readFileSync(new URL('../web/index.html', import.meta.url), 'utf8');
-const reproducibleHash = html.match(/name="ghost:wasm" content="([^"]+)"/)[1];
+const ui = readFileSync(new URL('../web/ui.mjs', import.meta.url), 'utf8');
+const reproducibleHash = ui.match(/WASM_HASH = '([^']+)'/)[1];
 
 test('the live vault passes every check that has happened, and fails none', { timeout: 120_000 }, async () => {
   const r = await verifyVault({ vault: evidence.vault, evidence, reproducibleHash });

@@ -2,6 +2,8 @@
 import { getAddress, keccak256, recoverAddress, serializeTransaction } from 'viem';
 
 export const NEAR_RPC = 'https://rpc.testnet.near.org';
+const NEAR_RPCS = [NEAR_RPC, 'https://test.rpc.fastnear.com'];
+const BASE_RPCS = ['https://base-sepolia-rpc.publicnode.com', 'https://sepolia.base.org'];
 // Transactions older than a few epochs live only on archival nodes.
 export const ARCHIVAL_RPC = ['https://archival-rpc.testnet.near.org', 'https://archival-rpc.testnet.fastnear.com'];
 export const BASE_RPC = 'https://base-sepolia-rpc.publicnode.com';
@@ -48,32 +50,78 @@ export function foreignPayload(txId) {
   return out;
 }
 
+// Transaction receipts never change, so a session can keep them.
+const cache = {
+  get(hash) {
+    try { const v = globalThis.sessionStorage?.getItem(`tx:${hash}`); return v ? JSON.parse(v) : null; } catch { return null; }
+  },
+  set(hash, value) {
+    try { globalThis.sessionStorage?.setItem(`tx:${hash}`, JSON.stringify(value)); } catch { /* storage full or blocked */ }
+  },
+};
+
+async function mapLimited(items, limit, fn) {
+  const out = new Array(items.length);
+  let next = 0;
+  await Promise.all(Array.from({ length: Math.min(limit, items.length) }, async () => {
+    while (next < items.length) {
+      const i = next++;
+      out[i] = await fn(items[i], i);
+    }
+  }));
+  return out;
+}
+
 export function makeRpc(fetchImpl = fetch) {
   const post = async (url, body) => (await fetchImpl(url, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body) })).json();
-  const near = async (params) => {
-    const j = await post(NEAR_RPC, { jsonrpc: '2.0', id: 1, method: 'query', params: { finality: 'final', ...params } });
-    if (!j.result || j.result.error) throw new Error(`NEAR RPC: ${JSON.stringify(j.error ?? j.result?.error)}`);
-    return j.result;
+  // Tries each provider, then backs off and tries again. Public RPCs rate-limit bursts.
+  const any = async (urls, body, ok) => {
+    let last;
+    for (let attempt = 0; attempt < 3; attempt++) {
+      for (const url of urls) {
+        try {
+          const j = await post(url, body);
+          if (ok(j)) return j;
+          last = j.error ?? j.result?.error;
+        } catch (e) {
+          last = e.message;
+        }
+      }
+      await new Promise((r) => setTimeout(r, 400 * 2 ** attempt));
+    }
+    throw new Error(`RPC unreachable: ${JSON.stringify(last)}`);
   };
+  const near = async (params) => (await any(NEAR_RPCS, { jsonrpc: '2.0', id: 1, method: 'query', params: { finality: 'final', ...params } },
+    (j) => j.result && !j.result.error)).result;
   return {
     near,
     view: async (account, method, args = {}) => JSON.parse(text(Uint8Array.from((await near({
       request_type: 'call_function', account_id: account, method_name: method, args_base64: btoa(JSON.stringify(args)),
     })).result))),
     tx: async (hash, sender) => {
+      const cached = cache.get(hash);
+      if (cached) return cached;
       let last;
-      for (const url of ARCHIVAL_RPC) {
-        try {
-          const j = await post(url, { jsonrpc: '2.0', id: 1, method: 'tx', params: { tx_hash: hash, sender_account_id: sender, wait_until: 'NONE' } });
-          if (j.result?.transaction) return j.result;
-          last = j.error?.data ?? j.error;
-        } catch (e) {
-          last = e.message;
+      for (let attempt = 0; attempt < 4; attempt++) {
+        for (const url of ARCHIVAL_RPC) {
+          try {
+            const j = await post(url, { jsonrpc: '2.0', id: 1, method: 'tx', params: { tx_hash: hash, sender_account_id: sender, wait_until: 'NONE' } });
+            if (j.result?.transaction) {
+              cache.set(hash, j.result);
+              return j.result;
+            }
+            last = j.error?.data ?? j.error;
+          } catch (e) {
+            last = e.message;
+          }
         }
+        await new Promise((r) => setTimeout(r, 500 * 2 ** attempt));
       }
-      throw new Error(`transaction ${hash}: ${JSON.stringify(last)}`);
+      const err = new Error(`could not reach an archival node for ${hash}: ${JSON.stringify(last)}`);
+      err.unreachable = true;
+      throw err;
     },
-    base: async (method, params) => (await post(BASE_RPC, { jsonrpc: '2.0', id: 1, method, params })).result,
+    base: async (method, params) => (await any(BASE_RPCS, { jsonrpc: '2.0', id: 1, method, params }, (j) => 'result' in j)).result,
   };
 }
 
@@ -209,7 +257,7 @@ export async function verifyVault({ vault, evidence = { events: [], settle: {} }
     payouts.push({ index: i, heir: p.heir_index, to: p.to, value: p.value_wei, nonce: p.nonce, source: p.source, status: p.status, attempts });
   }
 
-  const events = await Promise.all((evidence.events ?? []).map(async (e) => {
+  const events = await mapLimited(evidence.events ?? [], 4, async (e) => {
     try {
       const result = await rpc.tx(e.tx, e.sender);
       const o = outcome(result);
@@ -219,9 +267,10 @@ export async function verifyVault({ vault, evidence = { events: [], settle: {} }
       const gas = [result.transaction_outcome, ...result.receipts_outcome].reduce((t, r) => t + Number(r.outcome.gas_burnt), 0);
       return { ...e, verdict: matches && receiverOk && method === e.method ? 'PASS' : 'FAIL', observed: o.ok ? 'succeeded' : o.error, tgas: gas / 1e12 };
     } catch (err) {
-      return { ...e, verdict: 'FAIL', observed: err.message };
+      // A node that does not answer proves nothing either way.
+      return { ...e, verdict: err.unreachable ? 'WAIT' : 'FAIL', observed: err.message };
     }
-  }));
+  });
   const refused = events.filter((e) => e.expect === 'fail');
   if (refused.length) {
     checks.push(check('Attacks', 'attacks', refused.every((e) => e.verdict === 'PASS') ? 'PASS' : 'FAIL',

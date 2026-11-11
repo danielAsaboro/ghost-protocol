@@ -4,424 +4,270 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>GhostProtocol</title>
-<meta name="description" content="A NEAR vault that pays heirs after a witnessed death claim. Every number on this page is recomputed from public RPC in your browser.">
-<meta name="ghost:wasm" content="DBRswoeb9syKVRZJrCpjbw62E3Z6ZL48MAoLN8KfU4E8">
-<meta name="ghost:commit" content="ba25e39">
+<meta name="description" content="A crypto will on NEAR. Your heirs get paid after a witnessed death, and no executor, AI or company can change who gets what.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="styles.css">
 <script type="importmap">{ "imports": { "viem": "https://cdn.jsdelivr.net/npm/viem@2.21.0/+esm" } }</script>
 <style>
-:root {
-  color-scheme: dark;
-  --backdrop: #0b0b12; --win: #0c0f16; --tile: #11151d; --tile-2: #171c26; --line: #1b202b; --line-2: #2a3040;
-  --text: #f2f3f7; --text-2: #9aa0ae; --muted: #6b7182;
-  --violet: #7b5cff; --violet-hi: #8a6dff; --mint: #3fe0a5; --mint-bg: rgba(63, 224, 165, .12); --red: #ff7a7a; --amber: #f0c25a;
-  --sans: "Inter", system-ui, sans-serif;
+.wrap { max-width: 1160px; margin: 0 auto; padding-left: max(24px, env(safe-area-inset-left, 0px)); padding-right: max(24px, env(safe-area-inset-right, 0px)) }
+.nav { position: sticky; top: 0; z-index: 10; backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px); background: rgba(8, 9, 15, .55); border-bottom: 1px solid var(--hair) }
+.nav .wrap { height: 68px; display: flex; align-items: center; gap: 32px }
+.nav nav { display: flex; gap: 28px; font-size: 14px; color: var(--ink-2); margin-right: auto }
+.nav nav a:hover { color: var(--ink) }
+
+.hero { padding-block: 88px 96px; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 56px; align-items: center }
+.eyebrow { display: inline-flex; align-items: center; gap: 8px; margin-bottom: 24px; font-size: 13px; color: var(--violet-ink) }
+.eyebrow i { width: 7px; height: 7px; border-radius: 50%; background: var(--mint) }
+h1 { margin: 0 0 20px; font: 600 56px/1.04 var(--sans); letter-spacing: -.035em; text-wrap: balance }
+.lede { margin: 0 0 36px; font-size: 18px; line-height: 1.6; color: var(--ink-2); max-width: 30em }
+.actions { display: flex; gap: 12px; flex-wrap: wrap }
+.actions .btn { height: 48px; padding: 0 24px; font-size: 15px }
+
+.scene { position: relative; padding-bottom: 56px }
+.vault { position: relative; z-index: 2; padding: 24px; display: grid; gap: 20px; max-width: 440px; margin-left: auto;
+  background: radial-gradient(90% 70% at 100% 0%, rgba(123, 92, 255, .38), transparent 60%), radial-gradient(70% 60% at 0% 110%, rgba(178, 60, 130, .22), transparent 60%), linear-gradient(160deg, rgba(255, 255, 255, .07), rgba(255, 255, 255, .015) 45%), rgba(17, 21, 32, .8) }
+.vault .head { display: flex; align-items: center; justify-content: space-between; gap: 12px }
+.vault .who { display: flex; align-items: center; gap: 12px; min-width: 0 }
+.vault .who b { display: block; font-weight: 500; font-size: 15px }
+.vault .who small { display: block; color: var(--ink-3); font-size: 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap }
+.vault .who > div { min-width: 0 }
+.vault .amount { display: grid; gap: 4px }
+.vault .amount span { color: var(--ink-2); font-size: 13px }
+.vault .amount b { font: 500 38px/1 var(--sans); letter-spacing: -.02em; font-variant-numeric: tabular-nums }
+.track { display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px }
+.track i { height: 6px; border-radius: 3px; background: rgba(255, 255, 255, .1) }
+.track i.on { background: var(--mint) }
+.track i.now { background: var(--violet-2) }
+.vault .stage { display: flex; justify-content: space-between; font-size: 13px; color: var(--ink-2) }
+.vault .stage b { color: var(--ink); font-weight: 500 }
+.heirs { display: grid; gap: 10px; padding-top: 16px; border-top: 1px solid var(--hair) }
+.heirs div { display: flex; align-items: center; gap: 10px; font-size: 13px }
+.heirs div > span:nth-child(2) { flex: 1; color: var(--ink-2) }
+.toast { position: absolute; z-index: 3; left: -8px; bottom: 0; width: 320px; padding: 14px 16px; display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 2px 12px; align-items: center;
+  border-radius: 16px; background: linear-gradient(160deg, rgba(255, 255, 255, .08), rgba(255, 255, 255, .02)), rgba(20, 24, 36, .9) }
+.toast .ic { grid-row: span 2; width: 34px; height: 34px; border-radius: 10px; display: grid; place-items: center; color: var(--red); background: rgba(255, 125, 125, .12) }
+.toast .ic svg { width: 16px; height: 16px }
+.toast b { font-weight: 500; font-size: 13.5px }
+.toast small { color: var(--ink-3); font-size: 12px; font-family: var(--mono); overflow: hidden; text-overflow: ellipsis; white-space: nowrap }
+
+section.block { padding-block: 88px }
+.kicker { font-size: 13px; color: var(--violet-ink); margin-bottom: 14px }
+h2 { margin: 0 0 16px; font: 600 38px/1.12 var(--sans); letter-spacing: -.025em; text-wrap: balance; max-width: 20ch }
+.sub { margin: 0 0 48px; color: var(--ink-2); font-size: 17px; max-width: 36em }
+
+.steps { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px }
+.step { padding: 24px; display: grid; gap: 12px; align-content: start }
+.step .n { width: 36px; height: 36px; border-radius: 11px; display: grid; place-items: center; font: 500 14px var(--sans); color: var(--violet-ink); background: rgba(123, 92, 255, .14) }
+.step h3 { margin: 0; font: 500 18px var(--sans) }
+.step p { margin: 0; color: var(--ink-2); font-size: 14.5px }
+
+.roles { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px }
+.role { padding: 24px; display: grid; gap: 10px; align-content: start }
+.role .t { display: flex; align-items: center; gap: 12px }
+.role .t span:last-child { font: 500 16px var(--sans) }
+.role .ic { width: 38px; height: 38px; border-radius: 11px; display: grid; place-items: center; color: var(--ink-2); background: rgba(255, 255, 255, .05); box-shadow: inset 0 1px 0 rgba(255, 255, 255, .06) }
+.role .ic svg { width: 18px; height: 18px }
+.role p { margin: 0; color: var(--ink-2); font-size: 14.5px }
+.role p b { color: var(--ink); font-weight: 500 }
+
+.proof { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr); gap: 48px; align-items: center }
+.nums { display: grid; grid-template-columns: 1fr 1fr; gap: 16px }
+.num { padding: 22px; display: grid; gap: 8px }
+.num b { font: 600 34px/1 var(--sans); letter-spacing: -.02em; font-variant-numeric: tabular-nums }
+.num span { color: var(--ink-2); font-size: 14px }
+
+.faq { display: grid; gap: 12px; max-width: 820px }
+details { padding: 0 24px; border-radius: var(--r-md) }
+summary { list-style: none; cursor: pointer; padding: 20px 0; display: flex; justify-content: space-between; gap: 16px; font: 500 16px var(--sans) }
+summary::-webkit-details-marker { display: none }
+summary::after { content: "+"; color: var(--ink-3); font-size: 20px; line-height: 1 }
+details[open] summary::after { content: "–" }
+details p { margin: 0 0 20px; color: var(--ink-2); font-size: 15px; max-width: 60ch }
+
+.final { padding: 56px; display: flex; justify-content: space-between; align-items: center; gap: 24px; flex-wrap: wrap;
+  background: radial-gradient(70% 140% at 100% 0%, rgba(123, 92, 255, .45), transparent 60%), linear-gradient(160deg, rgba(255, 255, 255, .06), rgba(255, 255, 255, .015)), rgba(17, 21, 32, .8) }
+.final h2 { margin: 0 }
+footer { padding-block: 48px 64px; color: var(--ink-3); font-size: 13px; display: flex; justify-content: space-between; gap: 24px; flex-wrap: wrap }
+footer nav { display: flex; gap: 24px }
+footer a:hover { color: var(--ink) }
+
+@media (max-width: 960px) {
+  .hero, .proof { grid-template-columns: minmax(0, 1fr) }
+  .hero { padding-block: 56px 72px; gap: 40px }
+  h1 { font-size: 42px }
+  .steps, .roles { grid-template-columns: 1fr 1fr }
+  .vault { margin: 0 auto }
 }
-* { box-sizing: border-box }
-html { -webkit-text-size-adjust: 100% }
-body { margin: 0; min-height: 100vh; font: 14px/1.5 var(--sans); color: var(--text); background-color: var(--backdrop);
-  background-image: radial-gradient(55% 22% at 25% 0%, #7556ff 0, #5a3fe6 40%, transparent 78%), radial-gradient(18% 45% at 0% 40%, #6a4cf5 0, #4a33c4 45%, transparent 80%), radial-gradient(50% 30% at 75% 100%, #7556ff 0, #4f37cf 45%, transparent 80%), radial-gradient(14% 30% at 100% 82%, #6a4cf5 0, transparent 80%); background-attachment: fixed }
-a { color: inherit; text-decoration: none }
-:focus-visible { outline: 2px solid var(--violet-hi); outline-offset: 2px }
-button { font: inherit; color: inherit }
-
-.stage { padding: 72px max(64px, env(safe-area-inset-right, 0px)) 72px max(64px, env(safe-area-inset-left, 0px)) }
-.win { max-width: 1440px; margin: 0 auto; display: grid; grid-template-columns: 88px minmax(0, 1fr);
-  background: linear-gradient(180deg, rgba(14, 17, 26, .82), rgba(11, 14, 21, .9)); backdrop-filter: blur(40px) saturate(140%); -webkit-backdrop-filter: blur(40px) saturate(140%);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .06), inset 1px 0 0 rgba(255, 255, 255, .03), 0 40px 120px rgba(20, 8, 70, .55) }
-
-.rail { border-right: 1px solid var(--line); display: flex; flex-direction: column; align-items: center; padding: 24px 0 28px }
-.mark { width: 36px; height: 36px; border-radius: 12px; display: grid; place-items: center; background: var(--tile-2); margin-bottom: 64px }
-.mark i { width: 20px; height: 20px; border-radius: 50%; background: conic-gradient(from 200deg, #4fd8cf, #6a5cff, #4fd8cf) }
-.rail nav { display: grid; gap: 14px }
-.rail nav a { width: 34px; height: 34px; border-radius: 10px; display: grid; place-items: center; color: #4c5263; transition: color .15s;
-  background: linear-gradient(160deg, rgba(255, 255, 255, .06), rgba(255, 255, 255, .015)); box-shadow: inset 0 1px 0 rgba(255, 255, 255, .06) }
-.rail nav a:hover { color: var(--text-2) }
-.rail nav a.on { background: linear-gradient(160deg, rgba(138, 109, 255, .35), rgba(115, 84, 245, .15)); color: #b9a8ff; box-shadow: inset 0 1px 0 rgba(255, 255, 255, .12), inset 0 0 0 1px rgba(138, 109, 255, .35) }
-.rail svg { width: 16px; height: 16px }
-.rail .low { margin-top: auto; display: grid; justify-items: center; gap: 12px }
-.chip-net { width: 34px; padding: 6px 0 4px; border-radius: 10px; background: var(--tile-2); display: grid; justify-items: center; gap: 4px; font-size: 9px; color: var(--text-2) }
-.chip-net span { width: 12px; height: 8px; border-radius: 4px; background: #4c5263 }
-.sun { width: 34px; height: 34px; border-radius: 10px; display: grid; place-items: center; background: var(--tile-2); color: #4c5263 }
-
-.main { min-width: 0; display: grid; grid-template-rows: auto 1fr }
-.topbar { display: flex; align-items: center; gap: 12px; padding: 20px 24px 8px 24px; flex-wrap: wrap }
-.topbar h1 { margin: 0 auto 0 0; font: 400 24px var(--sans) }
-.sel { height: 34px; display: inline-flex; align-items: center; gap: 10px; padding: 0 12px 0 6px; border-radius: 9px; font-size: 13px; color: var(--text); background: rgba(255, 255, 255, .03); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .08) }
-.sel .i { width: 24px; height: 24px; border-radius: 7px; background: var(--tile-2); display: grid; place-items: center; color: var(--text-2) }
-.sel svg { width: 12px; height: 12px }
-.sq { width: 34px; height: 34px; border-radius: 9px; border: 0; background: linear-gradient(160deg, rgba(255, 255, 255, .07), rgba(255, 255, 255, .02)); box-shadow: inset 0 1px 0 rgba(255, 255, 255, .08), inset 0 0 0 1px rgba(255, 255, 255, .05); display: grid; place-items: center; color: var(--text); cursor: pointer }
-.sq svg { width: 14px; height: 14px }
-.who { height: 38px; display: inline-flex; align-items: center; gap: 10px; padding: 0 14px 0 4px; border-radius: 9px; margin-left: 12px; background: rgba(255, 255, 255, .025); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .07) }
-.who .av { position: static; transform: none; width: 30px; height: 30px; border-radius: 8px; border: 0 }
-.who b { display: block; font: 400 13px/1.2 var(--sans) }
-.who small { display: block; font-size: 9.5px; color: var(--muted) }
-.btn { display: inline-flex; align-items: center; justify-content: center; height: 34px; padding: 0 16px; border-radius: 7px; border: 0; color: #fff; font: 400 13px var(--sans); cursor: pointer; white-space: nowrap;
-  background: linear-gradient(180deg, #8a6dff 0%, #7354f5 100%); box-shadow: inset 0 1px 0 rgba(255, 255, 255, .25), 0 6px 20px -6px rgba(115, 84, 245, .7); transition: filter .15s, transform .1s }
-.btn:hover { filter: brightness(1.08) }
-.btn:active { transform: translateY(1px) }
-.btn.big { height: 40px; padding: 0 26px }
-.btn.line { background: rgba(255, 255, 255, .03); color: var(--text-2); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .12) }
-.btn.line:hover { color: var(--text); filter: none; box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .22) }
-
-.body { padding: 16px 24px 0; display: grid; gap: 14px; min-width: 0 }
-.row { display: grid; grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr); gap: 14px }
-.card { border-radius: 18px; min-width: 0; position: relative;
-  background: linear-gradient(160deg, rgba(255, 255, 255, .045) 0%, rgba(255, 255, 255, .015) 40%, rgba(255, 255, 255, .01) 100%), rgba(16, 20, 30, .72);
-  backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .07), inset 0 0 0 1px rgba(255, 255, 255, .035) }
-
-.hero { position: relative; overflow: hidden; padding: 44px 44px 40px; display: grid; grid-template-columns: minmax(0, 1fr) 270px; align-items: center; gap: 16px; min-height: 280px;
-  background: radial-gradient(70% 85% at 82% 125%, rgba(112, 84, 255, .9) 0, rgba(96, 70, 225, .45) 40%, transparent 72%), radial-gradient(38% 70% at 106% 50%, rgba(190, 62, 128, .7), transparent 72%), linear-gradient(160deg, rgba(255, 255, 255, .04), rgba(255, 255, 255, .01)), rgba(16, 20, 30, .78) }
-.hero h1 { margin: 0 0 16px; font: 400 30px/1.15 var(--sans); letter-spacing: -.01em }
-.hero p { margin: 0 0 32px; color: var(--text-2); font-size: 14px; line-height: 1.55; max-width: 36ch }
-.orbit { position: relative; width: 270px; height: 250px; justify-self: center }
-.orbit .ring { position: absolute; border-radius: 50%; border: 1px solid rgba(255, 255, 255, .045) }
-.orbit .core { position: absolute; left: 50%; top: 50%; width: 30px; height: 30px; margin: -15px 0 0 -15px; border-radius: 50%; background: conic-gradient(from 200deg, #4fd8cf, #6a5cff, #4fd8cf); box-shadow: 0 0 0 6px rgba(79, 216, 207, .08) }
-.av { position: absolute; border-radius: 50%; border: 2px solid #eef0f4; overflow: hidden; background: #eef0f4; transform: translate(-50%, -50%) }
-.av svg { display: block; width: 100%; height: 100% }
-
-.stats { display: grid; grid-template-columns: 1fr 1fr; gap: 14px }
-.stat { padding: 16px 16px 22px; display: grid; align-content: space-between; gap: 24px; min-height: 133px }
-.stat header { display: flex; align-items: center; gap: 16px; color: var(--text-2); font-size: 15px; line-height: 1.35 }
-.ico { width: 44px; height: 44px; flex: none; border-radius: 12px; display: grid; place-items: center; color: #6a7084;
-  background: linear-gradient(160deg, rgba(255, 255, 255, .07), rgba(255, 255, 255, .02)); box-shadow: inset 0 1px 0 rgba(255, 255, 255, .08), inset 0 0 0 1px rgba(255, 255, 255, .04) }
-.ico svg { width: 18px; height: 18px }
-.stat b { font: 400 17px var(--sans); font-variant-numeric: tabular-nums; color: var(--text) }
-
-.list { padding: 20px 0 20px 20px; min-width: 0 }
-.list-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding-right: 20px; margin-bottom: 28px; flex-wrap: wrap }
-.list-head h2 { margin: 0; font: 400 17px var(--sans) }
-.seg { display: flex; gap: 4px }
-.seg button { height: 30px; padding: 0 16px; border-radius: 6px; border: 0; background: rgba(255, 255, 255, .04); color: var(--muted); font-size: 14px; cursor: pointer; transition: background-color .15s, color .15s }
-.seg button[aria-selected="true"] { background: linear-gradient(180deg, #8a6dff, #7354f5); color: #fff; box-shadow: inset 0 1px 0 rgba(255, 255, 255, .25) }
-.strip { display: flex; gap: 12px; overflow-x: auto; padding: 0 20px 4px 0; scroll-snap-type: x mandatory; scrollbar-width: none }
-.strip::-webkit-scrollbar { display: none }
-.vc { flex: 0 0 186px; scroll-snap-align: start; border: 1px solid rgba(255, 255, 255, .09); border-radius: 14px; background: linear-gradient(170deg, rgba(255, 255, 255, .045), rgba(255, 255, 255, .01) 50%), rgba(13, 17, 25, .7); box-shadow: inset 0 1px 0 rgba(255, 255, 255, .06); display: grid; grid-template-rows: auto auto auto 1fr; overflow: hidden; min-height: 210px }
-.vc .top { display: flex; align-items: center; gap: 9px; padding: 13px 13px 0 }
-.vc .logo { width: 28px; height: 28px; border-radius: 6px; overflow: hidden; flex: none; background: #eef0f4 }
-.vc .logo svg { display: block; width: 100%; height: 100% }
-.vc .name { font-size: 10.5px; line-height: 1.35; color: var(--text); flex: 1; min-width: 0; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden }
-.vc .go { width: 24px; height: 24px; flex: none; border-radius: 50%; border: 1px solid #343b4b; display: grid; place-items: center; color: var(--text) }
-.vc .go svg { width: 10px; height: 10px }
-.vc dl { margin: 18px 13px 0; display: grid; gap: 9px; font-size: 10px }
-.vc dl div { display: flex; justify-content: space-between; gap: 8px }
-.vc dt { color: var(--text-2) } .vc dd { margin: 0; color: var(--text); text-align: right; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 62% }
-.vc .val { display: flex; align-items: baseline; gap: 4px; padding: 14px 13px 0 }
-.vc .val b { font: 400 19px var(--sans); font-variant-numeric: tabular-nums }
-.vc .val small { color: var(--text-2); font-size: 8.5px; white-space: nowrap }
-.chg { margin-left: auto; display: inline-flex; align-items: center; gap: 3px; padding: 2px 6px; border-radius: 5px; font-size: 8.5px; color: var(--mint); background: var(--mint-bg); white-space: nowrap }
-.chg.bad { color: var(--red); background: rgba(255, 122, 122, .12) }
-.chg.wait { color: var(--amber); background: rgba(240, 194, 90, .12) }
-.chg svg { width: 8px; height: 8px }
-.spark { align-self: end; display: block; width: 100%; height: 66px; margin-top: 8px }
-.proof { padding: 12px 13px 13px; font-size: 10px; color: var(--text-2); line-height: 1.5; overflow-wrap: anywhere; align-self: end }
-.wait-txt { color: var(--muted) }
-
-.feat { position: relative; overflow: hidden; padding: 36px 30px 34px; display: grid; align-content: center;
-  background: radial-gradient(55% 80% at 112% 30%, rgba(112, 84, 255, .6), transparent 72%), radial-gradient(70% 55% at 50% 125%, rgba(112, 84, 255, .4), transparent 70%), linear-gradient(160deg, rgba(255, 255, 255, .04), rgba(255, 255, 255, .01)), rgba(16, 20, 30, .78) }
-.feat .box { width: 34px; height: 34px; color: #c7cad6; margin-bottom: 16px }
-.feat h2 { margin: 0 0 22px; font: 400 28px/1.2 var(--sans); letter-spacing: -.005em }
-.feat p { margin: 0 0 32px; color: var(--text-2); font-size: 14px; line-height: 1.55; max-width: 40ch }
-.feat .act { display: flex; align-items: center; gap: 28px; flex-wrap: wrap }
-.stack { display: flex; align-items: center }
-.stack .av { position: static; transform: none; width: 30px; height: 30px; margin-left: -10px; border: 2px solid #1a1c2c }
-.stack .av:first-child { margin-left: 0 }
-.stack .more { width: 30px; height: 30px; margin-left: -10px; border-radius: 50%; border: 1px dashed #3a4052; display: grid; place-items: center; color: var(--text-2); font-size: 14px; background: var(--tile) }
-
-.band { padding: 32px 40px 28px; display: grid; gap: 28px; border-radius: 18px 18px 0 0 }
-.band .cta { display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; padding-bottom: 32px; border-bottom: 1px solid var(--line) }
-.band h2 { margin: 0; font: 400 22px/1.4 var(--sans); max-width: 22ch }
-.band .btns { display: flex; gap: 14px }
-.foot { display: grid; grid-template-columns: minmax(0, 1.6fr) repeat(3, minmax(0, 1fr)); gap: 20px; align-items: center }
-.foot .brand { display: flex; align-items: center; gap: 12px; font: 400 26px var(--sans) }
-.foot .brand i { width: 30px; height: 30px; border-radius: 50%; background: conic-gradient(from 200deg, #4fd8cf, #6a5cff, #4fd8cf) }
-.foot a { font: 400 16px var(--sans); color: var(--text) }
-.foot a:hover { color: var(--violet-hi) }
-
-@media (max-width: 1180px) { .stage { padding: 40px 24px } .hero { grid-template-columns: minmax(0, 1fr) 200px; padding: 36px 30px } .orbit { transform: scale(.78); transform-origin: center } }
-@media (max-width: 900px) { .row { grid-template-columns: minmax(0, 1fr) } }
-@media (max-width: 720px) {
-  body { background-image: radial-gradient(80% 30% at 50% 0%, #5a3fe0 0, transparent 70%) }
-  .stage { padding: 0 }
-  .win { grid-template-columns: minmax(0, 1fr) }
-  .rail { flex-direction: row; border-right: 0; border-bottom: 1px solid var(--line); padding: 12px max(16px, env(safe-area-inset-left, 0px)); gap: 12px; overflow-x: auto }
-  .mark { margin: 0 }
-  .rail nav { display: flex; gap: 10px }
-  .rail .low { display: none }
-  .topbar { padding: 16px }
-  .who, .sel { display: none }
-  .body { padding: 12px max(12px, env(safe-area-inset-right, 0px)) 0 max(12px, env(safe-area-inset-left, 0px)) }
-  .hero { grid-template-columns: minmax(0, 1fr); padding: 30px 24px }
-  .orbit { justify-self: center }
-  .feat h2 { font-size: 24px }
-  .band { padding: 26px 22px }
-  .foot { grid-template-columns: 1fr 1fr 1fr }
-  .foot .brand { grid-column: 1 / -1 }
+@media (max-width: 600px) {
+  .nav nav { display: none }
+  .nav .wrap { justify-content: space-between }
+  h1 { font-size: 36px }
+  h2 { font-size: 30px }
+  .lede { font-size: 16px }
+  .steps, .roles { grid-template-columns: minmax(0, 1fr) }
+  .scene { padding-bottom: 84px }
+  .toast { left: 12px; right: 12px; width: auto; bottom: 0 }
+  .final { padding: 32px 24px }
+  section.block { padding-block: 64px }
 }
 </style>
 </head>
 <body>
-<div class="stage">
-  <div class="win">
-    <aside class="rail">
-      <div class="mark" aria-hidden="true"><i></i></div>
-      <nav aria-label="Sections">
-        <a href="#top" class="on" aria-label="Overview"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20m3.6 6.4-2.1 5.1-5.1 2.1 2.1-5.1z"/></svg></a>
-        <a href="#evidence" aria-label="Evidence"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M4 4h16v16H4zm4.5 8.2 2.4 2.4 4.6-4.6-1.1-1.1-3.5 3.5-1.3-1.3z"/></svg></a>
-        <a href="#attacks" aria-label="Attacks"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2 4 5.5V11c0 5 3.4 9.4 8 11 4.6-1.6 8-6 8-11V5.5z"/></svg></a>
-        <a href="#recheck" aria-label="Recheck"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 5h18v14H3zm3 3.4 3.4 3.1L6 14.6l1 1.1 4.6-4.2L7 7.3zM12.5 16h5v-1.5h-5z"/></svg></a>
-        <a href="https://testnet.nearblocks.io/address/ghostprotocol-vault.testnet" target="_blank" rel="noopener" aria-label="Vault on NEAR explorer"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20m6.9 9h-3a15.6 15.6 0 0 0-1.3-6 8 8 0 0 1 4.3 6M12 4c.9 1.2 1.7 3.6 1.9 7h-3.8C10.3 7.6 11.1 5.2 12 4M4.1 13h3a15.6 15.6 0 0 0 1.3 6 8 8 0 0 1-4.3-6m3-2h-3a8 8 0 0 1 4.3-6 15.6 15.6 0 0 0-1.3 6M12 20c-.9-1.2-1.7-3.6-1.9-7h3.8c-.2 3.4-1 5.8-1.9 7m3.6-1a15.6 15.6 0 0 0 1.3-6h3a8 8 0 0 1-4.3 6"/></svg></a>
-      </nav>
-      <div class="low">
-        <div class="chip-net">NEAR<span></span></div>
-        <div class="sun" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="5"/><path d="M11 1h2v3h-2zm0 19h2v3h-2zM1 11h3v2H1zm19 0h3v2h-3zM4.2 5.6l1.4-1.4 2.1 2.1-1.4 1.4zm12.1 12.1 1.4-1.4 2.1 2.1-1.4 1.4zM4.2 18.4l2.1-2.1 1.4 1.4-2.1 2.1zm12.1-12.1 2.1-2.1 1.4 1.4-2.1 2.1z"/></svg></div>
+<div class="glow"></div>
+<header class="nav">
+  <div class="wrap">
+    <a class="brand" href="#"><span class="mark" id="mark"></span>GhostProtocol</a>
+    <nav aria-label="Page">
+      <a href="#how">How it works</a>
+      <a href="#who">Who can't change it</a>
+      <a href="#proof">Proof</a>
+      <a href="#faq">Questions</a>
+    </nav>
+    <a class="btn sm" href="app.html">Open app</a>
+  </div>
+</header>
+
+<main>
+  <div class="wrap hero">
+    <div>
+      <div class="eyebrow"><i></i>Live on NEAR testnet</div>
+      <h1>A crypto will no one can rewrite</h1>
+      <p class="lede">When your witnesses confirm your death and you don't cancel, GhostProtocol pays your heirs exactly what you set. No executor, AI or company can change who gets paid.</p>
+      <div class="actions">
+        <a class="btn" href="app.html">See the live vault</a>
+        <a class="btn quiet" href="#how">How it works</a>
       </div>
-    </aside>
+    </div>
 
-    <div class="main">
-      <header class="topbar">
-        <h1>Verify</h1>
-        <span class="sel"><span class="i"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M4 4h4l8 11V4h4v16h-4L8 9v11H4z"/></svg></span>NEAR Testnet</span>
-        <button class="sq" id="copy-link" type="button" aria-label="Copy page link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button>
-        <button class="btn" id="recheck-top" type="button">Recheck Vault</button>
-        <span class="who"><span class="av" id="who-av"></span><span><b>ghostprotocol-vault</b><small>Vault</small></span></span>
-      </header>
-
-      <div class="body" id="top">
-        <div class="row">
-          <section class="card hero">
-            <div>
-              <h1>For Heirs</h1>
-              <p>After its owner dies, this vault pays the right heirs. No single person, key, model or operator can change that.</p>
-              <button class="btn big" id="recheck-btn" type="button">Recheck Vault</button>
-            </div>
-            <div class="orbit" id="orbit" aria-label="Accounts that can act on this vault">
-              <div class="ring" style="inset:0 10px"></div><div class="ring" style="inset:62px 72px"></div>
-              <div class="core"></div>
-            </div>
-          </section>
-          <div class="stats">
-            <section class="card stat"><header><span class="ico"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 4h18v16H3zm2 2v12h14V6zm7 2.5a3.5 3.5 0 1 1 0 7 3.5 3.5 0 0 1 0-7"/></svg></span><span>Checks</span></header><b id="s-checks">–</b></section>
-            <section class="card stat"><header><span class="ico"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 10a5 5 0 1 0 4.6 7H15v2h3v-2h2v-3h-7.4A5 5 0 0 0 8 10m0 3a2 2 0 1 1 0 4 2 2 0 0 1 0-4"/></svg></span><span>Keys On<br>The Vault</span></header><b id="s-keys">–</b></section>
-            <section class="card stat"><header><span class="ico"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2 4 5.5V11c0 5 3.4 9.4 8 11 4.6-1.6 8-6 8-11V5.5zm-1.4 13.4-3.3-3.3 1.4-1.4 1.9 1.9 4.6-4.6 1.4 1.4z"/></svg></span><span>Attacks</span></header><b id="s-attacks">–</b></section>
-            <section class="card stat"><header><span class="ico"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2 5 12.2 12 16l7-3.8zm-7 11.6L12 22l7-8.4-7 3.8z"/></svg></span><span>Balance</span></header><b id="s-balance">–</b></section>
-          </div>
+    <div class="scene" aria-label="The live test vault">
+      <article class="vault glass">
+        <div class="head">
+          <div class="who"><span id="v-av"></span><div><b>Test vault</b><small class="mono">ghostprotocol-vault.testnet</small></div></div>
+          <span class="pill live" id="v-stage-pill">Reading chain</span>
         </div>
-
-        <div class="row" id="evidence">
-          <section class="card list">
-            <div class="list-head">
-              <h2 id="list-title">Transactions</h2>
-              <div class="seg" role="tablist" aria-label="Show">
-                <button role="tab" aria-selected="true" data-view="tx">Transactions</button>
-                <button role="tab" aria-selected="false" data-view="proofs">Proofs</button>
-                <button role="tab" aria-selected="false" data-view="payouts">Payouts</button>
-              </div>
-            </div>
-            <div class="strip" id="strip"><div class="wait-txt">Reading NEAR testnet and Base Sepolia</div></div>
-          </section>
-
-          <section class="card feat" id="attacks">
-            <svg class="box" viewBox="0 0 24 24" fill="currentColor"><path d="M12 1.5 3 6v12l9 4.5 9-4.5V6zm0 2.2L18.6 7 12 10.3 5.4 7zM5 8.6l6 3v8.3l-6-3zm8 11.3v-8.3l6-3v8.3z"/></svg>
-            <h2 id="feat-title">Attacks refused on-chain</h2>
-            <p id="feat-text">Each attack is a real transaction. The contract refused it, and this page reads the refusal back from its receipt.</p>
-            <div class="act">
-              <button class="btn big" type="button" id="show-attacks">View Attacks</button>
-              <div class="stack" id="stack"></div>
-            </div>
-          </section>
-        </div>
-
-        <section class="card band" id="recheck">
-          <div class="cta">
-            <h2>Check every claim yourself, without this page</h2>
-            <div class="btns">
-              <a class="btn line big" href="https://github.com/danielAsaboro/ghost-protocol/blob/main/docs/threat-model.md">Threat Model</a>
-              <button class="btn big" type="button" id="copy">Copy Commands</button>
-            </div>
-          </div>
-          <div class="foot">
-            <div class="brand"><i></i>GhostProtocol</div>
-            <a id="l-base" target="_blank" rel="noopener" href="#">Vault</a>
-            <a href="https://github.com/danielAsaboro/ghost-protocol">Source</a>
-            <a href="https://github.com/danielAsaboro/ghost-protocol/blob/main/README.md">Evidence</a>
-          </div>
-        </section>
+        <div class="amount"><span>Set aside for heirs</span><b id="v-amount" class="skel">–</b></div>
+        <div class="track" id="v-track"><i></i><i></i><i></i><i></i><i></i><i></i></div>
+        <div class="stage"><span>Now</span><b id="v-stage">–</b></div>
+        <div class="heirs" id="v-heirs"></div>
+      </article>
+      <div class="toast glass" id="toast" hidden>
+        <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 3l7 3v6c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6z"/><path d="m9.5 9.5 5 5m0-5-5 5"/></svg></span>
+        <b id="toast-t">Attack refused</b>
+        <small id="toast-s"></small>
       </div>
     </div>
   </div>
-</div>
+
+  <section class="block" id="how">
+    <div class="wrap">
+      <div class="kicker">How it works</div>
+      <h2>Four steps, and you can stop it any time you're alive</h2>
+      <p class="sub">Your money waits in an address only the GhostProtocol contract controls, through NEAR Chain Signatures.</p>
+      <div class="steps">
+        <div class="step glass"><span class="n">1</span><h3>You check in</h3><p>Now and then, with one tap. Missing a few check-ins alone moves nothing.</p></div>
+        <div class="step glass"><span class="n">2</span><h3>Witnesses confirm</h3><p>Two of your three witnesses must sign that you have died. One is never enough.</p></div>
+        <div class="step glass"><span class="n">3</span><h3>A grace period runs</h3><p>If you are alive, one check-in cancels everything. A witness can extend it if you are in hospital.</p></div>
+        <div class="step glass"><span class="n">4</span><h3>Your heirs get paid</h3><p>The contract pays each heir between the minimum and maximum you set, and checks the payment landed.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="block" id="who">
+    <div class="wrap">
+      <div class="kicker">Who can't change it</div>
+      <h2>Every role has a limit written into the contract</h2>
+      <p class="sub">The worst each one can do alone, tested on-chain.</p>
+      <div class="roles">
+        <div class="role glass"><div class="t"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="4" y="4" width="16" height="16" rx="4"/><path d="M9 10h.01M15 10h.01M9 15c1.7 1.3 4.3 1.3 6 0"/></svg></span><span>The AI agent</span></div><p>Chooses an amount between your <b>minimum and maximum</b>, for a listed heir, once. If it goes silent, anyone can pay your heirs without it.</p></div>
+        <div class="role glass"><div class="t"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="8" cy="15" r="4"/><path d="m11 12 9-9m-4 4 3 3"/></svg></span><span>A thief with your phone</span></div><p>Can keep checking in, but <b>all your witnesses together</b> can still open a claim that only your offline recovery key can cancel.</p></div>
+        <div class="role glass"><div class="t"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="9" cy="8" r="3"/><circle cx="17" cy="9" r="2.5"/><path d="M3 20c.8-3.5 3.3-5.5 6-5.5s5.2 2 6 5.5M15 15c2.6 0 4.6 1.6 5.5 4.5"/></svg></span><span>Your witnesses</span></div><p>Can open a claim, but <b>one check-in from you cancels it</b> during the grace period.</p></div>
+        <div class="role glass"><div class="t"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 3v18M5 7h14M7 7l-3 7a3 3 0 0 0 6 0zM17 7l-3 7a3 3 0 0 0 6 0z"/></svg></span><span>A court</span></div><p>Can pause payment <b>once</b>, for a limited time set when the vault is made. It cannot stop it forever.</p></div>
+        <div class="role glass"><div class="t"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="6" width="18" height="12" rx="2"/><path d="M7 10h4M7 14h6"/></svg></span><span>Whoever set it up</span></div><p>Holds <b>no key</b> to the vault once it is locked. Nobody does. The chain shows an empty key list.</p></div>
+        <div class="role glass"><div class="t"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 2 4 6v6c0 5 3.4 8.6 8 10 4.6-1.4 8-5 8-10V6z"/></svg></span><span>A forged signature</span></div><p>Is thrown away. The contract checks every signature itself, and a payment counts only once the <b>MPC network confirms it landed</b>.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="block" id="proof">
+    <div class="wrap proof">
+      <div>
+        <div class="kicker">Proof, not promises</div>
+        <h2>These numbers come from the chain, right now</h2>
+        <p class="sub">Your browser reads NEAR testnet and Base Sepolia directly and recomputes each one. Nothing comes from our server.</p>
+        <a class="btn" href="app.html#proofs">Check every proof</a>
+      </div>
+      <div class="nums">
+        <div class="num glass"><b id="n-keys" class="skel">–</b><span>keys on the vault account</span></div>
+        <div class="num glass"><b id="n-attacks" class="skel">–</b><span>attacks refused on-chain</span></div>
+        <div class="num glass"><b id="n-checks" class="skel">–</b><span>checks passing</span></div>
+        <div class="num glass"><b id="n-build" class="skel">–</b><span>deployed code matches source</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="block" id="faq">
+    <div class="wrap">
+      <div class="kicker">Questions</div>
+      <h2>What people ask first</h2>
+      <div class="faq">
+        <details class="glass"><summary>What if I'm in hospital and can't check in?</summary><p>Missed check-ins alone do nothing. A claim needs your witnesses too, and any one of them can extend the grace period once to buy you time. One check-in from you cancels the claim.</p></details>
+        <details class="glass"><summary>What if someone steals my phone?</summary><p>They can only check in, which delays a payout. All your witnesses together can open a claim that check-ins cannot cancel, and only your offline recovery key can stop it.</p></details>
+        <details class="glass"><summary>What if the AI is hacked?</summary><p>The worst it can do is pick an amount between the minimum and maximum you set, for one of your listed heirs. It cannot add a recipient or pay twice. If it stops answering, a fallback pays each heir the maximum without it.</p></details>
+        <details class="glass"><summary>What if GhostProtocol disappears?</summary><p>Nothing changes. The contract has no owner key, and anyone can trigger each step, including the payment, from any NEAR wallet.</p></details>
+        <details class="glass"><summary>Is this a legal will?</summary><p>No. It is a program that pays out under fixed rules. It runs on testnet today and is a hackathon project, not a legal or financial product.</p></details>
+      </div>
+    </div>
+  </section>
+
+  <div class="wrap">
+    <section class="final glass">
+      <h2>See the test vault, live</h2>
+      <a class="btn" href="app.html">Open app</a>
+    </section>
+    <footer>
+      <span>GhostProtocol · NEAR Hackathon · testnet only</span>
+      <nav><a href="app.html">App</a><a id="src" href="#">Source</a><a id="tm" href="#">Threat model</a></nav>
+    </footer>
+  </div>
+</main>
+
 <script type="module">
 import { verifyVault } from './verify.mjs';
+import { VAULT, REPO, WASM_HASH, avatar, eth, stages, tally, loadEvidence, markSvg, short } from './ui.mjs';
 
-const VAULT = 'ghostprotocol-vault.testnet';
 const $ = (id) => document.getElementById(id);
-const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
-const short = (h, a = 6, b = 4) => (h.length > a + b + 1 ? `${h.slice(0, a)}…${h.slice(-b)}` : h);
-const eth = (wei) => `${(Number(BigInt(wei)) / 1e18).toLocaleString('en-US', { maximumFractionDigits: 6 })} ETH`;
-const reproducibleHash = document.querySelector('meta[name="ghost:wasm"]').content;
-const commit = document.querySelector('meta[name="ghost:commit"]').content;
-const arrow = '<svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><path d="M3.5 8.5 8.5 3.5M4.5 3.5h4v4"/></svg>';
-const up = '<svg viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><path d="M2 7.5 5 4.5l1.5 1.5L8.5 3M6.5 3h2v2"/></svg>';
+$('mark').innerHTML = markSvg;
+$('v-av').innerHTML = avatar(VAULT, 40);
+$('src').href = REPO;
+$('tm').href = `${REPO}/blob/main/docs/threat-model.md`;
 
-// Deterministic identicon from an account name or address: a 5×5 mirrored grid, like an avatar.
-function identicon(seed) {
-  let h = 2166136261;
-  for (const c of seed) h = Math.imul(h ^ c.charCodeAt(0), 16777619) >>> 0;
-  const next = () => (h = Math.imul(h ^ (h >>> 15), 2246822507) >>> 0);
-  const hue = next() % 360;
-  const fg = `hsl(${hue} 55% 52%)`, bg = `hsl(${(hue + 30) % 360} 40% 92%)`;
-  let cells = '';
-  for (let y = 0; y < 5; y++) for (let x = 0; x < 3; x++) if (next() % 2) {
-    cells += `<rect x="${x}" y="${y}" width="1" height="1"/>`;
-    if (x < 2) cells += `<rect x="${4 - x}" y="${y}" width="1" height="1"/>`;
+try {
+  const evidence = await loadEvidence();
+  const r = await verifyVault({ vault: VAULT, evidence, reproducibleHash: WASM_HASH });
+  const st = stages(r), t = tally(r), s = r.state;
+  $('v-amount').textContent = eth(s.heirs.reduce((a, h) => a + BigInt(h.cap_wei), 0n));
+  $('v-track').innerHTML = st.list.map((x, i) => `<i class="${x.done ? 'on' : i === st.current ? 'now' : ''}"></i>`).join('');
+  $('v-stage').textContent = st.list.every((x) => x.done) ? 'Every heir paid' : st.list[st.current].doing;
+  $('v-stage-pill').textContent = st.list.every((x) => x.done) ? 'Complete' : 'In progress';
+  $('v-heirs').innerHTML = s.heirs.map((h, i) => `<div>${avatar(h.address, 24)}<span>Heir ${i + 1} · <span class="mono">${short(h.address)}</span></span><span class="pill ${h.status === 'Paid' ? 'ok' : 'live'}">${h.status === 'Pending' ? 'Being paid' : h.status}</span></div>`).join('');
+  const last = [...r.events].filter((e) => e.expect === 'fail').sort((a, b) => b.at.localeCompare(a.at))[0];
+  if (last) {
+    $('toast-t').textContent = last.label;
+    $('toast-s').textContent = `refused: ${last.observed}`;
+    $('toast').hidden = false;
   }
-  return `<svg viewBox="-1 -1 7 7" shape-rendering="crispEdges" aria-hidden="true"><rect x="-1" y="-1" width="7" height="7" fill="${bg}"/><g fill="${fg}">${cells}</g></svg>`;
+  const keys = r.checks.find((c) => c.id === 'no-keys');
+  $('n-keys').textContent = keys.verdict === 'PASS' ? '0' : keys.detail.split(' ')[0];
+  $('n-attacks').textContent = String(t.refusedOk);
+  $('n-checks').textContent = `${t.pass}/${t.total}`;
+  $('n-build').textContent = r.checks.find((c) => c.id === 'reproducible')?.verdict === 'PASS' ? 'Yes' : 'No';
+  for (const id of ['v-amount', 'n-keys', 'n-attacks', 'n-checks', 'n-build']) $(id).classList.remove('skel');
+} catch (e) {
+  $('v-stage-pill').textContent = 'Chain unreachable';
+  $('v-stage-pill').className = 'pill bad';
 }
-
-function orbit(state) {
-  const accounts = [state.owner, state.agent, state.legal_authority, state.signer_contract, ...state.heirs.map((h) => h.address), 'witness-1', 'witness-2', 'registrar'];
-  const spots = [[135, 10, 22], [52, 48, 30], [222, 62, 30], [62, 168, 30], [236, 176, 22], [135, 236, 26], [100, 96, 0], [170, 140, 0]];
-  const el = $('orbit');
-  el.querySelectorAll('.av').forEach((a) => a.remove());
-  accounts.slice(0, spots.length).forEach((acct, i) => {
-    const [x, y, size] = spots[i];
-    const a = document.createElement('div');
-    a.className = 'av';
-    a.title = acct;
-    if (!size) return;
-    a.style.cssText = `left:${x}px;top:${y}px;width:${size}px;height:${size}px`;
-    a.innerHTML = identicon(acct);
-    el.append(a);
-  });
-}
-
-// Sparkline in the reference's style: smooth mint line, soft fill, a highlighted band and dot on the current point.
-function spark(values, at) {
-  values = values.map((v) => Math.log1p(v * 4));
-  const w = 186, h = 64, pad = 6, n = values.length;
-  const max = Math.max(...values), min = Math.min(...values);
-  const x = (i) => (i / (n - 1)) * w;
-  const y = (v) => h - pad - ((v - min) / (max - min || 1)) * (h - pad * 2 - 6);
-  const pts = values.map((v, i) => [x(i), y(v)]);
-  let d = `M${pts[0][0]},${pts[0][1]}`;
-  for (let i = 1; i < n; i++) { const [x0, y0] = pts[i - 1], [x1, y1] = pts[i], cx = (x0 + x1) / 2; d += ` C${cx},${y0} ${cx},${y1} ${x1},${y1}`; }
-  const bw = w / (n - 1);
-  const [hx, hy] = pts[at];
-  return `<svg class="spark" viewBox="0 0 ${w} ${h}" preserveAspectRatio="none" aria-hidden="true">
-    <defs><linearGradient id="f" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3fe0a5" stop-opacity=".22"/><stop offset="1" stop-color="#3fe0a5" stop-opacity="0"/></linearGradient>
-    <linearGradient id="b" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3fe0a5" stop-opacity=".28"/><stop offset="1" stop-color="#3fe0a5" stop-opacity=".02"/></linearGradient></defs>
-    <rect x="${Math.max(0, hx - bw / 2)}" y="0" width="${bw}" height="${h}" fill="url(#b)"/>
-    <path d="${d} L${w},${h} L0,${h} Z" fill="url(#f)"/>
-    <path d="${d}" fill="none" stroke="#3fe0a5" stroke-width="1.6" vector-effect="non-scaling-stroke"/>
-    <circle cx="${hx}" cy="${hy}" r="3.6" fill="#3fe0a5" stroke="#10141c" stroke-width="1.6"/></svg>`;
-}
-
-let result;
-const views = {
-  tx() {
-    const list = [...result.events].sort((a, b) => a.at.localeCompare(b.at));
-    const gas = list.map((e) => e.tgas ?? 0);
-    $('list-title').textContent = `Transactions (${list.length})`;
-    return list.map((e, i) => {
-      const refused = e.expect === 'fail';
-      const chg = e.verdict !== 'PASS' ? `<span class="chg bad">${e.verdict}</span>` : `<span class="chg ${refused ? 'bad' : ''}">${up}${refused ? 'Refused' : 'Done'}</span>`;
-      return `<article class="vc">
-        <div class="top"><span class="logo">${identicon(e.sender)}</span><span class="name">${esc(e.label)}</span><a class="go" href="https://testnet.nearblocks.io/txns/${e.tx}" target="_blank" rel="noopener" aria-label="Open transaction">${arrow}</a></div>
-        <dl><div><dt>Signer</dt><dd>${esc(e.sender.split('.')[0])}</dd></div><div><dt>${refused ? 'Contract' : 'Method'}</dt><dd title="${esc(e.observed)}">${esc(refused ? e.observed : e.method)}</dd></div></dl>
-        <div class="val"><b>${(e.tgas ?? 0).toFixed(2)}</b><small>/ Tgas</small>${chg}</div>
-        ${spark(gas, i)}</article>`;
-    });
-  },
-  proofs() {
-    $('list-title').textContent = `Proofs (${result.checks.length})`;
-    return result.checks.map((c) => `<article class="vc">
-      <div class="top"><span class="logo">${identicon(c.group)}</span><span class="name">${esc(c.claim)}</span></div>
-      <dl><div><dt>Group</dt><dd>${esc(c.group)}</dd></div></dl>
-      <div class="val"><b>${c.verdict === 'PASS' ? 'Pass' : c.verdict === 'WAIT' ? 'Waiting' : 'Fail'}</b><span class="chg ${c.verdict === 'FAIL' ? 'bad' : c.verdict === 'WAIT' ? 'wait' : ''}">${c.verdict}</span></div>
-      <div class="proof">${esc(c.detail)}</div></article>`);
-  },
-  payouts() {
-    const s = result.state;
-    $('list-title').textContent = `Payouts (${result.payouts.length})`;
-    const heirs = s.heirs.map((h, i) => `<article class="vc">
-      <div class="top"><span class="logo">${identicon(h.address)}</span><span class="name">Heir ${i}<br>${short(h.address)}</span><a class="go" href="https://sepolia.basescan.org/address/${h.address}" target="_blank" rel="noopener" aria-label="Open heir address">${arrow}</a></div>
-      <dl><div><dt>Floor</dt><dd>${eth(h.floor_wei)}</dd></div><div><dt>Gas limit</dt><dd>${h.gas_limit.toLocaleString('en-US')}</dd></div></dl>
-      <div class="val"><b>${eth(h.cap_wei)}</b><small>/ Cap</small><span class="chg ${h.status === 'Paid' ? '' : 'wait'}">${h.status}</span></div>
-      <div class="proof">Adult by ${h.adult_by ? new Date(h.adult_by * 1000).toLocaleDateString() : 'proof on file'}</div></article>`);
-    const pays = result.payouts.map((p) => `<article class="vc">
-      <div class="top"><span class="logo">${identicon(p.to)}</span><span class="name">Payout ${p.index}<br>${p.source === 'fallback' ? 'No-AI fallback' : 'Attested agent'}</span></div>
-      <dl><div><dt>Nonce</dt><dd>${p.nonce}</dd></div><div><dt>Attempts</dt><dd>${p.attempts.length}</dd></div></dl>
-      <div class="val"><b>${eth(p.value)}</b><span class="chg ${p.status === 'Settled' ? '' : 'wait'}">${p.status}</span></div>
-      <div class="proof">${p.attempts.map((a) => `${Number(a.fee) / 1e9} gwei · ${a.txHash ? (a.landed === null ? 'not mined' : a.landed ? 'landed' : 'reverted') : 'signing'}`).join('<br>')}</div></article>`);
-    return [...heirs, ...pays];
-  },
-};
-
-function show(view) {
-  for (const b of document.querySelectorAll('.seg button')) b.setAttribute('aria-selected', String(b.dataset.view === view));
-  $('strip').innerHTML = views[view]().join('');
-  $('strip').scrollLeft = 0;
-}
-for (const b of document.querySelectorAll('.seg button')) b.addEventListener('click', () => result && show(b.dataset.view));
-
-function render() {
-  const r = result, all = [...r.checks, ...r.events];
-  const fail = all.filter((x) => x.verdict === 'FAIL').length, wait = all.filter((x) => x.verdict === 'WAIT').length;
-  const refused = r.events.filter((e) => e.expect === 'fail');
-  $('s-checks').textContent = `${all.length - fail - wait} / ${all.length}`;
-  $('s-checks').style.color = fail ? 'var(--red)' : '';
-  $('s-keys').textContent = r.checks.find((c) => c.id === 'no-keys').verdict === 'PASS' ? '0' : r.checks.find((c) => c.id === 'no-keys').detail;
-  $('s-attacks').textContent = `${refused.filter((e) => e.verdict === 'PASS').length} refused`;
-  $('s-balance').textContent = eth(r.balance);
-  $('feat-title').textContent = `${refused.length} attacks refused on-chain`;
-  const signers = [...new Set(refused.map((e) => e.sender))];
-  $('stack').innerHTML = signers.map((s) => `<span class="av" title="${esc(s)}">${identicon(s)}</span>`).join('') + '<span class="more">+</span>';
-  $('who-av').innerHTML = identicon(VAULT);
-  $('l-base').href = `https://sepolia.basescan.org/address/${r.vaultAddress}`;
-  orbit(r.state);
-  show(document.querySelector('.seg [aria-selected="true"]').dataset.view);
-  const cmds = [
-    `curl -s https://rpc.testnet.near.org -H 'content-type: application/json' -d '{"jsonrpc":"2.0","id":1,"method":"query","params":{"request_type":"view_access_key_list","finality":"final","account_id":"${VAULT}"}}'`,
-    `git clone https://github.com/danielAsaboro/ghost-protocol && cd ghost-protocol && git checkout ${commit} && (cd contract && cargo near build reproducible-wasm)`,
-    'npm install && npm run test:live',
-  ];
-  $('copy').onclick = async () => {
-    try { await navigator.clipboard.writeText(cmds.join('\n')); $('copy').textContent = 'Copied'; }
-    catch { $('copy').textContent = 'Copy failed'; }
-    setTimeout(() => { $('copy').textContent = 'Copy Commands'; }, 1600);
-  };
-}
-
-$('show-attacks').addEventListener('click', () => {
-  if (!result) return;
-  show('tx');
-  const first = [...$('strip').children].findIndex((c) => c.querySelector('.chg.bad'));
-  $('strip').children[first]?.scrollIntoView({ behavior: 'smooth', inline: 'start', block: 'nearest' });
-});
-
-async function run() {
-  const btn = $('recheck-btn');
-  btn.disabled = true;
-  btn.textContent = 'Rechecking';
-  try {
-    const evidence = await fetch('evidence.json').then((x) => (x.ok ? x.json() : { events: [], settle: {} })).catch(() => ({ events: [], settle: {} }));
-    result = await verifyVault({ vault: VAULT, evidence, reproducibleHash });
-    render();
-  } catch (e) {
-    $('strip').innerHTML = `<div class="wait-txt">Could not read the chain: ${esc(e.message)}</div>`;
-  } finally {
-    btn.disabled = false;
-    btn.textContent = 'Recheck Vault';
-  }
-}
-$('recheck-btn').addEventListener('click', run);
-$('recheck-top').addEventListener('click', run);
-$('copy-link').addEventListener('click', async () => { try { await navigator.clipboard.writeText(location.href); } catch {} });
-run();
 </script>
 </body>
 </html>
