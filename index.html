@@ -9,220 +9,250 @@
 <meta name="ghost:commit" content="ba25e39">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&display=swap">
 <script type="importmap">{ "imports": { "viem": "https://cdn.jsdelivr.net/npm/viem@2.21.0/+esm" } }</script>
 <style>
-/* Dark vault console: icon rail, glowing hero with the vault's actors in orbit, stat tiles, tabbed ledger, card rows. Dark only by design. */
 :root {
   color-scheme: dark;
-  --bg: #07090e; --panel: #0e121a; --panel-2: #131824; --line: #1d2331; --line-2: #262e3f;
-  --text: #eef0f6; --muted: #8a92a6; --dim: #5d6579;
-  --violet: #7557ff; --violet-2: #9b86ff; --magenta: #b4479a; --mint: #3fe0a5; --red: #ff6b6b; --amber: #f2c14e;
-  --sans: "Inter", system-ui, sans-serif; --mono: "JetBrains Mono", ui-monospace, monospace;
-  --r: 16px;
+  --backdrop: #0b0b12; --win: #0c0f16; --tile: #11151d; --tile-2: #171c26; --line: #1b202b; --line-2: #2a3040;
+  --text: #f2f3f7; --text-2: #9aa0ae; --muted: #6b7182;
+  --violet: #7b5cff; --violet-hi: #8a6dff; --mint: #3fe0a5; --mint-bg: rgba(63, 224, 165, .12); --red: #ff7a7a; --amber: #f0c25a;
+  --sans: "Inter", system-ui, sans-serif;
 }
 * { box-sizing: border-box }
 html { -webkit-text-size-adjust: 100% }
-body { margin: 0; background: var(--bg); color: var(--text); font: 14px/1.5 var(--sans); min-height: 100vh;
-  background-image: radial-gradient(60% 50% at 100% 100%, rgba(117, 87, 255, .16), transparent 70%), radial-gradient(40% 40% at 0% 0%, rgba(117, 87, 255, .07), transparent 70%); background-attachment: fixed }
-a { color: var(--violet-2); text-decoration: none }
-a:hover { text-decoration: underline; text-underline-offset: 2px }
-:focus-visible { outline: 2px solid var(--violet-2); outline-offset: 2px }
-.mono { font-family: var(--mono); font-size: 12px; overflow-wrap: anywhere }
+body { margin: 0; min-height: 100vh; font: 14px/1.5 var(--sans); color: var(--text); background-color: var(--backdrop);
+  background-image: radial-gradient(55% 22% at 25% 0%, #7556ff 0, #5a3fe6 40%, transparent 78%), radial-gradient(18% 45% at 0% 40%, #6a4cf5 0, #4a33c4 45%, transparent 80%), radial-gradient(50% 30% at 75% 100%, #7556ff 0, #4f37cf 45%, transparent 80%), radial-gradient(14% 30% at 100% 82%, #6a4cf5 0, transparent 80%); background-attachment: fixed }
+a { color: inherit; text-decoration: none }
+:focus-visible { outline: 2px solid var(--violet-hi); outline-offset: 2px }
+button { font: inherit; color: inherit }
 
-.shell { display: grid; grid-template-columns: 76px minmax(0, 1fr); max-width: 1320px; margin: 0 auto; min-height: 100vh;
-  padding-left: env(safe-area-inset-left, 0px); padding-right: env(safe-area-inset-right, 0px) }
-.rail { position: sticky; top: 0; height: 100vh; display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 22px 0; border-right: 1px solid var(--line) }
-.logo { width: 38px; height: 38px; border-radius: 12px; display: grid; place-items: center; background: linear-gradient(140deg, var(--violet), var(--magenta)); margin-bottom: 14px }
-.rail a { width: 40px; height: 40px; border-radius: 12px; display: grid; place-items: center; background: var(--panel-2); border: 1px solid var(--line); color: var(--muted) }
-.rail a:hover { color: var(--text); text-decoration: none }
-.rail a[aria-current="true"] { background: var(--violet); border-color: var(--violet); color: #fff }
-.rail svg { width: 18px; height: 18px }
-.rail .net { margin-top: auto; font: 500 10px var(--mono); color: var(--dim); writing-mode: vertical-rl; transform: rotate(180deg); letter-spacing: .08em }
+.stage { padding: 72px max(64px, env(safe-area-inset-right, 0px)) 72px max(64px, env(safe-area-inset-left, 0px)) }
+.win { max-width: 1440px; margin: 0 auto; display: grid; grid-template-columns: 88px minmax(0, 1fr);
+  background: linear-gradient(180deg, rgba(14, 17, 26, .82), rgba(11, 14, 21, .9)); backdrop-filter: blur(40px) saturate(140%); -webkit-backdrop-filter: blur(40px) saturate(140%);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .06), inset 1px 0 0 rgba(255, 255, 255, .03), 0 40px 120px rgba(20, 8, 70, .55) }
 
-main { padding: 22px 24px 48px; display: grid; gap: 16px; min-width: 0 }
-.panel { background: var(--panel); border: 1px solid var(--line); border-radius: var(--r); min-width: 0 }
-.top { display: grid; grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr); gap: 16px }
+.rail { border-right: 1px solid var(--line); display: flex; flex-direction: column; align-items: center; padding: 24px 0 28px }
+.mark { width: 36px; height: 36px; border-radius: 12px; display: grid; place-items: center; background: var(--tile-2); margin-bottom: 64px }
+.mark i { width: 20px; height: 20px; border-radius: 50%; background: conic-gradient(from 200deg, #4fd8cf, #6a5cff, #4fd8cf) }
+.rail nav { display: grid; gap: 14px }
+.rail nav a { width: 34px; height: 34px; border-radius: 10px; display: grid; place-items: center; color: #4c5263; transition: color .15s;
+  background: linear-gradient(160deg, rgba(255, 255, 255, .06), rgba(255, 255, 255, .015)); box-shadow: inset 0 1px 0 rgba(255, 255, 255, .06) }
+.rail nav a:hover { color: var(--text-2) }
+.rail nav a.on { background: linear-gradient(160deg, rgba(138, 109, 255, .35), rgba(115, 84, 245, .15)); color: #b9a8ff; box-shadow: inset 0 1px 0 rgba(255, 255, 255, .12), inset 0 0 0 1px rgba(138, 109, 255, .35) }
+.rail svg { width: 16px; height: 16px }
+.rail .low { margin-top: auto; display: grid; justify-items: center; gap: 12px }
+.chip-net { width: 34px; padding: 6px 0 4px; border-radius: 10px; background: var(--tile-2); display: grid; justify-items: center; gap: 4px; font-size: 9px; color: var(--text-2) }
+.chip-net span { width: 12px; height: 8px; border-radius: 4px; background: #4c5263 }
+.sun { width: 34px; height: 34px; border-radius: 10px; display: grid; place-items: center; background: var(--tile-2); color: #4c5263 }
 
-.hero { position: relative; overflow: hidden; padding: 30px 32px; display: grid; grid-template-columns: minmax(0, 1fr) 260px; gap: 16px; align-items: center;
-  background: radial-gradient(80% 90% at 85% 120%, rgba(117, 87, 255, .55), transparent 60%), radial-gradient(50% 70% at 100% 100%, rgba(180, 71, 154, .45), transparent 70%), var(--panel) }
-.hero h1 { margin: 0 0 10px; font: 500 30px/1.15 var(--sans); letter-spacing: -.02em; text-wrap: balance }
-.hero p { margin: 0 0 22px; color: var(--muted); max-width: 46ch }
-.cta { display: flex; gap: 10px; flex-wrap: wrap; align-items: center }
-.btn { font: 500 13.5px var(--sans); padding: 10px 18px; border-radius: 9px; border: 1px solid var(--violet); background: var(--violet); color: #fff; cursor: pointer; text-decoration: none }
-.btn:hover { background: #8469ff; text-decoration: none }
-.btn.ghost { background: transparent; border-color: var(--line-2); color: var(--text) }
-.btn.ghost:hover { border-color: var(--muted); background: transparent }
+.main { min-width: 0; display: grid; grid-template-rows: auto 1fr }
+.topbar { display: flex; align-items: center; gap: 12px; padding: 20px 24px 8px 24px; flex-wrap: wrap }
+.topbar h1 { margin: 0 auto 0 0; font: 400 24px var(--sans) }
+.sel { height: 34px; display: inline-flex; align-items: center; gap: 10px; padding: 0 12px 0 6px; border-radius: 9px; font-size: 13px; color: var(--text); background: rgba(255, 255, 255, .03); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .08) }
+.sel .i { width: 24px; height: 24px; border-radius: 7px; background: var(--tile-2); display: grid; place-items: center; color: var(--text-2) }
+.sel svg { width: 12px; height: 12px }
+.sq { width: 34px; height: 34px; border-radius: 9px; border: 0; background: linear-gradient(160deg, rgba(255, 255, 255, .07), rgba(255, 255, 255, .02)); box-shadow: inset 0 1px 0 rgba(255, 255, 255, .08), inset 0 0 0 1px rgba(255, 255, 255, .05); display: grid; place-items: center; color: var(--text); cursor: pointer }
+.sq svg { width: 14px; height: 14px }
+.who { height: 38px; display: inline-flex; align-items: center; gap: 10px; padding: 0 14px 0 4px; border-radius: 9px; margin-left: 12px; background: rgba(255, 255, 255, .025); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .07) }
+.who .av { position: static; transform: none; width: 30px; height: 30px; border-radius: 8px; border: 0 }
+.who b { display: block; font: 400 13px/1.2 var(--sans) }
+.who small { display: block; font-size: 9.5px; color: var(--muted) }
+.btn { display: inline-flex; align-items: center; justify-content: center; height: 34px; padding: 0 16px; border-radius: 7px; border: 0; color: #fff; font: 400 13px var(--sans); cursor: pointer; white-space: nowrap;
+  background: linear-gradient(180deg, #8a6dff 0%, #7354f5 100%); box-shadow: inset 0 1px 0 rgba(255, 255, 255, .25), 0 6px 20px -6px rgba(115, 84, 245, .7); transition: filter .15s, transform .1s }
+.btn:hover { filter: brightness(1.08) }
+.btn:active { transform: translateY(1px) }
+.btn.big { height: 40px; padding: 0 26px }
+.btn.line { background: rgba(255, 255, 255, .03); color: var(--text-2); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .12) }
+.btn.line:hover { color: var(--text); filter: none; box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .22) }
 
-.orbit { position: relative; width: 260px; height: 250px; justify-self: end }
-.orbit .ring { position: absolute; inset: 0; border-radius: 50%; border: 1px dashed rgba(255, 255, 255, .09) }
-.orbit .ring { inset: 15px 20px }
-.orbit .ring.in { inset: 58px 63px }
-.orbit .core { position: absolute; left: 50%; top: 50%; width: 46px; height: 46px; margin: -23px 0 0 -23px; border-radius: 14px; display: grid; place-items: center;
-  background: linear-gradient(140deg, var(--violet), var(--magenta)); box-shadow: 0 0 30px rgba(117, 87, 255, .7) }
-.actor { position: absolute; transform: translate(-50%, -50%); display: grid; justify-items: center; gap: 3px }
-.actor i { width: 26px; height: 26px; border-radius: 50%; background: var(--panel-2); border: 1px solid var(--line-2); display: grid; place-items: center; font: 600 10px var(--sans); font-style: normal; color: var(--text) }
-.actor span { font: 500 9.5px var(--sans); color: var(--muted); white-space: nowrap }
+.body { padding: 16px 24px 0; display: grid; gap: 14px; min-width: 0 }
+.row { display: grid; grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr); gap: 14px }
+.card { border-radius: 18px; min-width: 0; position: relative;
+  background: linear-gradient(160deg, rgba(255, 255, 255, .045) 0%, rgba(255, 255, 255, .015) 40%, rgba(255, 255, 255, .01) 100%), rgba(16, 20, 30, .72);
+  backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .07), inset 0 0 0 1px rgba(255, 255, 255, .035) }
 
-.stats { display: grid; grid-template-columns: 1fr 1fr; gap: 16px }
-.stat { padding: 18px; display: grid; gap: 18px; align-content: space-between }
-.stat header { display: flex; gap: 12px; align-items: center; color: var(--muted) }
-.ico { width: 38px; height: 38px; flex: none; border-radius: 11px; background: var(--panel-2); border: 1px solid var(--line); display: grid; place-items: center; color: var(--muted) }
+.hero { position: relative; overflow: hidden; padding: 44px 44px 40px; display: grid; grid-template-columns: minmax(0, 1fr) 270px; align-items: center; gap: 16px; min-height: 280px;
+  background: radial-gradient(70% 85% at 82% 125%, rgba(112, 84, 255, .9) 0, rgba(96, 70, 225, .45) 40%, transparent 72%), radial-gradient(38% 70% at 106% 50%, rgba(190, 62, 128, .7), transparent 72%), linear-gradient(160deg, rgba(255, 255, 255, .04), rgba(255, 255, 255, .01)), rgba(16, 20, 30, .78) }
+.hero h1 { margin: 0 0 16px; font: 400 30px/1.15 var(--sans); letter-spacing: -.01em }
+.hero p { margin: 0 0 32px; color: var(--text-2); font-size: 14px; line-height: 1.55; max-width: 36ch }
+.orbit { position: relative; width: 270px; height: 250px; justify-self: center }
+.orbit .ring { position: absolute; border-radius: 50%; border: 1px solid rgba(255, 255, 255, .045) }
+.orbit .core { position: absolute; left: 50%; top: 50%; width: 30px; height: 30px; margin: -15px 0 0 -15px; border-radius: 50%; background: conic-gradient(from 200deg, #4fd8cf, #6a5cff, #4fd8cf); box-shadow: 0 0 0 6px rgba(79, 216, 207, .08) }
+.av { position: absolute; border-radius: 50%; border: 2px solid #eef0f4; overflow: hidden; background: #eef0f4; transform: translate(-50%, -50%) }
+.av svg { display: block; width: 100%; height: 100% }
+
+.stats { display: grid; grid-template-columns: 1fr 1fr; gap: 14px }
+.stat { padding: 16px 16px 22px; display: grid; align-content: space-between; gap: 24px; min-height: 133px }
+.stat header { display: flex; align-items: center; gap: 16px; color: var(--text-2); font-size: 15px; line-height: 1.35 }
+.ico { width: 44px; height: 44px; flex: none; border-radius: 12px; display: grid; place-items: center; color: #6a7084;
+  background: linear-gradient(160deg, rgba(255, 255, 255, .07), rgba(255, 255, 255, .02)); box-shadow: inset 0 1px 0 rgba(255, 255, 255, .08), inset 0 0 0 1px rgba(255, 255, 255, .04) }
 .ico svg { width: 18px; height: 18px }
-.stat b { font: 500 22px var(--sans); letter-spacing: -.01em; font-variant-numeric: tabular-nums }
-.stat small { color: var(--dim); font-size: 12px; margin-left: 6px }
+.stat b { font: 400 17px var(--sans); font-variant-numeric: tabular-nums; color: var(--text) }
 
-.section-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; padding: 18px 20px 4px }
-.section-head h2 { margin: 0; font: 500 16px var(--sans) }
-.section-head h2 span { color: var(--muted); font-weight: 400 }
-.tabs { display: flex; gap: 6px; flex-wrap: wrap }
-.tabs button { font: 500 13px var(--sans); padding: 7px 14px; border-radius: 9px; border: 1px solid var(--line); background: var(--panel-2); color: var(--muted); cursor: pointer }
-.tabs button[aria-selected="true"] { background: var(--violet); border-color: var(--violet); color: #fff }
+.list { padding: 20px 0 20px 20px; min-width: 0 }
+.list-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding-right: 20px; margin-bottom: 28px; flex-wrap: wrap }
+.list-head h2 { margin: 0; font: 400 17px var(--sans) }
+.seg { display: flex; gap: 4px }
+.seg button { height: 30px; padding: 0 16px; border-radius: 6px; border: 0; background: rgba(255, 255, 255, .04); color: var(--muted); font-size: 14px; cursor: pointer; transition: background-color .15s, color .15s }
+.seg button[aria-selected="true"] { background: linear-gradient(180deg, #8a6dff, #7354f5); color: #fff; box-shadow: inset 0 1px 0 rgba(255, 255, 255, .25) }
+.strip { display: flex; gap: 12px; overflow-x: auto; padding: 0 20px 4px 0; scroll-snap-type: x mandatory; scrollbar-width: none }
+.strip::-webkit-scrollbar { display: none }
+.vc { flex: 0 0 186px; scroll-snap-align: start; border: 1px solid rgba(255, 255, 255, .09); border-radius: 14px; background: linear-gradient(170deg, rgba(255, 255, 255, .045), rgba(255, 255, 255, .01) 50%), rgba(13, 17, 25, .7); box-shadow: inset 0 1px 0 rgba(255, 255, 255, .06); display: grid; grid-template-rows: auto auto auto 1fr; overflow: hidden; min-height: 210px }
+.vc .top { display: flex; align-items: center; gap: 9px; padding: 13px 13px 0 }
+.vc .logo { width: 28px; height: 28px; border-radius: 6px; overflow: hidden; flex: none; background: #eef0f4 }
+.vc .logo svg { display: block; width: 100%; height: 100% }
+.vc .name { font-size: 10.5px; line-height: 1.35; color: var(--text); flex: 1; min-width: 0; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden }
+.vc .go { width: 24px; height: 24px; flex: none; border-radius: 50%; border: 1px solid #343b4b; display: grid; place-items: center; color: var(--text) }
+.vc .go svg { width: 10px; height: 10px }
+.vc dl { margin: 18px 13px 0; display: grid; gap: 9px; font-size: 10px }
+.vc dl div { display: flex; justify-content: space-between; gap: 8px }
+.vc dt { color: var(--text-2) } .vc dd { margin: 0; color: var(--text); text-align: right; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 62% }
+.vc .val { display: flex; align-items: baseline; gap: 4px; padding: 14px 13px 0 }
+.vc .val b { font: 400 19px var(--sans); font-variant-numeric: tabular-nums }
+.vc .val small { color: var(--text-2); font-size: 8.5px; white-space: nowrap }
+.chg { margin-left: auto; display: inline-flex; align-items: center; gap: 3px; padding: 2px 6px; border-radius: 5px; font-size: 8.5px; color: var(--mint); background: var(--mint-bg); white-space: nowrap }
+.chg.bad { color: var(--red); background: rgba(255, 122, 122, .12) }
+.chg.wait { color: var(--amber); background: rgba(240, 194, 90, .12) }
+.chg svg { width: 8px; height: 8px }
+.spark { align-self: end; display: block; width: 100%; height: 66px; margin-top: 8px }
+.proof { padding: 12px 13px 13px; font-size: 10px; color: var(--text-2); line-height: 1.5; overflow-wrap: anywhere; align-self: end }
+.wait-txt { color: var(--muted) }
 
-.steps { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 12px; padding: 14px 20px 20px }
-.step { border: 1px solid var(--line-2); border-radius: 14px; padding: 14px; display: grid; gap: 10px; background: var(--panel); min-width: 0 }
-.step .row { display: flex; justify-content: space-between; align-items: center; gap: 8px }
-.num { width: 30px; height: 30px; border-radius: 9px; display: grid; place-items: center; background: var(--panel-2); border: 1px solid var(--line); font: 500 11px var(--mono); color: var(--muted) }
-.step b { font-weight: 500; font-size: 14px }
-.step p { margin: 0; color: var(--muted); font-size: 12px; overflow-wrap: anywhere }
-.step.done .num { background: rgba(63, 224, 165, .12); border-color: rgba(63, 224, 165, .3); color: var(--mint) }
-.step.now { border-color: var(--violet); box-shadow: 0 0 0 1px var(--violet), 0 10px 40px -18px var(--violet) }
-.step.now .num { background: var(--violet); border-color: var(--violet); color: #fff }
+.feat { position: relative; overflow: hidden; padding: 36px 30px 34px; display: grid; align-content: center;
+  background: radial-gradient(55% 80% at 112% 30%, rgba(112, 84, 255, .6), transparent 72%), radial-gradient(70% 55% at 50% 125%, rgba(112, 84, 255, .4), transparent 70%), linear-gradient(160deg, rgba(255, 255, 255, .04), rgba(255, 255, 255, .01)), rgba(16, 20, 30, .78) }
+.feat .box { width: 34px; height: 34px; color: #c7cad6; margin-bottom: 16px }
+.feat h2 { margin: 0 0 22px; font: 400 28px/1.2 var(--sans); letter-spacing: -.005em }
+.feat p { margin: 0 0 32px; color: var(--text-2); font-size: 14px; line-height: 1.55; max-width: 40ch }
+.feat .act { display: flex; align-items: center; gap: 28px; flex-wrap: wrap }
+.stack { display: flex; align-items: center }
+.stack .av { position: static; transform: none; width: 30px; height: 30px; margin-left: -10px; border: 2px solid #1a1c2c }
+.stack .av:first-child { margin-left: 0 }
+.stack .more { width: 30px; height: 30px; margin-left: -10px; border-radius: 50%; border: 1px dashed #3a4052; display: grid; place-items: center; color: var(--text-2); font-size: 14px; background: var(--tile) }
 
-.pill { font: 500 11px var(--sans); padding: 3px 8px; border-radius: 999px; white-space: nowrap; display: inline-flex; gap: 5px; align-items: center }
-.pill::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: currentColor }
-.pill.PASS, .pill.ok { color: var(--mint); background: rgba(63, 224, 165, .1) }
-.pill.FAIL, .pill.bad { color: var(--red); background: rgba(255, 107, 107, .1) }
-.pill.WAIT, .pill.wait { color: var(--amber); background: rgba(242, 193, 78, .1) }
-.pill.ref { color: var(--violet-2); background: rgba(117, 87, 255, .14) }
+.band { padding: 32px 40px 28px; display: grid; gap: 28px; border-radius: 18px 18px 0 0 }
+.band .cta { display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; padding-bottom: 32px; border-bottom: 1px solid var(--line) }
+.band h2 { margin: 0; font: 400 22px/1.4 var(--sans); max-width: 22ch }
+.band .btns { display: flex; gap: 14px }
+.foot { display: grid; grid-template-columns: minmax(0, 1.6fr) repeat(3, minmax(0, 1fr)); gap: 20px; align-items: center }
+.foot .brand { display: flex; align-items: center; gap: 12px; font: 400 26px var(--sans) }
+.foot .brand i { width: 30px; height: 30px; border-radius: 50%; background: conic-gradient(from 200deg, #4fd8cf, #6a5cff, #4fd8cf) }
+.foot a { font: 400 16px var(--sans); color: var(--text) }
+.foot a:hover { color: var(--violet-hi) }
 
-.work { display: grid; grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr); gap: 16px; align-items: start }
-.list { list-style: none; margin: 0; padding: 6px 12px 12px }
-.list li { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 4px 14px; padding: 12px 10px; border-bottom: 1px solid var(--line); align-items: start }
-.list li:last-child { border-bottom: 0 }
-.list .t { font-weight: 500 }
-.list .d { grid-column: 1 / -1; color: var(--muted); font: 12px var(--mono); overflow-wrap: anywhere }
-.list .grp { display: block; padding: 14px 10px 6px; border: 0; font: 500 11px var(--sans); letter-spacing: .08em; text-transform: uppercase; color: var(--dim) }
-.when { color: var(--dim); font-size: 12px; white-space: nowrap }
-
-.cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px; padding: 14px 20px 20px }
-.card { border: 1px solid var(--line-2); border-radius: 14px; padding: 16px; display: grid; gap: 12px; background: var(--panel); min-width: 0 }
-.card .row { display: flex; justify-content: space-between; gap: 10px; align-items: center }
-.card dl { margin: 0; display: grid; gap: 7px }
-.card dl div { display: flex; justify-content: space-between; gap: 10px }
-.card dt { color: var(--muted); white-space: nowrap }
-.card dd { margin: 0; text-align: right; min-width: 0; overflow-wrap: anywhere }
-.big { font: 500 24px var(--sans); letter-spacing: -.01em }
-.big small { font-size: 12px; color: var(--muted); font-weight: 400; margin-left: 4px }
-.track { display: flex; gap: 4px }
-.track span { flex: 1; height: 6px; border-radius: 3px; background: var(--line-2) }
-.track span.on { background: var(--mint) }
-.track span.cur { background: var(--violet) }
-
-.side { padding: 22px; display: grid; gap: 14px; position: relative; overflow: hidden;
-  background: radial-gradient(90% 80% at 110% 0%, rgba(117, 87, 255, .35), transparent 60%), var(--panel) }
-.side h2 { margin: 0; font: 500 22px/1.2 var(--sans); letter-spacing: -.01em }
-.side p { margin: 0; color: var(--muted) }
-pre { margin: 0; padding: 14px; border-radius: 12px; background: var(--bg); border: 1px solid var(--line); overflow-x: auto; font: 11.5px/1.65 var(--mono); color: #c9cde0 }
-pre .c { color: var(--dim) }
-.copy { justify-self: start }
-
-.foot { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; padding: 20px 24px; color: var(--muted) }
-.foot b { color: var(--text); font-weight: 500; font-size: 16px }
-.foot nav { display: flex; gap: 22px; flex-wrap: wrap }
-.skeleton { color: var(--dim) }
-@media (prefers-reduced-motion: no-preference) { .skeleton { animation: pulse 1.4s ease-in-out infinite } @keyframes pulse { 50% { opacity: .45 } } }
-
-@media (max-width: 1100px) { .top, .work { grid-template-columns: minmax(0, 1fr) } .steps { grid-template-columns: repeat(3, minmax(0, 1fr)) } }
-@media (max-width: 760px) {
-  .shell { grid-template-columns: minmax(0, 1fr) }
-  .rail { position: static; height: auto; flex-direction: row; justify-content: flex-start; padding: 14px max(16px, env(safe-area-inset-left, 0px)); border-right: 0; border-bottom: 1px solid var(--line); overflow-x: auto }
-  .logo { margin: 0 8px 0 0 }
-  .rail .net { display: none }
-  main { padding: 16px max(16px, env(safe-area-inset-right, 0px)) 40px max(16px, env(safe-area-inset-left, 0px)) }
-  .hero { grid-template-columns: minmax(0, 1fr); padding: 24px }
+@media (max-width: 1180px) { .stage { padding: 40px 24px } .hero { grid-template-columns: minmax(0, 1fr) 200px; padding: 36px 30px } .orbit { transform: scale(.78); transform-origin: center } }
+@media (max-width: 900px) { .row { grid-template-columns: minmax(0, 1fr) } }
+@media (max-width: 720px) {
+  body { background-image: radial-gradient(80% 30% at 50% 0%, #5a3fe0 0, transparent 70%) }
+  .stage { padding: 0 }
+  .win { grid-template-columns: minmax(0, 1fr) }
+  .rail { flex-direction: row; border-right: 0; border-bottom: 1px solid var(--line); padding: 12px max(16px, env(safe-area-inset-left, 0px)); gap: 12px; overflow-x: auto }
+  .mark { margin: 0 }
+  .rail nav { display: flex; gap: 10px }
+  .rail .low { display: none }
+  .topbar { padding: 16px }
+  .who, .sel { display: none }
+  .body { padding: 12px max(12px, env(safe-area-inset-right, 0px)) 0 max(12px, env(safe-area-inset-left, 0px)) }
+  .hero { grid-template-columns: minmax(0, 1fr); padding: 30px 24px }
   .orbit { justify-self: center }
-  .hero h1 { font-size: 24px }
-  .steps { grid-template-columns: repeat(2, minmax(0, 1fr)); padding: 12px }
-  .cards { padding: 12px }
-  .stats { gap: 12px }
+  .feat h2 { font-size: 24px }
+  .band { padding: 26px 22px }
+  .foot { grid-template-columns: 1fr 1fr 1fr }
+  .foot .brand { grid-column: 1 / -1 }
 }
 </style>
 </head>
 <body>
-<div class="shell">
-  <nav class="rail" aria-label="Sections">
-    <div class="logo" aria-hidden="true"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 20V11a6 6 0 0 1 12 0v9l-2-1.5L14 20l-2-1.5L10 20l-2-1.5z"/><circle cx="10" cy="11" r=".6" fill="#fff"/><circle cx="14" cy="11" r=".6" fill="#fff"/></svg></div>
-    <a href="#overview" aria-current="true" aria-label="Overview"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="m15.5 8.5-2 5-5 2 2-5z"/></svg></a>
-    <a href="#lifecycle" aria-label="Lifecycle"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h4l3-7 4 14 3-7h2"/></svg></a>
-    <a href="#ledger" aria-label="Proofs and record"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12l2 2 4-4"/><path d="M12 3l7 3v6c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6z"/></svg></a>
-    <a href="#recheck" aria-label="Recheck yourself"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 8 4 4-4 4M12 16h7"/></svg></a>
-    <span class="net">NEAR TESTNET · BASE SEPOLIA</span>
-  </nav>
+<div class="stage">
+  <div class="win">
+    <aside class="rail">
+      <div class="mark" aria-hidden="true"><i></i></div>
+      <nav aria-label="Sections">
+        <a href="#top" class="on" aria-label="Overview"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20m3.6 6.4-2.1 5.1-5.1 2.1 2.1-5.1z"/></svg></a>
+        <a href="#evidence" aria-label="Evidence"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M4 4h16v16H4zm4.5 8.2 2.4 2.4 4.6-4.6-1.1-1.1-3.5 3.5-1.3-1.3z"/></svg></a>
+        <a href="#attacks" aria-label="Attacks"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2 4 5.5V11c0 5 3.4 9.4 8 11 4.6-1.6 8-6 8-11V5.5z"/></svg></a>
+        <a href="#recheck" aria-label="Recheck"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 5h18v14H3zm3 3.4 3.4 3.1L6 14.6l1 1.1 4.6-4.2L7 7.3zM12.5 16h5v-1.5h-5z"/></svg></a>
+        <a href="https://testnet.nearblocks.io/address/ghostprotocol-vault.testnet" target="_blank" rel="noopener" aria-label="Vault on NEAR explorer"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20m6.9 9h-3a15.6 15.6 0 0 0-1.3-6 8 8 0 0 1 4.3 6M12 4c.9 1.2 1.7 3.6 1.9 7h-3.8C10.3 7.6 11.1 5.2 12 4M4.1 13h3a15.6 15.6 0 0 0 1.3 6 8 8 0 0 1-4.3-6m3-2h-3a8 8 0 0 1 4.3-6 15.6 15.6 0 0 0-1.3 6M12 20c-.9-1.2-1.7-3.6-1.9-7h3.8c-.2 3.4-1 5.8-1.9 7m3.6-1a15.6 15.6 0 0 0 1.3-6h3a8 8 0 0 1-4.3 6"/></svg></a>
+      </nav>
+      <div class="low">
+        <div class="chip-net">NEAR<span></span></div>
+        <div class="sun" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="5"/><path d="M11 1h2v3h-2zm0 19h2v3h-2zM1 11h3v2H1zm19 0h3v2h-3zM4.2 5.6l1.4-1.4 2.1 2.1-1.4 1.4zm12.1 12.1 1.4-1.4 2.1 2.1-1.4 1.4zM4.2 18.4l2.1-2.1 1.4 1.4-2.1 2.1zm12.1-12.1 2.1-2.1 1.4 1.4-2.1 2.1z"/></svg></div>
+      </div>
+    </aside>
 
-  <main>
-    <div class="top" id="overview">
-      <section class="panel hero" aria-labelledby="claim">
-        <div>
-          <h1 id="claim">After its owner dies, this vault pays the right heirs.</h1>
-          <p>No single person, key, model or operator can change that. Every number here is recomputed in your browser from NEAR testnet and Base Sepolia.</p>
-          <div class="cta">
-            <button class="btn" id="recheck-btn" type="button">Recheck now</button>
-            <a class="btn ghost" id="vault-link" target="_blank" rel="noopener" href="https://testnet.nearblocks.io/address/ghostprotocol-vault.testnet">ghostprotocol-vault.testnet</a>
+    <div class="main">
+      <header class="topbar">
+        <h1>Verify</h1>
+        <span class="sel"><span class="i"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M4 4h4l8 11V4h4v16h-4L8 9v11H4z"/></svg></span>NEAR Testnet</span>
+        <button class="sq" id="copy-link" type="button" aria-label="Copy page link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button>
+        <button class="btn" id="recheck-top" type="button">Recheck Vault</button>
+        <span class="who"><span class="av" id="who-av"></span><span><b>ghostprotocol-vault</b><small>Vault</small></span></span>
+      </header>
+
+      <div class="body" id="top">
+        <div class="row">
+          <section class="card hero">
+            <div>
+              <h1>For Heirs</h1>
+              <p>After its owner dies, this vault pays the right heirs. No single person, key, model or operator can change that.</p>
+              <button class="btn big" id="recheck-btn" type="button">Recheck Vault</button>
+            </div>
+            <div class="orbit" id="orbit" aria-label="Accounts that can act on this vault">
+              <div class="ring" style="inset:0 10px"></div><div class="ring" style="inset:62px 72px"></div>
+              <div class="core"></div>
+            </div>
+          </section>
+          <div class="stats">
+            <section class="card stat"><header><span class="ico"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 4h18v16H3zm2 2v12h14V6zm7 2.5a3.5 3.5 0 1 1 0 7 3.5 3.5 0 0 1 0-7"/></svg></span><span>Checks</span></header><b id="s-checks">–</b></section>
+            <section class="card stat"><header><span class="ico"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 10a5 5 0 1 0 4.6 7H15v2h3v-2h2v-3h-7.4A5 5 0 0 0 8 10m0 3a2 2 0 1 1 0 4 2 2 0 0 1 0-4"/></svg></span><span>Keys On<br>The Vault</span></header><b id="s-keys">–</b></section>
+            <section class="card stat"><header><span class="ico"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2 4 5.5V11c0 5 3.4 9.4 8 11 4.6-1.6 8-6 8-11V5.5zm-1.4 13.4-3.3-3.3 1.4-1.4 1.9 1.9 4.6-4.6 1.4 1.4z"/></svg></span><span>Attacks</span></header><b id="s-attacks">–</b></section>
+            <section class="card stat"><header><span class="ico"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2 5 12.2 12 16l7-3.8zm-7 11.6L12 22l7-8.4-7 3.8z"/></svg></span><span>Balance</span></header><b id="s-balance">–</b></section>
           </div>
         </div>
-        <div class="orbit" id="orbit" aria-label="Who can act on this vault">
-          <div class="ring"></div><div class="ring in"></div>
-          <div class="core" title="Vault contract"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="5" width="16" height="14" rx="2"/><circle cx="12" cy="12" r="3"/><path d="M12 9V7m3 5h2"/></svg></div>
-        </div>
-      </section>
 
-      <div class="stats">
-        <section class="panel stat"><header><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="9"/></svg></span>Checks passing</header><div><b id="s-checks" class="skeleton">–</b><small id="s-checks-sub"></small></div></section>
-        <section class="panel stat"><header><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="15" r="4"/><path d="m11 12 9-9m-4 4 3 3"/></svg></span>Keys on the vault</header><div><b id="s-keys" class="skeleton">–</b><small id="s-keys-sub"></small></div></section>
-        <section class="panel stat"><header><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v6c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6z"/><path d="m9 9 6 6m0-6-6 6"/></svg></span>Attacks refused</header><div><b id="s-attacks" class="skeleton">–</b><small id="s-attacks-sub"></small></div></section>
-        <section class="panel stat"><header><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 5 12l7 4 7-4z"/><path d="m5 12 7 10 7-10"/></svg></span>Vault balance</header><div><b id="s-balance" class="skeleton">–</b><small>Base Sepolia</small></div></section>
+        <div class="row" id="evidence">
+          <section class="card list">
+            <div class="list-head">
+              <h2 id="list-title">Transactions</h2>
+              <div class="seg" role="tablist" aria-label="Show">
+                <button role="tab" aria-selected="true" data-view="tx">Transactions</button>
+                <button role="tab" aria-selected="false" data-view="proofs">Proofs</button>
+                <button role="tab" aria-selected="false" data-view="payouts">Payouts</button>
+              </div>
+            </div>
+            <div class="strip" id="strip"><div class="wait-txt">Reading NEAR testnet and Base Sepolia</div></div>
+          </section>
+
+          <section class="card feat" id="attacks">
+            <svg class="box" viewBox="0 0 24 24" fill="currentColor"><path d="M12 1.5 3 6v12l9 4.5 9-4.5V6zm0 2.2L18.6 7 12 10.3 5.4 7zM5 8.6l6 3v8.3l-6-3zm8 11.3v-8.3l6-3v8.3z"/></svg>
+            <h2 id="feat-title">Attacks refused on-chain</h2>
+            <p id="feat-text">Each attack is a real transaction. The contract refused it, and this page reads the refusal back from its receipt.</p>
+            <div class="act">
+              <button class="btn big" type="button" id="show-attacks">View Attacks</button>
+              <div class="stack" id="stack"></div>
+            </div>
+          </section>
+        </div>
+
+        <section class="card band" id="recheck">
+          <div class="cta">
+            <h2>Check every claim yourself, without this page</h2>
+            <div class="btns">
+              <a class="btn line big" href="https://github.com/danielAsaboro/ghost-protocol/blob/main/docs/threat-model.md">Threat Model</a>
+              <button class="btn big" type="button" id="copy">Copy Commands</button>
+            </div>
+          </div>
+          <div class="foot">
+            <div class="brand"><i></i>GhostProtocol</div>
+            <a id="l-base" target="_blank" rel="noopener" href="#">Vault</a>
+            <a href="https://github.com/danielAsaboro/ghost-protocol">Source</a>
+            <a href="https://github.com/danielAsaboro/ghost-protocol/blob/main/README.md">Evidence</a>
+          </div>
+        </section>
       </div>
     </div>
-
-    <section class="panel" id="lifecycle" aria-labelledby="life-h">
-      <div class="section-head"><h2 id="life-h">Lifecycle <span id="life-sub"></span></h2></div>
-      <div class="steps" id="steps"></div>
-    </section>
-
-    <div class="work" id="ledger">
-      <section class="panel" aria-labelledby="ledger-h">
-        <div class="section-head">
-          <h2 id="ledger-h">Evidence <span id="ledger-count"></span></h2>
-          <div class="tabs" role="tablist" aria-label="Evidence views">
-            <button role="tab" aria-selected="true" data-tab="proofs" id="tab-proofs">Proofs</button>
-            <button role="tab" aria-selected="false" data-tab="record" id="tab-record">On-chain record</button>
-            <button role="tab" aria-selected="false" data-tab="payouts" id="tab-payouts">Heirs &amp; payouts</button>
-          </div>
-        </div>
-        <div role="tabpanel" id="panel-proofs"><ol class="list" id="proofs"><li><span class="t skeleton">Recomputing from RPC</span></li></ol></div>
-        <div role="tabpanel" id="panel-record" hidden><ol class="list" id="record"></ol></div>
-        <div role="tabpanel" id="panel-payouts" hidden><div class="cards" id="payouts"></div></div>
-      </section>
-
-      <aside class="panel side" id="recheck" aria-labelledby="recheck-h">
-        <span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 8 4 4-4 4M12 16h7"/></svg></span>
-        <h2 id="recheck-h">Recheck without this page</h2>
-        <p>Rebuild the contract from source, read the keys yourself, and run every check above from a terminal.</p>
-        <pre id="cli"></pre>
-        <button class="btn copy" id="copy" type="button">Copy commands</button>
-      </aside>
-    </div>
-
-    <footer class="panel foot">
-      <b>GhostProtocol</b>
-      <nav>
-        <a href="https://github.com/danielAsaboro/ghost-protocol/blob/main/docs/threat-model.md">Threat model</a>
-        <a href="https://github.com/danielAsaboro/ghost-protocol">Source</a>
-        <a id="foot-vault" href="https://sepolia.basescan.org/address/0xAf8105c7e876f38Bf0A9f09e4c97029BCf74d0Cc" target="_blank" rel="noopener">Vault on Basescan</a>
-      </nav>
-    </footer>
-  </main>
+  </div>
 </div>
 <script type="module">
 import { verifyVault } from './verify.mjs';
@@ -230,155 +260,167 @@ import { verifyVault } from './verify.mjs';
 const VAULT = 'ghostprotocol-vault.testnet';
 const $ = (id) => document.getElementById(id);
 const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
-const short = (h, a = 8, b = 6) => (h.length > a + b + 1 ? `${h.slice(0, a)}…${h.slice(-b)}` : h);
-const eth = (wei) => `${(Number(BigInt(wei)) / 1e18).toLocaleString(undefined, { maximumFractionDigits: 6 })} ETH`;
-const ago = (secs) => { const d = Math.max(0, Math.floor(Date.now() / 1000) - secs); return d < 3600 ? `${Math.floor(d / 60)} min ago` : d < 86400 ? `${Math.floor(d / 3600)} h ago` : `${Math.floor(d / 86400)} d ago`; };
+const short = (h, a = 6, b = 4) => (h.length > a + b + 1 ? `${h.slice(0, a)}…${h.slice(-b)}` : h);
+const eth = (wei) => `${(Number(BigInt(wei)) / 1e18).toLocaleString('en-US', { maximumFractionDigits: 6 })} ETH`;
 const reproducibleHash = document.querySelector('meta[name="ghost:wasm"]').content;
 const commit = document.querySelector('meta[name="ghost:commit"]').content;
+const arrow = '<svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><path d="M3.5 8.5 8.5 3.5M4.5 3.5h4v4"/></svg>';
+const up = '<svg viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><path d="M2 7.5 5 4.5l1.5 1.5L8.5 3M6.5 3h2v2"/></svg>';
+
+// Deterministic identicon from an account name or address: a 5×5 mirrored grid, like an avatar.
+function identicon(seed) {
+  let h = 2166136261;
+  for (const c of seed) h = Math.imul(h ^ c.charCodeAt(0), 16777619) >>> 0;
+  const next = () => (h = Math.imul(h ^ (h >>> 15), 2246822507) >>> 0);
+  const hue = next() % 360;
+  const fg = `hsl(${hue} 55% 52%)`, bg = `hsl(${(hue + 30) % 360} 40% 92%)`;
+  let cells = '';
+  for (let y = 0; y < 5; y++) for (let x = 0; x < 3; x++) if (next() % 2) {
+    cells += `<rect x="${x}" y="${y}" width="1" height="1"/>`;
+    if (x < 2) cells += `<rect x="${4 - x}" y="${y}" width="1" height="1"/>`;
+  }
+  return `<svg viewBox="-1 -1 7 7" shape-rendering="crispEdges" aria-hidden="true"><rect x="-1" y="-1" width="7" height="7" fill="${bg}"/><g fill="${fg}">${cells}</g></svg>`;
+}
 
 function orbit(state) {
-  const actors = [['O', 'Owner'], ['W', 'Witness 1'], ['W', 'Witness 2'], ['W', 'Witness 3'], ['A', 'Agent'], ['C', 'Court'], ['R', 'Registrar'], ['M', 'MPC'],
-    ...state.heirs.map((_, i) => ['H', `Heir ${i}`])];
+  const accounts = [state.owner, state.agent, state.legal_authority, state.signer_contract, ...state.heirs.map((h) => h.address), 'witness-1', 'witness-2', 'registrar'];
+  const spots = [[135, 10, 22], [52, 48, 30], [222, 62, 30], [62, 168, 30], [236, 176, 22], [135, 236, 26], [100, 96, 0], [170, 140, 0]];
   const el = $('orbit');
-  el.querySelectorAll('.actor').forEach((a) => a.remove());
-  actors.forEach(([letter, name], i) => {
-    const angle = (i / actors.length) * Math.PI * 2 - Math.PI / 2;
-    const r = i % 2 ? 66 : 108;
+  el.querySelectorAll('.av').forEach((a) => a.remove());
+  accounts.slice(0, spots.length).forEach((acct, i) => {
+    const [x, y, size] = spots[i];
     const a = document.createElement('div');
-    a.className = 'actor';
-    a.style.left = `${130 + r * Math.cos(angle)}px`;
-    a.style.top = `${125 + r * Math.sin(angle)}px`;
-    a.innerHTML = `<i>${letter}</i><span>${esc(name)}</span>`;
+    a.className = 'av';
+    a.title = acct;
+    if (!size) return;
+    a.style.cssText = `left:${x}px;top:${y}px;width:${size}px;height:${size}px`;
+    a.innerHTML = identicon(acct);
     el.append(a);
   });
 }
 
-function stats(r, all) {
-  const fail = all.filter((x) => x.verdict === 'FAIL').length, wait = all.filter((x) => x.verdict === 'WAIT').length, pass = all.length - fail - wait;
-  const keys = r.checks.find((c) => c.id === 'no-keys');
+// Sparkline in the reference's style: smooth mint line, soft fill, a highlighted band and dot on the current point.
+function spark(values, at) {
+  values = values.map((v) => Math.log1p(v * 4));
+  const w = 186, h = 64, pad = 6, n = values.length;
+  const max = Math.max(...values), min = Math.min(...values);
+  const x = (i) => (i / (n - 1)) * w;
+  const y = (v) => h - pad - ((v - min) / (max - min || 1)) * (h - pad * 2 - 6);
+  const pts = values.map((v, i) => [x(i), y(v)]);
+  let d = `M${pts[0][0]},${pts[0][1]}`;
+  for (let i = 1; i < n; i++) { const [x0, y0] = pts[i - 1], [x1, y1] = pts[i], cx = (x0 + x1) / 2; d += ` C${cx},${y0} ${cx},${y1} ${x1},${y1}`; }
+  const bw = w / (n - 1);
+  const [hx, hy] = pts[at];
+  return `<svg class="spark" viewBox="0 0 ${w} ${h}" preserveAspectRatio="none" aria-hidden="true">
+    <defs><linearGradient id="f" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3fe0a5" stop-opacity=".22"/><stop offset="1" stop-color="#3fe0a5" stop-opacity="0"/></linearGradient>
+    <linearGradient id="b" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3fe0a5" stop-opacity=".28"/><stop offset="1" stop-color="#3fe0a5" stop-opacity=".02"/></linearGradient></defs>
+    <rect x="${Math.max(0, hx - bw / 2)}" y="0" width="${bw}" height="${h}" fill="url(#b)"/>
+    <path d="${d} L${w},${h} L0,${h} Z" fill="url(#f)"/>
+    <path d="${d}" fill="none" stroke="#3fe0a5" stroke-width="1.6" vector-effect="non-scaling-stroke"/>
+    <circle cx="${hx}" cy="${hy}" r="3.6" fill="#3fe0a5" stroke="#10141c" stroke-width="1.6"/></svg>`;
+}
+
+let result;
+const views = {
+  tx() {
+    const list = [...result.events].sort((a, b) => a.at.localeCompare(b.at));
+    const gas = list.map((e) => e.tgas ?? 0);
+    $('list-title').textContent = `Transactions (${list.length})`;
+    return list.map((e, i) => {
+      const refused = e.expect === 'fail';
+      const chg = e.verdict !== 'PASS' ? `<span class="chg bad">${e.verdict}</span>` : `<span class="chg ${refused ? 'bad' : ''}">${up}${refused ? 'Refused' : 'Done'}</span>`;
+      return `<article class="vc">
+        <div class="top"><span class="logo">${identicon(e.sender)}</span><span class="name">${esc(e.label)}</span><a class="go" href="https://testnet.nearblocks.io/txns/${e.tx}" target="_blank" rel="noopener" aria-label="Open transaction">${arrow}</a></div>
+        <dl><div><dt>Signer</dt><dd>${esc(e.sender.split('.')[0])}</dd></div><div><dt>${refused ? 'Contract' : 'Method'}</dt><dd title="${esc(e.observed)}">${esc(refused ? e.observed : e.method)}</dd></div></dl>
+        <div class="val"><b>${(e.tgas ?? 0).toFixed(2)}</b><small>/ Tgas</small>${chg}</div>
+        ${spark(gas, i)}</article>`;
+    });
+  },
+  proofs() {
+    $('list-title').textContent = `Proofs (${result.checks.length})`;
+    return result.checks.map((c) => `<article class="vc">
+      <div class="top"><span class="logo">${identicon(c.group)}</span><span class="name">${esc(c.claim)}</span></div>
+      <dl><div><dt>Group</dt><dd>${esc(c.group)}</dd></div></dl>
+      <div class="val"><b>${c.verdict === 'PASS' ? 'Pass' : c.verdict === 'WAIT' ? 'Waiting' : 'Fail'}</b><span class="chg ${c.verdict === 'FAIL' ? 'bad' : c.verdict === 'WAIT' ? 'wait' : ''}">${c.verdict}</span></div>
+      <div class="proof">${esc(c.detail)}</div></article>`);
+  },
+  payouts() {
+    const s = result.state;
+    $('list-title').textContent = `Payouts (${result.payouts.length})`;
+    const heirs = s.heirs.map((h, i) => `<article class="vc">
+      <div class="top"><span class="logo">${identicon(h.address)}</span><span class="name">Heir ${i}<br>${short(h.address)}</span><a class="go" href="https://sepolia.basescan.org/address/${h.address}" target="_blank" rel="noopener" aria-label="Open heir address">${arrow}</a></div>
+      <dl><div><dt>Floor</dt><dd>${eth(h.floor_wei)}</dd></div><div><dt>Gas limit</dt><dd>${h.gas_limit.toLocaleString('en-US')}</dd></div></dl>
+      <div class="val"><b>${eth(h.cap_wei)}</b><small>/ Cap</small><span class="chg ${h.status === 'Paid' ? '' : 'wait'}">${h.status}</span></div>
+      <div class="proof">Adult by ${h.adult_by ? new Date(h.adult_by * 1000).toLocaleDateString() : 'proof on file'}</div></article>`);
+    const pays = result.payouts.map((p) => `<article class="vc">
+      <div class="top"><span class="logo">${identicon(p.to)}</span><span class="name">Payout ${p.index}<br>${p.source === 'fallback' ? 'No-AI fallback' : 'Attested agent'}</span></div>
+      <dl><div><dt>Nonce</dt><dd>${p.nonce}</dd></div><div><dt>Attempts</dt><dd>${p.attempts.length}</dd></div></dl>
+      <div class="val"><b>${eth(p.value)}</b><span class="chg ${p.status === 'Settled' ? '' : 'wait'}">${p.status}</span></div>
+      <div class="proof">${p.attempts.map((a) => `${Number(a.fee) / 1e9} gwei · ${a.txHash ? (a.landed === null ? 'not mined' : a.landed ? 'landed' : 'reverted') : 'signing'}`).join('<br>')}</div></article>`);
+    return [...heirs, ...pays];
+  },
+};
+
+function show(view) {
+  for (const b of document.querySelectorAll('.seg button')) b.setAttribute('aria-selected', String(b.dataset.view === view));
+  $('strip').innerHTML = views[view]().join('');
+  $('strip').scrollLeft = 0;
+}
+for (const b of document.querySelectorAll('.seg button')) b.addEventListener('click', () => result && show(b.dataset.view));
+
+function render() {
+  const r = result, all = [...r.checks, ...r.events];
+  const fail = all.filter((x) => x.verdict === 'FAIL').length, wait = all.filter((x) => x.verdict === 'WAIT').length;
   const refused = r.events.filter((e) => e.expect === 'fail');
-  for (const id of ['s-checks', 's-keys', 's-attacks', 's-balance']) $(id).classList.remove('skeleton');
-  $('s-checks').textContent = `${pass}/${all.length}`;
+  $('s-checks').textContent = `${all.length - fail - wait} / ${all.length}`;
   $('s-checks').style.color = fail ? 'var(--red)' : '';
-  $('s-checks-sub').textContent = fail ? `${fail} failed` : wait ? `${wait} waiting` : 'all pass';
-  $('s-keys').textContent = keys.verdict === 'PASS' ? '0' : keys.detail.split(' ')[0];
-  $('s-keys-sub').textContent = keys.verdict === 'PASS' ? 'locked' : 'not locked';
-  $('s-attacks').textContent = `${refused.filter((e) => e.verdict === 'PASS').length}`;
-  $('s-attacks-sub').textContent = `of ${refused.length}, from receipts`;
+  $('s-keys').textContent = r.checks.find((c) => c.id === 'no-keys').verdict === 'PASS' ? '0' : r.checks.find((c) => c.id === 'no-keys').detail;
+  $('s-attacks').textContent = `${refused.filter((e) => e.verdict === 'PASS').length} refused`;
   $('s-balance').textContent = eth(r.balance);
-}
-
-function steps(r) {
-  const s = r.state, c = s.claim, p = s.payouts[0], now = Math.floor(Date.now() / 1000);
-  const locked = r.checks.find((x) => x.id === 'no-keys')?.verdict === 'PASS';
-  const paid = s.heirs.every((h) => h.status === 'Paid');
-  const list = [
-    ['Sealed', 'Wishes encrypted to a key no one holds yet', true],
-    ['Locked', locked ? 'No keys on the vault account' : 'Keys still present', locked],
-    ['Claimed', c ? `Witness quorum, ${ago(c.opened_at)}` : 'Owner still checking in', Boolean(c)],
-    ['Grace', c ? (now < c.pay_after ? `${c.pay_after - now}s left to cancel` : 'Over, owner did not cancel') : 'Not started', Boolean(c) && now >= c.pay_after],
-    ['Paying', p ? `${p.attempts.filter((a) => a.r_hex).length} signed attempts on nonce ${p.nonce}` : 'No payout yet', Boolean(p)],
-    ['Settled', paid ? 'MPC network attested every payment' : 'Waiting for a landed transaction', paid],
+  $('feat-title').textContent = `${refused.length} attacks refused on-chain`;
+  const signers = [...new Set(refused.map((e) => e.sender))];
+  $('stack').innerHTML = signers.map((s) => `<span class="av" title="${esc(s)}">${identicon(s)}</span>`).join('') + '<span class="more">+</span>';
+  $('who-av').innerHTML = identicon(VAULT);
+  $('l-base').href = `https://sepolia.basescan.org/address/${r.vaultAddress}`;
+  orbit(r.state);
+  show(document.querySelector('.seg [aria-selected="true"]').dataset.view);
+  const cmds = [
+    `curl -s https://rpc.testnet.near.org -H 'content-type: application/json' -d '{"jsonrpc":"2.0","id":1,"method":"query","params":{"request_type":"view_access_key_list","finality":"final","account_id":"${VAULT}"}}'`,
+    `git clone https://github.com/danielAsaboro/ghost-protocol && cd ghost-protocol && git checkout ${commit} && (cd contract && cargo near build reproducible-wasm)`,
+    'npm install && npm run test:live',
   ];
-  const cur = list.findIndex((x) => !x[2]);
-  $('life-sub').textContent = cur < 0 ? '· complete' : `· step ${cur + 1} of ${list.length}`;
-  $('steps').innerHTML = list.map(([t, note, done], i) => {
-    const state = done ? 'done' : i === cur ? 'now' : '';
-    const pill = done ? '<span class="pill ok">done</span>' : i === cur ? '<span class="pill ref">now</span>' : '<span class="pill wait">next</span>';
-    return `<div class="step ${state}"><div class="row"><span class="num">${String(i + 1).padStart(2, '0')}</span>${pill}</div><b>${t}</b><p>${esc(note)}</p></div>`;
-  }).join('');
-  return { list, cur };
-}
-
-function proofs(r) {
-  let g = '';
-  $('proofs').innerHTML = r.checks.map((c) => {
-    const head = c.group !== g ? `<li class="grp">${esc((g = c.group))}</li>` : '';
-    return `${head}<li><span class="t">${esc(c.claim)}</span><span class="pill ${c.verdict}">${c.verdict}</span><span class="d">${esc(c.detail)}</span></li>`;
-  }).join('');
-}
-
-function record(r) {
-  const list = [...r.events].sort((a, b) => b.at.localeCompare(a.at));
-  $('record').innerHTML = list.map((e) => {
-    const refused = e.expect === 'fail';
-    const when = new Date(e.at).toLocaleString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
-    const said = refused ? `contract: “${esc(e.observed)}”` : esc(e.note ?? `${e.method} succeeded`);
-    return `<li><span class="t">${refused ? '<span class="pill ref">refused</span> ' : ''}${esc(e.label)}</span><span class="pill ${e.verdict}">${e.verdict}</span>
-      <span class="d">${said} · <a href="https://testnet.nearblocks.io/txns/${e.tx}" target="_blank" rel="noopener">${short(e.tx)}</a> · ${when}</span></li>`;
-  }).join('');
-}
-
-function payouts(r, life) {
-  const s = r.state;
-  const heirCards = s.heirs.map((h, i) => {
-    const pill = h.status === 'Paid' ? 'ok' : h.status === 'Pending' ? 'ref' : 'wait';
-    return `<article class="card">
-      <div class="row"><span style="display:flex;gap:10px;align-items:center"><span class="ico">H${i}</span><b>Heir ${i}</b></span><span class="pill ${pill}">${h.status}</span></div>
-      <dl><div><dt>Address</dt><dd class="mono"><a href="https://sepolia.basescan.org/address/${h.address}" target="_blank" rel="noopener">${short(h.address, 8, 6)}</a></dd></div>
-      <div><dt>Floor</dt><dd>${eth(h.floor_wei)}</dd></div><div><dt>Gas limit</dt><dd>${h.gas_limit.toLocaleString()}</dd></div></dl>
-      <div class="big">${eth(h.cap_wei)}<small>cap</small></div>
-      <div class="track" aria-label="Lifecycle progress">${life.list.map((x, k) => `<span class="${x[2] ? 'on' : k === life.cur ? 'cur' : ''}"></span>`).join('')}</div>
-    </article>`;
-  });
-  const payoutCards = r.payouts.map((p) => `<article class="card">
-      <div class="row"><span style="display:flex;gap:10px;align-items:center"><span class="ico">P${p.index}</span><b>Payout ${p.index}</b></span><span class="pill ${p.status === 'Settled' ? 'ok' : 'ref'}">${p.status}</span></div>
-      <dl><div><dt>Started by</dt><dd>${p.source === 'fallback' ? 'No-AI fallback' : 'Attested agent'}</dd></div><div><dt>To</dt><dd>Heir ${p.heir}</dd></div><div><dt>Nonce</dt><dd>${p.nonce}</dd></div></dl>
-      <div class="big">${eth(p.value)}<small>MPC-signed</small></div>
-      <dl>${p.attempts.map((a) => `<div><dt>Attempt ${a.index} · ${Number(a.fee) / 1e9} gwei</dt><dd class="mono">${a.txHash ? `<a href="https://sepolia.basescan.org/tx/${a.txHash}" target="_blank" rel="noopener">${short(a.txHash)}</a> ${a.landed === null ? 'not mined' : a.landed ? 'landed' : 'reverted'}` : 'signing'}</dd></div>`).join('')}</dl>
-    </article>`);
-  $('payouts').innerHTML = [...heirCards, ...payoutCards].join('');
-}
-
-function cli(r) {
-  const lines = [
-    ['# no keys on the vault: expect "keys":[]', `curl -s https://rpc.testnet.near.org -H 'content-type: application/json' -d '{"jsonrpc":"2.0","id":1,"method":"query","params":{"request_type":"view_access_key_list","finality":"final","account_id":"${VAULT}"}}'`],
-    [`# rebuild: expect ${reproducibleHash}`, `git clone https://github.com/danielAsaboro/ghost-protocol && cd ghost-protocol && git checkout ${commit} && (cd contract && cargo near build reproducible-wasm)`],
-    ['# every check on this page', 'npm install && npm run test:live'],
-  ];
-  $('cli').innerHTML = lines.map(([c, cmd]) => `<span class="c">${esc(c)}</span>\n${esc(cmd)}`).join('\n\n');
   $('copy').onclick = async () => {
-    const text = lines.map(([, cmd]) => cmd).join('\n');
-    try { await navigator.clipboard.writeText(text); $('copy').textContent = 'Copied'; }
-    catch { const sel = getSelection(); sel.selectAllChildren($('cli')); $('copy').textContent = 'Selected, press ⌘C'; }
-    setTimeout(() => { $('copy').textContent = 'Copy commands'; }, 1800);
+    try { await navigator.clipboard.writeText(cmds.join('\n')); $('copy').textContent = 'Copied'; }
+    catch { $('copy').textContent = 'Copy failed'; }
+    setTimeout(() => { $('copy').textContent = 'Copy Commands'; }, 1600);
   };
 }
 
-for (const b of document.querySelectorAll('[role="tab"]')) {
-  b.addEventListener('click', () => {
-    for (const t of document.querySelectorAll('[role="tab"]')) {
-      const on = t === b;
-      t.setAttribute('aria-selected', String(on));
-      $(`panel-${t.dataset.tab}`).hidden = !on;
-    }
-  });
-}
-const rail = [...document.querySelectorAll('.rail a')];
-addEventListener('scroll', () => {
-  let current = rail[0];
-  for (const a of rail) { const t = document.querySelector(a.getAttribute('href')); if (t && t.getBoundingClientRect().top < 140) current = a; }
-  for (const a of rail) a.setAttribute('aria-current', String(a === current));
-}, { passive: true });
+$('show-attacks').addEventListener('click', () => {
+  if (!result) return;
+  show('tx');
+  const first = [...$('strip').children].findIndex((c) => c.querySelector('.chg.bad'));
+  $('strip').children[first]?.scrollIntoView({ behavior: 'smooth', inline: 'start', block: 'nearest' });
+});
 
 async function run() {
-  $('recheck-btn').disabled = true;
-  $('recheck-btn').textContent = 'Rechecking…';
+  const btn = $('recheck-btn');
+  btn.disabled = true;
+  btn.textContent = 'Rechecking';
   try {
     const evidence = await fetch('evidence.json').then((x) => (x.ok ? x.json() : { events: [], settle: {} })).catch(() => ({ events: [], settle: {} }));
-    const r = await verifyVault({ vault: VAULT, evidence, reproducibleHash });
-    const all = [...r.checks, ...r.events];
-    orbit(r.state); stats(r, all); const life = steps(r); proofs(r); record(r); payouts(r, life); cli(r);
-    $('ledger-count').textContent = `· ${r.checks.length} proofs, ${r.events.length} transactions`;
-    $('foot-vault').href = `https://sepolia.basescan.org/address/${r.vaultAddress}`;
+    result = await verifyVault({ vault: VAULT, evidence, reproducibleHash });
+    render();
   } catch (e) {
-    $('proofs').innerHTML = `<li><span class="t">Could not read the chain</span><span class="pill FAIL">FAIL</span><span class="d">${esc(e.message)}</span></li>`;
+    $('strip').innerHTML = `<div class="wait-txt">Could not read the chain: ${esc(e.message)}</div>`;
   } finally {
-    $('recheck-btn').disabled = false;
-    $('recheck-btn').textContent = 'Recheck now';
+    btn.disabled = false;
+    btn.textContent = 'Recheck Vault';
   }
 }
 $('recheck-btn').addEventListener('click', run);
+$('recheck-top').addEventListener('click', run);
+$('copy-link').addEventListener('click', async () => { try { await navigator.clipboard.writeText(location.href); } catch {} });
 run();
 </script>
 </body>
