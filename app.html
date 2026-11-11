@@ -1,0 +1,332 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>GhostProtocol App</title>
+<meta name="description" content="The live GhostProtocol test vault, read from NEAR testnet and Base Sepolia in your browser.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="styles.css">
+<script type="importmap">{ "imports": { "viem": "https://cdn.jsdelivr.net/npm/viem@2.21.0/+esm" } }</script>
+<style>
+body { font-size: 14px }
+.shell { display: grid; grid-template-columns: 248px minmax(0, 1fr); min-height: 100vh }
+
+.side { position: sticky; top: 0; height: 100vh; display: flex; flex-direction: column; gap: 28px; padding: 22px 16px 20px;
+  background: rgba(10, 12, 19, .6); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-right: 1px solid var(--hair) }
+.side .brand { padding: 0 8px }
+.side nav { display: grid; gap: 2px }
+.side nav a { height: 38px; display: flex; align-items: center; gap: 12px; padding: 0 12px; border-radius: 10px; color: var(--ink-2); transition: background-color .15s, color .15s }
+.side nav a svg { width: 18px; height: 18px; flex: none }
+.side nav a:hover { color: var(--ink); background: rgba(255, 255, 255, .03) }
+.side nav a[aria-current="page"] { color: var(--ink); background: linear-gradient(160deg, rgba(123, 92, 255, .26), rgba(123, 92, 255, .1)); box-shadow: inset 0 1px 0 rgba(255, 255, 255, .08), inset 0 0 0 1px rgba(123, 92, 255, .3) }
+.side nav a[aria-current="page"] svg { color: var(--violet-ink) }
+.side .count { margin-left: auto; font-size: 12px; color: var(--ink-3) }
+.side .foot { margin-top: auto; display: grid; gap: 10px }
+.net { display: flex; align-items: center; gap: 8px; padding: 10px 12px; border-radius: 12px; font-size: 12.5px; color: var(--ink-2); background: rgba(255, 255, 255, .03); box-shadow: inset 0 0 0 1px var(--hair) }
+.net i { width: 7px; height: 7px; border-radius: 50%; background: var(--mint) }
+.side .back { font-size: 13px; color: var(--ink-3); padding: 0 12px }
+.side .back:hover { color: var(--ink) }
+
+.main { min-width: 0; padding: 22px 32px 56px }
+.top { display: flex; align-items: center; gap: 12px; margin-bottom: 24px; flex-wrap: wrap }
+.top h1 { margin: 0 auto 0 0; font: 600 24px var(--sans); letter-spacing: -.02em }
+.chip { height: 40px; display: inline-flex; align-items: center; gap: 10px; padding: 0 14px 0 6px; border-radius: 12px; background: rgba(255, 255, 255, .03); box-shadow: inset 0 0 0 1px var(--hair) }
+.chip b { display: block; font: 500 13px/1.2 var(--sans) }
+.chip small { display: block; font-size: 11px; color: var(--ink-3) }
+.chip .av { border-radius: 8px }
+
+.view { display: grid; gap: 16px }
+.view[hidden] { display: none }
+.status { padding: 28px; display: grid; gap: 24px;
+  background: radial-gradient(60% 120% at 100% 0%, rgba(123, 92, 255, .4), transparent 60%), radial-gradient(40% 90% at 100% 100%, rgba(178, 60, 130, .22), transparent 70%), linear-gradient(160deg, rgba(255, 255, 255, .06), rgba(255, 255, 255, .015) 45%), rgba(17, 21, 32, .78) }
+.status .row { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; flex-wrap: wrap }
+.status .label { color: var(--ink-2); font-size: 13px; margin-bottom: 6px }
+.status h2 { margin: 0 0 6px; font: 600 30px/1.1 var(--sans); letter-spacing: -.025em }
+.status p { margin: 0; color: var(--ink-2) }
+.stepper { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 10px }
+.stepper div { display: grid; gap: 8px; min-width: 0 }
+.stepper i { height: 6px; border-radius: 3px; background: rgba(255, 255, 255, .1) }
+.stepper .on i { background: var(--mint) }
+.stepper .now i { background: var(--violet-2) }
+.stepper span { font-size: 12.5px; color: var(--ink-3) }
+.stepper .on span, .stepper .now span { color: var(--ink) }
+
+.tiles { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px }
+.tile { padding: 18px 20px; display: grid; gap: 14px }
+.tile header { display: flex; align-items: center; gap: 10px; color: var(--ink-2); font-size: 13px }
+.tile .ic { width: 32px; height: 32px; border-radius: 10px; display: grid; place-items: center; color: var(--ink-2); background: rgba(255, 255, 255, .05); box-shadow: inset 0 1px 0 rgba(255, 255, 255, .06) }
+.tile .ic svg { width: 16px; height: 16px }
+.tile b { font: 600 26px/1 var(--sans); letter-spacing: -.02em; font-variant-numeric: tabular-nums }
+.tile small { color: var(--ink-3); font-size: 12.5px }
+
+.split { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr); gap: 16px; align-items: start }
+.panel { padding: 20px }
+.panel-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 8px; flex-wrap: wrap }
+.panel-head h3 { margin: 0; font: 500 16px var(--sans) }
+.panel-head a { font-size: 13px; color: var(--violet-ink) }
+
+.rows { list-style: none; margin: 0; padding: 0 }
+.rows li { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 2px 12px; align-items: center; padding: 12px 0; border-top: 1px solid var(--hair) }
+.rows li:first-child { border-top: 0 }
+.rows .t { font-weight: 500; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap }
+.rows .s { grid-column: 2; color: var(--ink-3); font-size: 12.5px; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap }
+.rows .r { grid-row: span 2; display: grid; justify-items: end; gap: 4px }
+.rows .r small { color: var(--ink-3); font-size: 12px }
+.rows .av { grid-row: span 2 }
+.rows a.tx { color: var(--violet-ink); font-size: 12px }
+
+.seg { display: inline-flex; gap: 4px; padding: 4px; border-radius: 11px; background: rgba(255, 255, 255, .03); box-shadow: inset 0 0 0 1px var(--hair) }
+.seg button { height: 30px; padding: 0 14px; border: 0; border-radius: 8px; background: none; color: var(--ink-2); font-size: 13px; cursor: pointer }
+.seg button[aria-pressed="true"] { color: #fff; background: linear-gradient(180deg, #8b6fff, #7151f2); box-shadow: inset 0 1px 0 rgba(255, 255, 255, .25) }
+
+.chart { padding: 20px 20px 8px }
+.chart .big { display: flex; align-items: baseline; gap: 10px; margin: 6px 0 12px }
+.chart .big b { font: 600 30px/1 var(--sans); letter-spacing: -.02em }
+.chart .big span { color: var(--ink-3); font-size: 13px }
+
+.cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px }
+.card { padding: 20px; display: grid; gap: 16px; align-content: start }
+.card .head { display: flex; align-items: center; gap: 12px }
+.card .head div { flex: 1; min-width: 0 }
+.card .head b { display: block; font-weight: 500 }
+.card .head small { color: var(--ink-3); font-size: 12px }
+.card dl { margin: 0; display: grid; gap: 10px; font-size: 13.5px }
+.card dl div { display: flex; justify-content: space-between; gap: 12px }
+.card dt { color: var(--ink-2) }
+.card dd { margin: 0; text-align: right; min-width: 0; overflow-wrap: anywhere }
+.card .amt { font: 600 28px/1 var(--sans); letter-spacing: -.02em }
+.card .amt small { font: 400 13px var(--sans); color: var(--ink-3); margin-left: 6px; letter-spacing: 0 }
+.attempt { display: flex; justify-content: space-between; gap: 12px; padding: 10px 12px; border-radius: 10px; background: rgba(255, 255, 255, .03); font-size: 13px }
+.attempt a { color: var(--violet-ink) }
+
+.group { margin: 8px 0 0; font: 500 13px var(--sans); color: var(--ink-2) }
+pre { margin: 0; padding: 16px; border-radius: 12px; background: rgba(0, 0, 0, .35); box-shadow: inset 0 0 0 1px var(--hair); overflow-x: auto; font: 12.5px/1.7 var(--mono); color: #cfd3e3 }
+pre .c { color: var(--ink-3) }
+.cmd { display: grid; gap: 10px }
+.cmd h3 { margin: 0; font: 500 16px var(--sans) }
+.cmd p { margin: 0; color: var(--ink-2) }
+.err { padding: 18px 20px; color: var(--red) }
+
+.menu { display: none }
+@media (max-width: 1100px) { .tiles { grid-template-columns: 1fr 1fr } .split { grid-template-columns: minmax(0, 1fr) } }
+@media (max-width: 820px) {
+  .shell { grid-template-columns: minmax(0, 1fr) }
+  .side { position: sticky; top: 0; z-index: 10; height: auto; flex-direction: row; align-items: center; gap: 8px; padding: 10px max(12px, env(safe-area-inset-left, 0px)); overflow-x: auto; border-right: 0; border-bottom: 1px solid var(--hair) }
+  .side .brand { padding: 0; font-size: 0; gap: 0 }
+  .side nav { display: flex; gap: 4px }
+  .side nav a { height: 34px; padding: 0 10px; white-space: nowrap; font-size: 13px }
+  .side nav a svg, .side .count, .side .foot { display: none }
+  .main { padding: 18px max(16px, env(safe-area-inset-right, 0px)) 40px max(16px, env(safe-area-inset-left, 0px)) }
+  .chip { display: none }
+  .stepper { grid-template-columns: repeat(3, minmax(0, 1fr)) }
+  .status h2 { font-size: 24px }
+}
+</style>
+</head>
+<body>
+<div class="glow"></div>
+<div class="shell">
+  <aside class="side">
+    <a class="brand" href="index.html"><span class="mark" id="mark"></span>GhostProtocol</a>
+    <nav aria-label="App">
+      <a href="#overview" data-view="overview"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9" rx="2"/><rect x="14" y="3" width="7" height="5" rx="2"/><rect x="14" y="12" width="7" height="9" rx="2"/><rect x="3" y="16" width="7" height="5" rx="2"/></svg>Overview</a>
+      <a href="#heirs" data-view="heirs"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="9" cy="8" r="3"/><circle cx="17" cy="9" r="2.5"/><path d="M3 20c.8-3.5 3.3-5.5 6-5.5s5.2 2 6 5.5M15 15c2.6 0 4.6 1.6 5.5 4.5"/></svg>Heirs &amp; payouts<span class="count" id="c-heirs"></span></a>
+      <a href="#activity" data-view="activity"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h4l3-7 4 14 3-7h4"/></svg>Activity<span class="count" id="c-activity"></span></a>
+      <a href="#proofs" data-view="proofs"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v6c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6z"/><path d="m9 12 2 2 4-4"/></svg>Proofs<span class="count" id="c-proofs"></span></a>
+      <a href="#verify" data-view="verify"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="3"/><path d="m7 9 3 3-3 3M13 15h4"/></svg>Verify yourself</a>
+    </nav>
+    <div class="foot">
+      <div class="net"><i></i>NEAR testnet · Base Sepolia</div>
+      <a class="back" href="index.html">Back to site</a>
+    </div>
+  </aside>
+
+  <main class="main">
+    <header class="top">
+      <h1 id="title">Overview</h1>
+      <span class="chip"><span id="chip-av"></span><span><b>Test vault</b><small class="mono">ghostprotocol-vault.testnet</small></span></span>
+      <button class="btn sm" id="recheck" type="button">Recheck</button>
+    </header>
+
+    <section class="view" id="view-overview">
+      <div class="status glass">
+        <div class="row">
+          <div><div class="label">Where this vault is</div><h2 id="st-title" class="skel">Reading the chain</h2><p id="st-note"></p></div>
+          <span class="pill live" id="st-pill">Live</span>
+        </div>
+        <div class="stepper" id="stepper"></div>
+      </div>
+      <div class="tiles">
+        <div class="tile glass"><header><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 2 5 12l7 4 7-4z"/><path d="m5 12 7 10 7-10"/></svg></span>Set aside for heirs</header><b id="t-amount" class="skel">–</b><small id="t-balance"></small></div>
+        <div class="tile glass"><header><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="8" cy="15" r="4"/><path d="m11 12 9-9m-4 4 3 3"/></svg></span>Keys on the vault</header><b id="t-keys" class="skel">–</b><small id="t-keys-s"></small></div>
+        <div class="tile glass"><header><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 3l7 3v6c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6z"/></svg></span>Attacks refused</header><b id="t-attacks" class="skel">–</b><small>each a real transaction</small></div>
+        <div class="tile glass"><header><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="m9 12 2 2 4-4"/><circle cx="12" cy="12" r="9"/></svg></span>Checks passing</header><b id="t-checks" class="skel">–</b><small id="t-checks-s"></small></div>
+      </div>
+      <div class="split">
+        <section class="panel glass"><div class="panel-head"><h3>Recent activity</h3><a href="#activity">View all</a></div><ul class="rows" id="recent"></ul></section>
+        <section class="panel glass"><div class="panel-head"><h3>Heirs</h3><a href="#heirs">Details</a></div><ul class="rows" id="heir-list"></ul></section>
+      </div>
+    </section>
+
+    <section class="view" id="view-heirs" hidden><div class="cards" id="heir-cards"></div></section>
+
+    <section class="view" id="view-activity" hidden>
+      <section class="chart glass">
+        <div class="panel-head"><h3>Gas burned per transaction</h3>
+          <div class="seg" id="filter"><button aria-pressed="true" data-f="all">All</button><button aria-pressed="false" data-f="fail">Refused</button><button aria-pressed="false" data-f="ok">Actions</button></div>
+        </div>
+        <div class="big"><b id="gas-total">–</b><span id="gas-sub"></span></div>
+        <div id="gas-chart"></div>
+      </section>
+      <section class="panel glass"><ul class="rows" id="tx-list"></ul></section>
+    </section>
+
+    <section class="view" id="view-proofs" hidden><section class="panel glass"><ul class="rows" id="proof-list"></ul></section></section>
+
+    <section class="view" id="view-verify" hidden>
+      <section class="panel glass cmd"><h3>Read the vault's keys</h3><p>The vault account should list no keys at all.</p><pre id="cmd-keys"></pre></section>
+      <section class="panel glass cmd"><h3>Rebuild the contract</h3><p id="cmd-build-p">The result should match the deployed code hash.</p><pre id="cmd-build"></pre></section>
+      <section class="panel glass cmd"><h3>Run every check from a terminal</h3><p>The same checks this app runs, against the live chain.</p><pre id="cmd-test"></pre><button class="btn sm" id="copy" type="button" style="justify-self:start">Copy all commands</button></section>
+    </section>
+  </main>
+</div>
+
+<script type="module">
+import { verifyVault } from './verify.mjs';
+import { VAULT, REPO, WASM_HASH, COMMIT, avatar, eth, esc, short, when, spark, stages, tally, loadEvidence, markSvg } from './ui.mjs';
+
+const $ = (id) => document.getElementById(id);
+$('mark').innerHTML = markSvg;
+$('chip-av').innerHTML = avatar(VAULT, 30);
+const titles = { overview: 'Overview', heirs: 'Heirs & payouts', activity: 'Activity', proofs: 'Proofs', verify: 'Verify yourself' };
+let r = null;
+let filter = 'all';
+
+function route() {
+  const view = titles[location.hash.slice(1)] ? location.hash.slice(1) : 'overview';
+  for (const k of Object.keys(titles)) $(`view-${k}`).hidden = k !== view;
+  for (const a of document.querySelectorAll('.side nav a')) {
+    if (a.dataset.view === view) a.setAttribute('aria-current', 'page');
+    else a.removeAttribute('aria-current');
+  }
+  $('title').textContent = titles[view];
+  window.scrollTo(0, 0);
+}
+addEventListener('hashchange', route);
+route();
+
+const verdictPill = (v) => `<span class="pill ${v === 'PASS' ? 'ok' : v === 'WAIT' ? 'wait' : 'bad'}">${v === 'PASS' ? 'Verified' : v === 'WAIT' ? 'Waiting' : 'Failed'}</span>`;
+const txRow = (e) => {
+  const refused = e.expect === 'fail';
+  return `<li>${avatar(e.sender, 34)}<span class="t">${esc(e.label)}</span>
+    <span class="r">${refused ? '<span class="pill bad">Refused</span>' : '<span class="pill ok">Done</span>'}<small>${when(e.at)}</small></span>
+    <span class="s">${refused ? `Contract: ${esc(e.observed)}` : esc(e.note ?? `${e.sender.split('.')[0]} · ${e.method}`)} · <a class="tx" href="https://testnet.nearblocks.io/txns/${e.tx}" target="_blank" rel="noopener">${short(e.tx)}</a></span></li>`;
+};
+
+function overview() {
+  const st = stages(r), t = tally(r), s = r.state, cur = st.list[st.current];
+  $('st-title').textContent = st.list.every((x) => x.done) ? 'Every heir is paid' : cur.doing;
+  $('st-title').classList.remove('skel');
+  $('st-note').textContent = cur.note;
+  $('st-pill').textContent = `Step ${st.current + 1} of ${st.list.length}`;
+  $('stepper').innerHTML = st.list.map((x, i) => `<div class="${x.done ? 'on' : i === st.current ? 'now' : ''}"><i></i><span>${x.title}</span></div>`).join('');
+  const keys = r.checks.find((c) => c.id === 'no-keys');
+  $('t-amount').textContent = eth(s.heirs.reduce((a, h) => a + BigInt(h.cap_wei), 0n));
+  $('t-balance').textContent = `${eth(r.balance)} in the vault on Base Sepolia`;
+  $('t-keys').textContent = keys.verdict === 'PASS' ? '0' : keys.detail.split(' ')[0];
+  $('t-keys-s').textContent = keys.verdict === 'PASS' ? 'nobody can act as the vault' : 'not locked yet';
+  $('t-attacks').textContent = String(t.refusedOk);
+  $('t-checks').textContent = `${t.pass}/${t.total}`;
+  $('t-checks-s').textContent = t.fail ? `${t.fail} failed` : t.wait ? `${t.wait} waiting` : 'all verified';
+  for (const id of ['t-amount', 't-keys', 't-attacks', 't-checks']) $(id).classList.remove('skel');
+  $('recent').innerHTML = [...r.events].sort((a, b) => b.at.localeCompare(a.at)).slice(0, 6).map(txRow).join('');
+  $('heir-list').innerHTML = s.heirs.map((h, i) => `<li>${avatar(h.address, 34)}<span class="t">Heir ${i + 1}</span>
+    <span class="r"><span class="pill ${h.status === 'Paid' ? 'ok' : 'live'}">${h.status === 'Pending' ? 'Being paid' : h.status}</span><small>up to ${eth(h.cap_wei)}</small></span>
+    <span class="s mono">${h.address}</span></li>`).join('');
+  $('c-heirs').textContent = s.heirs.length;
+  $('c-activity').textContent = r.events.length;
+  $('c-proofs').textContent = r.checks.length;
+}
+
+function heirs() {
+  const s = r.state;
+  const heirCards = s.heirs.map((h, i) => `<article class="card glass">
+    <div class="head">${avatar(h.address, 40)}<div><b>Heir ${i + 1}</b><small class="mono">${short(h.address, 8, 6)}</small></div><span class="pill ${h.status === 'Paid' ? 'ok' : 'live'}">${h.status === 'Pending' ? 'Being paid' : h.status}</span></div>
+    <div class="amt">${eth(h.cap_wei)}<small>maximum</small></div>
+    <dl><div><dt>Minimum</dt><dd>${eth(h.floor_wei)}</dd></div><div><dt>Gas limit</dt><dd>${h.gas_limit.toLocaleString('en-US')}</dd></div>
+    <div><dt>Address</dt><dd><a class="mono" style="color:var(--violet-ink)" href="https://sepolia.basescan.org/address/${h.address}" target="_blank" rel="noopener">Basescan</a></dd></div></dl></article>`);
+  const payCards = r.payouts.map((p) => `<article class="card glass">
+    <div class="head">${avatar(p.to, 40)}<div><b>Payout ${p.index + 1}</b><small>${p.source === 'fallback' ? 'Started by the no-AI fallback' : 'Proposed by the attested agent'}</small></div><span class="pill ${p.status === 'Settled' ? 'ok' : 'live'}">${p.status === 'Active' ? 'Signed' : p.status}</span></div>
+    <div class="amt">${eth(p.value)}<small>to heir ${p.heir + 1}</small></div>
+    <dl><div><dt>Nonce</dt><dd>${p.nonce}</dd></div><div><dt>Attempts</dt><dd>${p.attempts.length}, same nonce</dd></div></dl>
+    ${p.attempts.map((a) => `<div class="attempt"><span>${Number(a.fee) / 1e9} gwei</span><span>${a.txHash ? `<a class="mono" href="https://sepolia.basescan.org/tx/${a.txHash}" target="_blank" rel="noopener">${short(a.txHash)}</a> · ${a.landed === null ? 'waiting for funds' : a.landed ? 'landed' : 'reverted'}` : 'signing'}</span></div>`).join('')}
+  </article>`);
+  $('heir-cards').innerHTML = [...heirCards, ...payCards].join('');
+}
+
+function activity() {
+  const list = [...r.events].sort((a, b) => a.at.localeCompare(b.at));
+  const shown = list.filter((e) => filter === 'all' || e.expect === filter);
+  const total = list.reduce((t, e) => t + (e.tgas ?? 0), 0);
+  $('gas-total').textContent = `${total.toFixed(1)} Tgas`;
+  $('gas-sub').textContent = `across ${list.length} transactions, ${list.filter((e) => e.expect === 'fail').length} of them refused attacks`;
+  const last = list.length - 1;
+  $('gas-chart').innerHTML = spark(list.map((e) => e.tgas ?? 0), last, { w: 900, h: 140 });
+  $('tx-list').innerHTML = [...shown].reverse().map(txRow).join('') || '<li><span class="s">No transactions in this filter</span></li>';
+}
+
+function proofs() {
+  let group = '';
+  $('proof-list').innerHTML = r.checks.map((c) => {
+    const head = c.group !== group ? `<li style="display:block;border-top:0"><div class="group">${esc((group = c.group))}</div></li>` : '';
+    return `${head}<li><span class="ic" style="width:34px;height:34px;border-radius:10px;display:grid;place-items:center;background:rgba(255,255,255,.04);grid-row:span 2;color:${c.verdict === 'PASS' ? 'var(--mint)' : c.verdict === 'WAIT' ? 'var(--amber)' : 'var(--red)'}"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">${c.verdict === 'PASS' ? '<path d="m5 12 5 5 9-10"/>' : c.verdict === 'WAIT' ? '<circle cx="12" cy="12" r="8"/><path d="M12 8v4l3 2"/>' : '<path d="m6 6 12 12M18 6 6 18"/>'}</svg></span>
+      <span class="t" style="white-space:normal">${esc(c.claim)}</span><span class="r">${verdictPill(c.verdict)}</span><span class="s mono" style="white-space:normal">${esc(c.detail)}</span></li>`;
+  }).join('');
+}
+
+function verify() {
+  const keys = `curl -s https://rpc.testnet.near.org -H 'content-type: application/json' \\\n  -d '{"jsonrpc":"2.0","id":1,"method":"query","params":{"request_type":"view_access_key_list","finality":"final","account_id":"${VAULT}"}}'`;
+  const build = `git clone ${REPO} && cd ghost-protocol && git checkout ${COMMIT}\ncd contract && cargo near build reproducible-wasm`;
+  const test = 'npm install && npm run test:live';
+  $('cmd-keys').innerHTML = `${esc(keys)}\n<span class="c"># expect "keys":[]</span>`;
+  $('cmd-build').innerHTML = `${esc(build)}\n<span class="c"># expect ${WASM_HASH}</span>`;
+  $('cmd-test').innerHTML = `${esc(test)}\n<span class="c"># expect every test to pass</span>`;
+  $('copy').onclick = async () => {
+    try { await navigator.clipboard.writeText([keys, build, test].join('\n\n')); $('copy').textContent = 'Copied'; }
+    catch { $('copy').textContent = 'Copy failed, select the text above'; }
+    setTimeout(() => { $('copy').textContent = 'Copy all commands'; }, 1800);
+  };
+}
+
+for (const b of document.querySelectorAll('#filter button')) b.addEventListener('click', () => {
+  filter = b.dataset.f;
+  for (const x of document.querySelectorAll('#filter button')) x.setAttribute('aria-pressed', String(x === b));
+  if (r) activity();
+});
+
+async function load() {
+  const btn = $('recheck');
+  btn.disabled = true;
+  btn.textContent = 'Rechecking';
+  try {
+    r = await verifyVault({ vault: VAULT, evidence: await loadEvidence(), reproducibleHash: WASM_HASH });
+    overview(); heirs(); activity(); proofs(); verify();
+  } catch (e) {
+    $('st-title').textContent = 'Could not read the chain';
+    $('st-note').textContent = e.message;
+    $('st-pill').className = 'pill bad';
+    $('st-pill').textContent = 'Offline';
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Recheck';
+  }
+}
+$('recheck').addEventListener('click', load);
+verify();
+load();
+</script>
+</body>
+</html>
