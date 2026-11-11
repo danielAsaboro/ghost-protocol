@@ -216,7 +216,8 @@ export async function verifyVault({ vault, evidence = { events: [], settle: {} }
       const method = actionName(result.transaction);
       const receiverOk = result.transaction.receiver_id === vault;
       const matches = e.expect === 'ok' ? o.ok : !o.ok && (!e.error || o.error.includes(e.error));
-      return { ...e, verdict: matches && receiverOk && method === e.method ? 'PASS' : 'FAIL', observed: o.ok ? 'succeeded' : o.error };
+      const gas = [result.transaction_outcome, ...result.receipts_outcome].reduce((t, r) => t + Number(r.outcome.gas_burnt), 0);
+      return { ...e, verdict: matches && receiverOk && method === e.method ? 'PASS' : 'FAIL', observed: o.ok ? 'succeeded' : o.error, tgas: gas / 1e12 };
     } catch (err) {
       return { ...e, verdict: 'FAIL', observed: err.message };
     }
