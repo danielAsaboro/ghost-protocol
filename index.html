@@ -3,218 +3,231 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>GhostProtocol Verifier</title>
+<title>GhostProtocol</title>
+<meta name="description" content="A NEAR vault that pays heirs after a witnessed death claim. Every claim on this page is recomputed from public RPC in your browser.">
 <meta name="ghost:wasm" content="DBRswoeb9syKVRZJrCpjbw62E3Z6ZL48MAoLN8KfU4E8">
 <meta name="ghost:commit" content="ba25e39">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Serif:wght@500&display=swap">
+<script type="importmap">{ "imports": { "viem": "https://cdn.jsdelivr.net/npm/viem@2.21.0/+esm" } }</script>
 <style>
-/* One column of checks, each a ledger row: claim, recomputed value, verdict. */
+/* A probate ledger: one column, entries ruled like a register, hashes in mono, a single ink accent. */
 :root {
-  --bg: #f6f7f5; --panel: #ffffff; --fg: #1b2420; --muted: #5d6b64; --line: #d9dfdb;
-  --pass: #1d7a4c; --fail: #b3261e; --wait: #8a6a12; --accent: #2f5d50;
-  --sans: "IBM Plex Sans", system-ui, sans-serif; --mono: "IBM Plex Mono", ui-monospace, monospace;
+  --bg: #f4f5f2; --sheet: #ffffff; --ink: #18211d; --muted: #5b6862; --rule: #dde2de; --soft: #eef1ee;
+  --accent: #24584a; --pass: #1f7a4d; --fail: #b42318; --wait: #8a6512;
+  --serif: "IBM Plex Serif", Georgia, serif; --sans: "IBM Plex Sans", system-ui, sans-serif; --mono: "IBM Plex Mono", ui-monospace, monospace;
 }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
-  --bg: #111613; --panel: #18201c; --fg: #e4ebe7; --muted: #95a39b; --line: #2b3631;
-  --pass: #5cc98f; --fail: #ff8a80; --wait: #e2bc54; --accent: #8cc7b4; color-scheme: dark } }
+  --bg: #0f1412; --sheet: #161d1a; --ink: #e3eae6; --muted: #92a199; --rule: #27322d; --soft: #1c2521;
+  --accent: #86c4b0; --pass: #5fd09a; --fail: #ff8b7e; --wait: #e5c25c; color-scheme: dark } }
 :root[data-theme="dark"] {
-  --bg: #111613; --panel: #18201c; --fg: #e4ebe7; --muted: #95a39b; --line: #2b3631;
-  --pass: #5cc98f; --fail: #ff8a80; --wait: #e2bc54; --accent: #8cc7b4; color-scheme: dark }
+  --bg: #0f1412; --sheet: #161d1a; --ink: #e3eae6; --muted: #92a199; --rule: #27322d; --soft: #1c2521;
+  --accent: #86c4b0; --pass: #5fd09a; --fail: #ff8b7e; --wait: #e5c25c; color-scheme: dark }
 * { box-sizing: border-box }
-body { margin: 0; background: var(--bg); color: var(--fg); font: 15px/1.55 var(--sans) }
-main { max-width: 860px; margin: 0 auto; padding-block: 40px 64px;
+html { -webkit-text-size-adjust: 100% }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.55 var(--sans) }
+a { color: var(--accent); text-underline-offset: 2px }
+a:focus-visible, button:focus-visible, input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px }
+main { max-width: 920px; margin: 0 auto; padding-block: 48px 72px;
   padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
-  display: grid; gap: 28px }
-h1 { margin: 0; font-size: 26px; font-weight: 600; letter-spacing: -0.01em; text-wrap: balance }
-.meta { display: flex; flex-wrap: wrap; gap: 8px 20px; color: var(--muted); font: 13px var(--mono) }
-.meta a { color: var(--accent) }
-form { display: flex; gap: 8px; flex-wrap: wrap }
-input { flex: 1 1 260px; min-width: 0; font: 14px var(--mono); padding: 9px 11px; border: 1px solid var(--line);
-  border-radius: 6px; background: var(--panel); color: var(--fg) }
-button { font: 500 14px var(--sans); padding: 9px 16px; border: 0; border-radius: 6px; background: var(--accent); color: var(--bg); cursor: pointer }
-button:focus-visible, input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px }
-.summary { font: 500 15px var(--sans) }
-ol { list-style: none; margin: 0; padding: 0; border: 1px solid var(--line); border-radius: 8px; background: var(--panel) }
-li { display: grid; grid-template-columns: 76px 1fr; gap: 4px 16px; padding: 14px 16px; border-top: 1px solid var(--line) }
-li:first-child { border-top: 0 }
-.v { font: 600 12px var(--mono); letter-spacing: 0.06em; padding-top: 2px }
+  display: grid; gap: 40px }
+.mono { font-family: var(--mono); font-size: 12.5px; overflow-wrap: anywhere }
+.muted { color: var(--muted) }
+
+header { display: grid; gap: 18px }
+.brand { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap }
+.brand b { font: 600 14px var(--sans); letter-spacing: 0.08em; text-transform: uppercase }
+h1 { margin: 0; font: 500 clamp(26px, 4.4vw, 38px)/1.18 var(--serif); letter-spacing: -0.01em; text-wrap: balance; max-width: 30ch }
+.verdict { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; font-size: 16px }
+.verdict strong { font: 600 32px var(--sans); font-variant-numeric: tabular-nums }
+form { display: flex; gap: 8px; flex: 0 1 380px; min-width: 0 }
+input { flex: 1 1 auto; min-width: 0; font: 13px var(--mono); padding: 8px 10px; border: 1px solid var(--rule); border-radius: 6px; background: var(--sheet); color: var(--ink) }
+button { font: 500 14px var(--sans); padding: 8px 16px; border: 0; border-radius: 6px; background: var(--accent); color: var(--bg); cursor: pointer }
+
+.life { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); border: 1px solid var(--rule); border-radius: 8px; background: var(--sheet); overflow: hidden }
+.life div { padding: 12px 12px 14px; border-left: 1px solid var(--rule); display: grid; gap: 2px; min-width: 0 }
+.life div:first-child { border-left: 0 }
+.life span { font: 500 11px var(--mono); color: var(--muted); letter-spacing: 0.04em }
+.life b { font-weight: 500; font-size: 14px }
+.life small { color: var(--muted); font-size: 12px; overflow-wrap: anywhere }
+.life .done { background: var(--soft) }
+.life .now { box-shadow: inset 0 3px 0 var(--accent) }
+.life .now b { color: var(--accent) }
+@media (max-width: 600px) { form { flex-basis: 100% } }
+@media (max-width: 720px) { .life { grid-template-columns: repeat(2, minmax(0, 1fr)) } .life div:nth-child(odd) { border-left: 0 } .life div:nth-child(n+3) { border-top: 1px solid var(--rule) } }
+
+section { display: grid; gap: 14px }
+h2 { margin: 0; font: 600 13px var(--sans); letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted) }
+.facts { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 0; border: 1px solid var(--rule); border-radius: 8px; background: var(--sheet) }
+.facts dl { margin: 0; padding: 14px 16px; display: grid; gap: 10px; min-width: 0 }
+.facts dl + dl { border-left: 1px solid var(--rule) }
+@media (max-width: 600px) { .facts dl + dl { border-left: 0; border-top: 1px solid var(--rule) } }
+.facts div { display: grid; gap: 1px; min-width: 0 }
+dt { font-size: 12px; color: var(--muted) }
+dd { margin: 0; min-width: 0 }
+
+.ledger { list-style: none; margin: 0; padding: 0; border: 1px solid var(--rule); border-radius: 8px; background: var(--sheet) }
+.ledger li { display: grid; grid-template-columns: 72px minmax(0, 1fr) auto; gap: 2px 14px; padding: 12px 16px; border-top: 1px solid var(--rule); align-items: baseline }
+.ledger li:first-child { border-top: 0 }
+.ledger .group { grid-column: 1 / -1; padding: 8px 16px; background: var(--soft); font: 600 11px var(--mono); letter-spacing: 0.06em; color: var(--muted); display: block }
+.v { font: 600 11.5px var(--mono); letter-spacing: 0.06em }
 .v.PASS { color: var(--pass) } .v.FAIL { color: var(--fail) } .v.WAIT { color: var(--wait) }
-.claim { font-weight: 500; min-width: 0 }
-.detail { grid-column: 2; min-width: 0; color: var(--muted); font: 12.5px/1.5 var(--mono); overflow-wrap: anywhere }
-.detail a { color: var(--accent) }
-footer { color: var(--muted); font-size: 13px }
+.claim { min-width: 0 }
+.detail { grid-column: 2 / -1; color: var(--muted) }
+.when { font: 12px var(--mono); color: var(--muted); white-space: nowrap }
+.tag { font: 500 11px var(--mono); padding: 1px 6px; border-radius: 4px; border: 1px solid var(--rule); color: var(--muted); margin-right: 6px }
+.tag.fail { color: var(--fail); border-color: color-mix(in srgb, var(--fail) 40%, transparent) }
+@media (max-width: 560px) { .ledger li { grid-template-columns: 56px minmax(0, 1fr) } .when { grid-column: 2 } }
+
+pre { margin: 0; padding: 14px 16px; background: var(--sheet); border: 1px solid var(--rule); border-radius: 8px; overflow-x: auto; font: 12.5px/1.6 var(--mono) }
+footer { color: var(--muted); font-size: 13px; display: flex; gap: 16px; flex-wrap: wrap }
+.loading { color: var(--muted) }
+@media (prefers-reduced-motion: no-preference) { .loading::after { content: "…"; animation: blink 1.2s steps(1) infinite } @keyframes blink { 50% { opacity: 0 } } }
 </style>
 </head>
 <body>
 <main>
-  <header style="display:grid;gap:10px">
-    <h1>GhostProtocol Verifier</h1>
-    <div class="meta" id="meta">Reading NEAR testnet and Base Sepolia directly from this browser.</div>
+  <header>
+    <div class="brand">
+      <b>GhostProtocol</b>
+      <form id="form">
+        <label for="vault" hidden>Vault account</label>
+        <input id="vault" value="ghostprotocol-vault.testnet" spellcheck="false" autocomplete="off">
+        <button type="submit">Recheck</button>
+      </form>
+    </div>
+    <h1>After its owner dies, this vault pays the right heirs, and no single person, key, model or operator can change that.</h1>
+    <div class="verdict" id="verdict"><span class="loading">Recomputing from NEAR testnet and Base Sepolia</span></div>
   </header>
-  <form id="form">
-    <label for="vault" hidden>Vault account</label>
-    <input id="vault" value="ghostprotocol-vault.testnet" spellcheck="false" autocomplete="off">
-    <button type="submit">Recheck</button>
-  </form>
-  <div class="summary" id="summary">Checking…</div>
-  <ol id="checks"></ol>
-  <footer>Every value above is recomputed here from public RPC answers. Nothing comes from a GhostProtocol server.</footer>
+
+  <section aria-labelledby="life-h">
+    <h2 id="life-h">Where this vault is</h2>
+    <div class="life" id="life"></div>
+  </section>
+
+  <section aria-labelledby="facts-h">
+    <h2 id="facts-h">Vault</h2>
+    <div class="facts" id="facts"></div>
+  </section>
+
+  <section aria-labelledby="checks-h">
+    <h2 id="checks-h">Proofs</h2>
+    <ol class="ledger" id="checks"></ol>
+  </section>
+
+  <section aria-labelledby="events-h">
+    <h2 id="events-h">On-chain record</h2>
+    <ol class="ledger" id="events"></ol>
+  </section>
+
+  <section aria-labelledby="cli-h">
+    <h2 id="cli-h">Recheck without this page</h2>
+    <pre id="cli"></pre>
+  </section>
+
+  <footer>
+    <span>Every value here comes from public RPC. Nothing comes from a GhostProtocol server.</span>
+    <a href="https://github.com/danielAsaboro/ghost-protocol/blob/main/docs/threat-model.md">Threat model</a>
+    <a href="https://github.com/danielAsaboro/ghost-protocol">Source</a>
+  </footer>
 </main>
 <script type="module">
-import { keccak256, recoverAddress, serializeTransaction, getAddress, hashMessage } from 'https://cdn.jsdelivr.net/npm/viem@2.21.0/+esm';
+import { verifyVault } from './verify.mjs';
 
-const NEAR = 'https://rpc.testnet.near.org';
-const BASE = 'https://base-sepolia-rpc.publicnode.com';
-const SIGNER = 'v1.signer-prod.testnet';
-const PATH = 'ghost-base-sepolia-1';
-// Hash of contract/target/near/ghost_protocol.wasm from `cargo near build reproducible-wasm` at the published commit.
-const REPRODUCIBLE_HASH = document.querySelector('meta[name="ghost:wasm"]')?.content ?? null;
-const B58 = '123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz';
-
-const hex = (b) => [...b].map((x) => x.toString(16).padStart(2, '0')).join('');
-const unhex = (h) => Uint8Array.from(h.match(/../g).map((x) => parseInt(x, 16)));
-const b64 = (s) => Uint8Array.from(atob(s), (c) => c.charCodeAt(0));
-function b58enc(bytes) {
-  let n = BigInt('0x' + (hex(bytes) || '0')), out = '';
-  while (n > 0n) { out = B58[Number(n % 58n)] + out; n /= 58n; }
-  return out;
-}
-function b58dec(s, len) {
-  let n = 0n;
-  for (const c of s) n = n * 58n + BigInt(B58.indexOf(c));
-  return unhex(n.toString(16).padStart(len * 2, '0'));
-}
-const sha256 = async (bytes) => new Uint8Array(await crypto.subtle.digest('SHA-256', bytes));
-
-async function near(params) {
-  const r = await fetch(NEAR, { method: 'POST', headers: { 'content-type': 'application/json' },
-    body: JSON.stringify({ jsonrpc: '2.0', id: 1, method: 'query', params: { finality: 'final', ...params } }) });
-  const j = await r.json();
-  if (!j.result || j.result.error) throw new Error(JSON.stringify(j.error ?? j.result?.error));
-  return j.result;
-}
-const view = async (account, method, args = {}) => JSON.parse(new TextDecoder().decode(Uint8Array.from((await near({
-  request_type: 'call_function', account_id: account, method_name: method, args_base64: btoa(JSON.stringify(args)) })).result)));
-async function nearTx(hash, sender) {
-  const r = await fetch(NEAR, { method: 'POST', headers: { 'content-type': 'application/json' },
-    body: JSON.stringify({ jsonrpc: '2.0', id: 1, method: 'tx', params: { tx_hash: hash, sender_account_id: sender, wait_until: 'FINAL' } }) });
-  return (await r.json()).result;
-}
-async function base(method, params) {
-  const r = await fetch(BASE, { method: 'POST', headers: { 'content-type': 'application/json' },
-    body: JSON.stringify({ jsonrpc: '2.0', id: 1, method, params }) });
-  return (await r.json()).result;
-}
-
-const list = document.getElementById('checks');
-const rows = [];
-function row(verdict, claim, detail) {
-  rows.push(verdict);
-  const li = document.createElement('li');
-  li.innerHTML = `<span class="v ${verdict}">${verdict}</span><span class="claim"></span><span class="detail"></span>`;
-  li.children[1].textContent = claim;
-  li.children[2].innerHTML = detail;
-  list.append(li);
-}
+const $ = (id) => document.getElementById(id);
 const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
+const short = (h, n = 10) => (h.length > 2 * n + 1 ? `${h.slice(0, n)}…${h.slice(-6)}` : h);
+const nearTx = (h) => `https://testnet.nearblocks.io/txns/${h}`;
+const eth = (wei) => `${(Number(BigInt(wei)) / 1e18).toLocaleString(undefined, { maximumFractionDigits: 6 })} ETH`;
+const ago = (secs) => { const d = Math.floor(Date.now() / 1000) - secs; return d < 3600 ? `${Math.floor(d / 60)} min ago` : d < 86400 ? `${Math.floor(d / 3600)} h ago` : `${Math.floor(d / 86400)} d ago`; };
+const reproducibleHash = document.querySelector('meta[name="ghost:wasm"]').content;
+const commit = document.querySelector('meta[name="ghost:commit"]').content;
 
-function borshPayload(txId) {
-  const out = new Uint8Array(2 + 32 + 4 + 1 + 4);
-  out[1] = 6; out.set(txId, 2); out[38] = 2;
-  return out;
+function life(r) {
+  const s = r.state, c = s.claim, p = s.payouts[0], now = Math.floor(Date.now() / 1000);
+  const locked = r.checks.find((x) => x.id === 'no-keys')?.verdict === 'PASS';
+  const paid = s.heirs.every((h) => h.status === 'Paid');
+  const steps = [
+    ['01', 'Sealed', 'wishes encrypted to a key no one holds', true],
+    ['02', 'Locked', locked ? 'no keys on the account' : 'keys still present', locked],
+    ['03', 'Claimed', c ? `witness quorum, ${ago(c.opened_at)}` : 'owner still checking in', Boolean(c)],
+    ['04', 'Grace', c ? (now < c.pay_after ? `${c.pay_after - now}s left to cancel` : 'over, not cancelled') : 'not started', Boolean(c) && now >= c.pay_after],
+    ['05', 'Paying', p ? `${p.attempts.filter((a) => a.r_hex).length} signed attempt(s), nonce ${p.nonce}` : 'no payout yet', Boolean(p)],
+    ['06', 'Settled', paid ? 'MPC network attested every payment' : 'waiting for a landed transaction', paid],
+  ];
+  const current = steps.findIndex((x) => !x[3]);
+  $('life').innerHTML = steps.map(([n, title, note, done], i) =>
+    `<div class="${done ? 'done' : ''} ${i === current ? 'now' : ''}"><span>${n}</span><b>${title}</b><small>${esc(note)}</small></div>`).join('');
+}
+
+function facts(r) {
+  const s = r.state;
+  const heirs = s.heirs.map((h, i) => `<div><dt>Heir ${i}</dt><dd><span class="mono">${esc(h.address)}</span><br>${h.status} · floor ${eth(h.floor_wei)} · cap ${eth(h.cap_wei)}</dd></div>`).join('');
+  const payouts = r.payouts.map((p) => `<div><dt>Payout ${p.index} · ${p.source}</dt><dd>${eth(p.value)} to heir ${p.heir} · nonce ${p.nonce} · ${p.status}<br>${p.attempts.map((a) => `<span class="mono">attempt ${a.index}: ${a.txHash ? `<a href="https://sepolia.basescan.org/tx/${a.txHash}" target="_blank" rel="noopener">${short(a.txHash)}</a> ${a.landed === null ? 'not mined' : a.landed ? 'landed' : 'reverted'}` : 'signing'}</span>`).join('<br>')}</dd></div>`).join('');
+  $('facts').innerHTML = `
+    <dl>
+      <div><dt>NEAR account</dt><dd><a href="https://testnet.nearblocks.io/address/${esc(r.vault)}" target="_blank" rel="noopener" class="mono">${esc(r.vault)}</a></dd></div>
+      <div><dt>Base Sepolia address, controlled only by this contract</dt><dd><a href="https://sepolia.basescan.org/address/${r.vaultAddress}" target="_blank" rel="noopener" class="mono">${r.vaultAddress}</a></dd></div>
+      <div><dt>Balance</dt><dd>${eth(r.balance)}</dd></div>
+      <div><dt>Code hash</dt><dd class="mono">${r.codeHash}</dd></div>
+    </dl>
+    <dl>${heirs}${payouts || '<div><dt>Payouts</dt><dd>none yet</dd></div>'}</dl>`;
+}
+
+function checks(r) {
+  let group = '';
+  $('checks').innerHTML = r.checks.map((c) => {
+    const head = c.group !== group ? `<li class="group">${esc((group = c.group))}</li>` : '';
+    return `${head}<li><span class="v ${c.verdict}">${c.verdict}</span><span class="claim">${esc(c.claim)}</span><span></span><span class="detail mono">${esc(c.detail)}</span></li>`;
+  }).join('');
+}
+
+function events(r) {
+  const list = [...r.events].sort((a, b) => b.at.localeCompare(a.at));
+  $('events').innerHTML = list.map((e) => {
+    const blocked = e.expect === 'fail';
+    const tag = blocked ? '<span class="tag fail">refused</span>' : '<span class="tag">done</span>';
+    const said = blocked ? `contract: “${esc(e.observed)}”` : esc(e.note ?? e.method);
+    const when = new Date(e.at).toLocaleString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+    return `<li><span class="v ${e.verdict}">${e.verdict}</span><span class="claim">${tag}${esc(e.label)}</span><span class="when">${when}</span><span class="detail mono">${said} · <a href="${nearTx(e.tx)}" target="_blank" rel="noopener">${short(e.tx)}</a></span></li>`;
+  }).join('');
+}
+
+function cli(r) {
+  $('cli').textContent = [
+    `# keys on the vault account: expect "keys": []`,
+    `curl -s https://rpc.testnet.near.org -H 'content-type: application/json' -d '{"jsonrpc":"2.0","id":1,"method":"query","params":{"request_type":"view_access_key_list","finality":"final","account_id":"${r.vault}"}}'`,
+    ``,
+    `# rebuild the contract and compare with ${reproducibleHash}`,
+    `git clone https://github.com/danielAsaboro/ghost-protocol && cd ghost-protocol && git checkout ${commit} && cd contract && cargo near build reproducible-wasm`,
+    ``,
+    `# every check on this page, from the terminal`,
+    `npm install && npm run test:live`,
+  ].join('\n');
 }
 
 async function run(vault) {
-  list.replaceChildren(); rows.length = 0;
-  document.getElementById('summary').textContent = 'Checking…';
-  document.getElementById('meta').innerHTML = `<span>vault ${esc(vault)}</span><a href="https://testnet.nearblocks.io/address/${esc(vault)}" target="_blank" rel="noopener">explorer</a>`;
-  const evidence = await fetch('evidence.json').then((r) => (r.ok ? r.json() : {})).catch(() => ({}));
+  for (const id of ['life', 'facts', 'checks', 'events']) $(id).replaceChildren();
+  $('verdict').innerHTML = '<span class="loading">Recomputing from NEAR testnet and Base Sepolia</span>';
   try {
-    const [account, code, keys, state] = await Promise.all([
-      near({ request_type: 'view_account', account_id: vault }),
-      near({ request_type: 'view_code', account_id: vault }),
-      near({ request_type: 'view_access_key_list', account_id: vault }),
-      view(vault, 'get_state'),
-    ]);
-
-    const computed = b58enc(await sha256(b64(code.code_base64)));
-    row(computed === account.code_hash ? 'PASS' : 'FAIL', 'Deployed code hash recomputed from the WASM bytes',
-      `sha256 = ${computed}<br>chain code_hash = ${esc(account.code_hash)}`);
-    if (REPRODUCIBLE_HASH) row(computed === REPRODUCIBLE_HASH ? 'PASS' : 'FAIL', 'Matches the reproducible build of the published source',
-      `reproducible = ${esc(REPRODUCIBLE_HASH)}`);
-
-    const full = keys.keys.filter((k) => k.access_key.permission === 'FullAccess');
-    row(full.length === 0 ? 'PASS' : 'FAIL', 'No key can act as the vault, so no one can request its signatures directly',
-      full.length ? `${full.length} FullAccess key(s): ${full.map((k) => esc(k.public_key.slice(0, 24)) + '…').join(', ')}` : `${keys.keys.length} keys, none FullAccess`);
-
-    const derived = await view(SIGNER, 'derived_public_key', { path: PATH, predecessor: vault, domain_id: 0 });
-    const derivedHex = hex(b58dec(derived.split(':')[1], 64));
-    const vaultAddress = getAddress('0x' + keccak256('0x' + derivedHex).slice(-40));
-    row(derivedHex === state.vault_public_key ? 'PASS' : 'FAIL', 'Vault key in the contract equals the MPC network’s derived key',
-      `Base Sepolia address ${vaultAddress} · <a href="https://sepolia.basescan.org/address/${vaultAddress}" target="_blank" rel="noopener">basescan</a>`);
-
-    const rootKey = await view(SIGNER, 'public_key', { domain_id: 3 });
-    const rootHex = hex(b58dec(rootKey.split(':')[1], 64));
-    row(rootHex === state.foreign_tx_public_key ? 'PASS' : 'FAIL', 'Settlement key equals the MPC ForeignTx key (domain 3)', `${rootHex.slice(0, 32)}…`);
-
-    const caps = state.heirs.reduce((t, h) => t + BigInt(h.cap_wei), 0n);
-    row(state.chain_id === 84532 && caps <= BigInt(state.budget_wei) ? 'PASS' : 'FAIL', 'Pays only on Base Sepolia, within a budget that covers every cap',
-      `chain ${state.chain_id} · caps ${caps} ≤ budget ${state.budget_wei} wei · ${state.heirs.length} heir(s)`);
-
-    const balance = BigInt(await base('eth_getBalance', [vaultAddress, 'latest']) ?? '0x0');
-    row(balance > 0n ? 'PASS' : 'WAIT', 'Vault address holds funds on Base Sepolia', `${balance} wei`);
-
-    if (!state.payouts.length) row('WAIT', 'Payouts', 'none requested yet');
-    for (const [i, p] of state.payouts.entries()) {
-      for (const [j, a] of p.attempts.entries()) {
-        const label = `Payout ${i}, attempt ${j}: ${p.value_wei} wei to ${p.to}, nonce ${p.nonce}`;
-        if (!a.r_hex) { row('WAIT', label, 'signature pending'); continue; }
-        const tx = { type: 'eip1559', chainId: 84532, nonce: Number(p.nonce), to: getAddress(p.to), value: BigInt(p.value_wei),
-          gas: BigInt(p.gas_limit), maxFeePerGas: BigInt(a.max_fee_per_gas), maxPriorityFeePerGas: BigInt(a.max_priority_fee_per_gas) };
-        const hash = keccak256(serializeTransaction(tx));
-        const sig = { r: '0x' + a.r_hex, s: '0x' + a.s_hex, yParity: a.y_parity };
-        const recovered = await recoverAddress({ hash, signature: sig });
-        const lowS = BigInt('0x' + a.s_hex) <= 0x7fffffffffffffffffffffffffffffff5d576e7357a4501ddfe92f46681b20a0n;
-        const txHash = keccak256(serializeTransaction(tx, sig));
-        const ok = hash.slice(2) === a.payload_hex && recovered === vaultAddress && lowS && txHash.slice(2) === a.tx_hash_hex;
-        row(ok ? 'PASS' : 'FAIL', `${label}: signature recovers to the vault`, `payload ${hash.slice(2, 18)}… · recovered ${recovered} · low-s ${lowS}`);
-
-        const receipt = await base('eth_getTransactionReceipt', [txHash]);
-        const link = `<a href="https://sepolia.basescan.org/tx/${txHash}" target="_blank" rel="noopener">${txHash.slice(0, 18)}…</a>`;
-        if (!receipt) row('WAIT', `${label}: included on Base Sepolia`, `${link} not found`);
-        else row(receipt.status === '0x1' && getAddress(receipt.from) === vaultAddress ? 'PASS' : 'FAIL',
-          `${label}: included on Base Sepolia`, `${link} · block ${parseInt(receipt.blockNumber, 16)} · status ${receipt.status}`);
-
-        const settleTx = evidence.settle?.[`${i}:${j}`];
-        if (p.status === 'Settled' && p.settled_attempt === j) {
-          if (!settleTx) { row('FAIL', `${label}: MPC attestation`, 'settled on-chain but no settlement transaction listed'); continue; }
-          const status = await nearTx(settleTx.tx, settleTx.sender);
-          const reply = status.receipts_outcome.map((r) => r.outcome).find((o) => o.executor_id === SIGNER && o.status.SuccessValue);
-          const att = reply && JSON.parse(new TextDecoder().decode(b64(reply.status.SuccessValue)));
-          const expected = hex(await sha256(borshPayload(unhex(a.tx_hash_hex))));
-          let signer = null;
-          if (att?.signature) {
-            const sg = att.signature;
-            signer = await recoverAddress({ hash: '0x' + att.payload_hash, signature: { r: '0x' + sg.big_r.affine_point.slice(2), s: '0x' + sg.s.scalar, yParity: sg.recovery_id } });
-          }
-          const rootAddress = getAddress('0x' + keccak256('0x' + rootHex).slice(-40));
-          row(att && att.payload_hash === expected && signer === rootAddress ? 'PASS' : 'FAIL', `${label}: MPC network attested the payment landed`,
-            `sha256(borsh request) ${expected.slice(0, 16)}… signed by the domain 3 key · <a href="https://testnet.nearblocks.io/txns/${settleTx.tx}" target="_blank" rel="noopener">settlement tx</a> · heir ${state.heirs[p.heir_index].status}`);
-        }
-      }
-    }
+    const evidence = await fetch('evidence.json').then((x) => (x.ok ? x.json() : null)).catch(() => null);
+    const own = evidence?.vault === vault ? evidence : { events: [], settle: {} };
+    const r = { vault, ...(await verifyVault({ vault, evidence: own, reproducibleHash: vault === evidence?.vault ? reproducibleHash : null })) };
+    const all = [...r.checks, ...r.events];
+    const fail = all.filter((x) => x.verdict === 'FAIL').length, wait = all.filter((x) => x.verdict === 'WAIT').length, pass = all.length - fail - wait;
+    $('verdict').innerHTML = fail
+      ? `<strong style="color:var(--fail)">${fail}</strong><span>check${fail > 1 ? 's' : ''} failed. The list below shows which.</span>`
+      : `<strong>${pass}/${all.length}</strong><span>rechecked in your browser just now${wait ? `, ${wait} waiting for something that has not happened yet` : ''}.</span>`;
+    life(r); facts(r); checks(r); events(r); cli(r);
   } catch (e) {
-    row('FAIL', 'Could not read the chain', esc(e.message));
+    $('verdict').innerHTML = `<strong style="color:var(--fail)">FAIL</strong><span>Could not read the chain: ${esc(e.message)}</span>`;
   }
-  const fails = rows.filter((r) => r === 'FAIL').length, waits = rows.filter((r) => r === 'WAIT').length;
-  document.getElementById('summary').textContent = fails ? `${fails} check(s) failed` : `${rows.length - waits} of ${rows.length} checks pass${waits ? `, ${waits} waiting` : ''}`;
 }
 
-const input = document.getElementById('vault');
-const fromHash = location.hash.slice(1);
-if (fromHash) input.value = decodeURIComponent(fromHash);
-document.getElementById('form').addEventListener('submit', (e) => { e.preventDefault(); location.hash = input.value; run(input.value.trim()); });
+const input = $('vault');
+if (location.hash.length > 1) input.value = decodeURIComponent(location.hash.slice(1));
+$('form').addEventListener('submit', (e) => { e.preventDefault(); location.hash = input.value.trim(); run(input.value.trim()); });
 run(input.value.trim());
 </script>
 </body>
