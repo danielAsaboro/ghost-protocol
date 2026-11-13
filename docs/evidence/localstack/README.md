@@ -11,6 +11,8 @@ No signature, attestation, CKD response or receipt in this directory was produce
 
 ## What surprised me (read this first)
 
+Status on the final build (ceedcd4, runs `*-final`): findings 3 and 4 are fixed in the contract and verified below; finding 1 is addressed in the relayer (it settles only the attempt that is final on Base), which this harness does not drive, so the vault-side behaviour of an early settle (timeout, heir Pending) is unchanged and re-measured.
+
 1. **A settle sent before finality is not refused, it is abandoned.** The leader node retries a not-yet-final `verify_foreign_transaction` about once a second (10 tries, then 5 by a failover leader, all within about 15 s: `MAX_ATTEMPTS_PER_REQUEST_AS_LEADER = 10` in `crates/node/src/requests/queue.rs`), then nobody looks at it again until the 200-block yield timeout returns `Request has timed out`. Measured: finality arriving 4 s after the request -> attested; 30 s after -> timed out although the request was still pending on chain. On Base Sepolia finality is many minutes after inclusion, so whoever calls `settle` must first see `eth_getBlockByNumber("finalized") >= receipt.blockNumber` themselves. An early settle costs only gas; the heir stays Pending and settle can be called again.
 2. **v2 is bricked by a single MPC config vote.** Raising `sign_call_gas_attachment_requirement_tera_gas` above 150 (two node votes plus `submit_contract_update`, no code change) makes every `sign` and `verify_foreign_transaction` the v2 vault sends panic `Provided gas is lower than required`, because v2 attaches a constant 150 Tgas. v3's GasWeight fixes this up to what the caller attaches: at 300 Tgas prepaid `sign` gets 193.4 Tgas (survives 190, fails 200); neard 2.14 accepts up to 1000 Tgas per call, and at 1000 Tgas prepaid `sign` got 543 Tgas and survived a 500 Tgas requirement (7Ua97eX).
 3. **The re-price path keeps the tip fixed, and geth-family pools would refuse the replacement.** Every attempt uses tip = `min(max_priority_fee_per_gas, max_fee)`, so a re-priced attempt raises only the fee cap. anvil accepts that as a same-nonce replacement (`anvil-replacement-rule.txt`). geth's txpool (and so op-geth on Base) requires both the fee cap and the tip to rise by its price bump (10%) to replace a pending tx, so on Base the re-price would come back `replacement transaction underpriced` while attempt 0 is still in the sequencer's pool. This is from geth's txpool code (`core/txpool/legacypool/list.go`, `list.Add` rejects a replacement unless both `GasFeeCap` and `GasTipCap` clear the bump); I had no op-geth here to run it. anvil also differs the other way: it refuses a tx whose max fee is below the current base fee at submission, and evicts a pending one once the base fee rises above it, where geth would keep it queued.
@@ -31,6 +33,7 @@ No signature, attestation, CKD response or receipt in this directory was produce
 | vault v2 wasm (runs `lifecycle-1`, `faults-1`) | `cargo near build non-reproducible-wasm` from the working tree at commit 98a6a33 plus uncommitted changes, 258132 bytes, code hash `3QYdgwHqSnRvsKikauz4kaU2gqVw8S4Z3CCuTPo5ynTm`; copy kept at `~/development/near-hackathon-research/localstack-run/ghost_protocol-23bf7fe0.wasm` | `23bf7fe00c75273f38378e5cdca5ee2677a043a32127b1b787eb67a472f6eda4` |
 | vault v3 wasm, earlier build (runs `*-v3-XtF7uF5`, `faults-v3-XtF7uF5-storage`) | reproducible build at 1acd5fa, 255864 bytes, code hash `XtF7uF5MEDL3uMEMzzJzH6E6ddjJPjupgu3deFvvoJ6`, `~/development/near-hackathon-research/ghost-v3-XtF7uF5.wasm` | `07e95d8b1e1bf0c335be16af085c4840453f703eb0c8d9d1623b166260d64cef` |
 | vault v3 wasm (runs `*-v3-7Ua97eX`) | reproducible build at e73a181, 261408 bytes, code hash `7Ua97eXHq3VXdwe1m69VYuVqSdRHdLCayaCzbsxS8YRq`, `~/development/near-hackathon-research/ghost-v3-7Ua97eX.wasm` | `6036465a4ce63310f39871a67eab1c9d763af3da952e846cea195013c4fda884` |
+| vault v3 final wasm (runs `*-final`) | reproducible build at ceedcd4, 262843 bytes, code hash `Gakhf4AxBppPcnXEjpuBgKNPqWojwM4gabLeGrVuGWNm` (matches `view_account` on the deployed vaults), `~/development/near-hackathon-research/ghost-v3-final.wasm` | `e784e228e0c60d48c80c15d1166ba94f09252e16c4cea897fe758cf6bdfb11da` |
 | `crates/test-migration-contract` wasm (fault i) | near/mpc 3.18.0, `cargo near build non-reproducible-wasm --no-abi` | `28f8a026b7dd73bfa9606196fb389591bcbe9a1154b525c78eff4b8b4e87ad52` |
 | Node.js | 24.15.0 | n/a |
 
@@ -60,6 +63,11 @@ VAULT_PAYABLE=1 node scripts/localstack/lifecycle.mjs $W lifecycle-v3-7Ua97eX A,
 VAULT_PAYABLE=1 GAS_REQS=151,190,200 SIGNERS=8 node scripts/localstack/faults.mjs $W faults-v3-7Ua97eX gasconfig,providers,signers,maxstate,storage,upgrade-same
 VAULT_PAYABLE=1 GAS_PREPAID=1000 GAS_REQS=500 node scripts/localstack/faults.mjs $W faults-v3-7Ua97eX gasconfig
 VAULT_PAYABLE=1 node scripts/localstack/faults.mjs $W faults-v3-7Ua97eX upgrade-break   # destroys the signer; last
+# final build (fresh up.sh); PRIORITY_WEI sets a 0.1 gwei configured tip so the tip scaling is visible
+F=~/development/near-hackathon-research/ghost-v3-final.wasm
+VAULT_PAYABLE=1 PRIORITY_WEI=100000000 node scripts/localstack/lifecycle.mjs $F lifecycle-final A,B
+VAULT_PAYABLE=1 PRIORITY_WEI=100000000 GAS_REQS=151,190,200 SIGNERS=8 node scripts/localstack/faults.mjs $F faults-final gasconfig,storage,signers,maxstate
+VAULT_PAYABLE=1 PRIORITY_WEI=100000000 GAS_PREPAID=1000 GAS_REQS=500 node scripts/localstack/faults.mjs $F faults-final gasconfig
 
 # 3. Stop (add --wipe to delete chain data)
 scripts/localstack/down.sh
@@ -162,6 +170,30 @@ The current build: `~/development/near-hackathon-research/ghost-v3-7Ua97eX.wasm`
 | i | same-code signer upgrade | still works | code hash unchanged, the vault signed | `131`-`134` |
 | i' | signer upgraded through the real vote to `crates/test-migration-contract` (no `sign`, no `verify_foreign_transaction`); last step, it destroys the signer | vault fails safe | applied: signer code hash `3kwCER8uwYFsB6MdThQ9JeqaZusw1TSYUoA2L31vu94M`. `execute_fallback`: the `sign` call failed `MethodNotFound`, `on_signed` returned `false` and truncated the attempt, so payout 1 now exists **with zero attempts** (Active, `signing` false, its budget reserved, heir Pending; `request_signature` can give it a first attempt once a working signer is back). `settle`: `MethodNotFound`, `false`, nothing changed. The stack is unusable after this, as expected | `159`-`163` |
 
+
+## Final v3 build Gakhf4A (`lifecycle-final/`, `faults-final/`)
+
+Fresh stack (`up.sh` again: new DKG keys, same binaries). Vault config as before, but with a configured tip of 0.1 gwei (`PRIORITY_WEI=100000000`) against a 1 gwei initial fee, so `tip = fee * 0.1 / 1` is visible. Every vault reports code hash `Gakhf4AxBppPcnXEjpuBgKNPqWojwM4gabLeGrVuGWNm`.
+
+| # | Scenario | Expected | Observed on the final build | Evidence (`lifecycle-final/`) |
+|---|---|---|---|---|
+| a1 | claim while owner active | refused | `owner is not inactive` | `008` |
+| a2-a3 | quorum claim, check-in | opens, cancelled | opened; `check_in` cleared it | `009`, `010` |
+| b | fallback payout, real `sign` | `on_signed` accepts | `true`; `sign` got 193 Tgas, `on_signed` 103 Tgas, burnt 2.08 Tgas | `012`, `state-b2-after-sign.json` |
+| c | stuck fee, re-price same nonce, lands | lands | attempt 0 (1 gwei) refused by anvil below the 1.5 gwei base fee; re-price to 2 gwei signed and landed, status 1 | `014`-`018` |
+| c-tip | attempt 1's tip higher than attempt 0's | tip scales with fee | **yes**: vault state attempt 0 tip 0.1 gwei, attempt 1 tip 0.2 gwei; the attempt 1 tx in anvil's pool has `maxPriorityFeePerGas 0xbebc200` (0.2 gwei) and landed at effective price 1.7 gwei (1.5 base + 0.2 tip). Payout 1 of vault B: tips 0.1, 0.2, 0.4, 0.8, 1.6 gwei for fees 1-16 gwei; the 16 gwei attempt was in the pool with tip `0x5f5e1000` (1.6 gwei) and landed | `017`, `018`, `state-v5-final.json`, `059`, `060` |
+| d1 | settle before finality | not attested | timed out, heir Pending | `020` |
+| d2 | settle after finality | Paid | `true`, heir Paid | `022` |
+| e | reverting heir | not attested; reopen; retry delayed | status 0; settle timed out; `reopen_reverted` ok; immediate retry refused `retry waits for the revert to be disputed` | `023`-`029` |
+| f | reorg before finality | not attested; nonce reusable | not attested; nonce back to 0; same tx re-landed; settle with finality 30 s late timed out; after finality Paid | `041`-`048` |
+| g | CKD wishes key | opens the wishes | real CKD response, pairing check passed, wishes decrypted | `030`, `g1-ckd-result.json` |
+| v (lifecycle) | 2 heirs, 5 attempts | below callback gas | `on_signed` 2.08-2.28 Tgas, `on_settled` 1.59-2.17 Tgas (callbacks get 103 Tgas); 32 gwei refused `fee above ceiling`; settle with finality 4 s after the request attested | `049`-`061` |
+
+| # | Fault | Expected | Observed on the final build | Evidence (`faults-final/`) |
+|---|---|---|---|---|
+| iv | storage between `begin_attempt` (104 bytes) and `on_signed` (205 bytes) | recover without the lease | 52 free bytes: request fails whole. 206 free: MPC signs, `on_signed` fails `LackBalanceForState`, `signing: true`. After a 1 NEAR transfer, `request_signature` still refused `signature already in flight`, but **`submit_signature` with the real MPC signature read from chain returned `true`**: attempt 2 signed, `signing: false`. The next re-price (8 gwei) was signed by the network at once; the other heir paid out | `034`-`046` |
+| vi | sign-gas requirement 151 / 190 / 200 Tgas, 300 Tgas prepaid | survive up to the weight share | 151 and 190: sign and settle succeed (193 Tgas each). 200: refused `Provided: 193302551777938, required: 200000000000000`, attempt truncated, heir Pending. CKD unaffected; restored to 15 | `007`-`026` |
+<!-- FINAL-MORE -->
 
 ## Not done, and why
 

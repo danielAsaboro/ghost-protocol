@@ -354,6 +354,7 @@ async function storage() {
       const sub = await rec.call(`iv submit_signature for payout 0 attempt ${a} with the signature from the chain`, v.owner, v.account, 'submit_signature', { payout_index: 0, attempt_index: a, signature: lostSignature }, { expect: 'any', gas: 50 });
       const s2 = await v.state();
       rec.log({ assert: 'iv submit_signature after a storage-failed callback', ok: sub.ok, value: sub.value, error: sub.error, payout0: { signing: s2.payouts[0].signing, attempts: signedAttempts(s2, 0) } });
+      if (sub.ok) await reprice('iv re-price after submit_signature');
     }
   }
   const stuck = (await v.state()).payouts[0];

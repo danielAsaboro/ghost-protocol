@@ -30,7 +30,7 @@ The model was updated with each fix (v3 at `cb86882`, v3.1 after the outside rev
 |---|---|
 | `quint run`, 5 seeds (including the two that broke v2) x 20,000 traces x 40 steps | No violation of `safety` |
 | TLC, `TINY=1`, v3 | One more counterexample, [log](tlc-v3-cex-budget-after-false-revert.log): with the restore, committed exceeds the budget by the overpaid value after a disproved revert. That is the stated limit of I17 made visible, so I7 now states it exactly: committed stays within the budget unless a revert was disproved, and then within one cap of it |
-| TLC, `TINY=1`, final v3 model | No violation in any behaviour of up to 17 steps: 81 million distinct states, breadth-first, before TLC ran out of memory at depth 18 ([log](tlc-v3-tiny-live-safety.log)) |
+| TLC, `TINY=1`, final v3 model | No violation in any behaviour of up to 17 steps: 81 million distinct states, breadth-first, before TLC stopped at depth 18 without a message (8 GB heap, 12 workers) ([log](tlc-v3-tiny-live-safety.log)) |
 | Trace replay, v3.1 | 600 traces, 24,000 steps, identical state after every step |
 | Liveness, `TINY=1`, no-AI fair world | Holds: the complete state graph, 1,224,072 distinct states, depth 41, no violation ([log](tlc-v3-tiny-liveness.log)). Fair world: the owner has died, witnesses are honest, no dependency fails, the fee stays under the ceiling, no endless reorg; signing failures, lost callbacks, reverts and settlement timeouts stay in. Contests and the freeze are left out: with them the graph exceeds this machine ([incomplete run](tlc-v3-tiny-liveness-with-contests-incomplete.log)) |
 

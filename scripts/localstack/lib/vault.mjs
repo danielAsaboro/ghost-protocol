@@ -42,7 +42,7 @@ export async function mpcKeys(vault) {
  * in one transaction. Secrets go to the run dir state.json; the public config goes to evidence.
  */
 export async function deployVault(rec, name, { wasm, heirs, timing = DEFAULT_TIMING, fund = NEAR(30), ceilingGwei = 16n, initialGwei = 1n, priorityGwei = 1n,
-  ceilingWei, initialWei, priorityWei, gasLimits, witnessCount = 3, abandonSecs, cap = CAP } = {}) {
+  ceilingWei, initialWei, priorityWei = process.env.PRIORITY_WEI ? BigInt(process.env.PRIORITY_WEI) : undefined, gasLimits, witnessCount = 3, abandonSecs, cap = CAP } = {}) {
   const vault = `${name}.test.near`;
   const state = loadState();
   const keys = { vault: newKey(), owner: newKey(), agent: newKey(), court: newKey() };

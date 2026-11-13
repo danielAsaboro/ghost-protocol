@@ -31,7 +31,7 @@ Base Sepolia address of the deployed vault: [`0xAf8105c7e876f38Bf0A9f09e4c97029B
 
 | Claim | Proof |
 |---|---|
-| The state machine keeps every invariant in the threat model | Quint model of the vault, its actors, Base (reverts, reorgs, finality, fees) and every dependency failure. v3: TLC finds no counterexample in any behaviour of up to 17 steps of a one-heir configuration (73 million distinct states), nor does simulation in 100,000 random traces of 40 steps with two heirs ([results](docs/evidence/spec/README.md)) |
+| The state machine keeps every invariant in the threat model | Quint model of the vault, its actors, Base (reverts, reorgs, finality, fees) and every dependency failure. v3: TLC finds no counterexample in any behaviour of up to 17 steps of a one-heir configuration (81 million distinct states), nor does simulation in 100,000 random traces of 40 steps with two heirs ([results](docs/evidence/spec/README.md)) |
 | The Rust contract is the model | 600 model traces, 24,000 steps, replayed on the contract with identical state after every step ([itf_replay.rs](contract/src/itf_replay.rs)). A one-character bug fails the replay |
 | Heirs are eventually paid, or reopened after a real revert, with no AI | TLC over the complete fair-world graph of a one-heir configuration, 1.2 million states, under stated fairness: signing failures, lost callbacks, reverts and settlement timeouts included ([log](docs/evidence/spec/tlc-v3-tiny-liveness.log)) |
 | Arithmetic cannot overflow for any config the vault accepts; the fee rule only raises and can always reach the ceiling; the tip rises with the fee | Kani, all inputs ([results](docs/evidence/kani/README.md)) |
