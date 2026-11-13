@@ -193,7 +193,10 @@ Fresh stack (`up.sh` again: new DKG keys, same binaries). Vault config as before
 |---|---|---|---|---|
 | iv | storage between `begin_attempt` (104 bytes) and `on_signed` (205 bytes) | recover without the lease | 52 free bytes: request fails whole. 206 free: MPC signs, `on_signed` fails `LackBalanceForState`, `signing: true`. After a 1 NEAR transfer, `request_signature` still refused `signature already in flight`, but **`submit_signature` with the real MPC signature read from chain returned `true`**: attempt 2 signed, `signing: false`. The next re-price (8 gwei) was signed by the network at once; the other heir paid out | `034`-`046` |
 | vi | sign-gas requirement 151 / 190 / 200 Tgas, 300 Tgas prepaid | survive up to the weight share | 151 and 190: sign and settle succeed (193 Tgas each). 200: refused `Provided: 193302551777938, required: 200000000000000`, attempt truncated, heir Pending. CKD unaffected; restored to 15 | `007`-`026` |
-<!-- FINAL-MORE -->
+| vi' | requirement 500 Tgas, 1000 Tgas prepaid | survive | `sign` received 543 Tgas, `on_signed` 453 Tgas; sign and settle succeeded; restored to 15 | `133`-`137` |
+| v | 8 signers, then a 9th; 2 heirs at max attempts; largest bounded state | bounded, below callback gas | 9th signer refused `too many attested signers`; with 8 signers `on_signed` <= 2.39 Tgas and the 16 gwei attempt landed and settled (heir Paid). Largest state (16 heirs, 32 witnesses, 8 signers, payout re-priced 1 wei -> 2^40 wei = 41 attempts, 16 payouts, 286,718 bytes): `on_signed` 4.73 Tgas, `on_settled` 4.62 Tgas, landed and settled | `053`-`061`, `067`-`125`, `v-max-gas.json` |
+
+Resharing was not repeated on the final build (optional; shown twice on earlier builds with the keys unchanged).
 
 ## Not done, and why
 
