@@ -6,6 +6,7 @@ use near_sdk::serde_json::{self, json, Value};
 use near_sdk::{env, near, require, AccountId, Gas, NearToken, PanicOnDefault, Promise, PromiseError};
 
 pub mod eth;
+pub mod math;
 
 pub const DERIVATION_PATH: &str = "ghost-base-sepolia-1";
 pub const WISHES_PATH: &str = "ghost-wishes-1";
@@ -282,9 +283,13 @@ impl Vault {
                 && config.max_priority_fee_per_gas.0 <= config.initial_max_fee_per_gas.0,
             "invalid fee settings"
         );
-        let delays = config.override_grace_secs.max(config.grace_secs)
-            + config.contest_secs * witnesses.len() as u64
-            + config.freeze_max_secs;
+        let delays = math::longest_delay(
+            config.grace_secs,
+            config.override_grace_secs,
+            config.contest_secs,
+            witnesses.len(),
+            config.freeze_max_secs,
+        );
         require!(config.fallback_secs > delays, "fallback must outlast every delay");
         require!(!config.heirs.is_empty(), "at least one heir required");
 
@@ -302,7 +307,7 @@ impl Vault {
                 "heir gas limit out of range"
             );
             // Two gas allowances: the payment, and one retry after a proven revert.
-            required += heir.cap_wei.0 + 2 * heir.gas_limit as u128 * ceiling;
+            required += math::heir_requirement(heir.cap_wei.0, heir.gas_limit, ceiling);
             heirs.push(Heir {
                 address: heir.address,
                 floor_wei: heir.floor_wei,
@@ -371,7 +376,7 @@ impl Vault {
         let message = if override_claim {
             format!("ghost:override:{}:{}:{}", env::current_account_id(), self.claim_epoch, death_at)
         } else {
-            require!(now.saturating_sub(self.last_check_in) >= self.inactivity_secs, "owner is not inactive");
+            require!(math::silence(now, self.last_check_in) >= self.inactivity_secs, "owner is not inactive");
             require!(death_at >= self.last_check_in, "death time is inconsistent with check-ins");
             format!("ghost:death:{}:{}:{}", env::current_account_id(), self.claim_epoch, death_at)
         };
@@ -394,7 +399,7 @@ impl Vault {
             kind: if override_claim { ClaimKind::Override } else { ClaimKind::Normal },
             death_at,
             opened_at: now,
-            pay_after: now + delay,
+            pay_after: math::after(now, delay),
             contested: vec![false; self.witnesses.len()],
             frozen_until: 0,
             freeze_used: false,
@@ -425,7 +430,7 @@ impl Vault {
         let message = format!("ghost:contest:{}:{}:{}", account, witness_index, claim.opened_at);
         require!(verify_ed25519(&signature.0, &message, &key), "invalid witness signature");
         claim.contested[i] = true;
-        claim.pay_after += contest_secs;
+        claim.pay_after = math::after(claim.pay_after, contest_secs);
     }
 
     /// I11: tied to one heir, once, and can only bring the date earlier than `adult_by`.
@@ -441,7 +446,7 @@ impl Vault {
     /// I12: one bounded pause per claim.
     pub fn freeze(&mut self) {
         require!(env::predecessor_account_id() == self.legal_authority, "only the legal authority can freeze");
-        let until = now_secs() + self.freeze_max_secs;
+        let until = math::after(now_secs(), self.freeze_max_secs);
         let claim = self.claim.as_mut().unwrap_or_else(|| env::panic_str("no open claim"));
         require!(!claim.freeze_used, "freeze already used for this claim");
         claim.freeze_used = true;
@@ -501,7 +506,7 @@ impl Vault {
         require!(index < self.heirs.len(), "recipient is not an heir");
         self.assert_trigger_proven(index);
         let claim = self.claim.as_ref().unwrap();
-        require!(now_secs() >= claim.opened_at + self.fallback_secs, "fallback not yet available");
+        require!(now_secs() >= math::after(claim.opened_at, self.fallback_secs), "fallback not yet available");
         let cap = self.heirs[index].cap_wei.0;
         self.create_payout(index, cap, "fallback", None, None)
     }
@@ -516,13 +521,10 @@ impl Vault {
         require!(payout.status == PayoutStatus::Active, "payout is not active");
         require!(!payout.signing, "signature already in flight");
         require!(max_fee_per_gas.0 <= self.max_fee_ceiling, "fee above ceiling");
-        match previous {
-            Some(fee) => require!(
-                max_fee_per_gas.0 >= fee.saturating_mul(2).min(self.max_fee_ceiling) && max_fee_per_gas.0 > fee,
-                "fee must double or reach the ceiling"
-            ),
-            None => require!(max_fee_per_gas.0 >= self.initial_max_fee_per_gas, "fee below initial"),
-        }
+        ensure(
+            math::fee_allowed(previous, max_fee_per_gas.0, self.initial_max_fee_per_gas, self.max_fee_ceiling),
+            if previous.is_some() { "fee must double or reach the ceiling" } else { "fee below initial" },
+        );
         self.begin_attempt(i, max_fee_per_gas.0)
     }
 
@@ -710,7 +712,7 @@ impl Vault {
     /// I8.
     fn assert_trigger_proven(&self, heir: usize) {
         self.assert_claim_matured();
-        let adult = self.heirs[heir].adult_at.map_or(self.heirs[heir].adult_by, |at| at.min(self.heirs[heir].adult_by));
+        let adult = math::adult_time(self.heirs[heir].adult_at, self.heirs[heir].adult_by);
         require!(now_secs() >= adult, "heir is not yet an adult");
         require!(self.heirs[heir].status == HeirStatus::Open, "heir already paid or pending");
     }
@@ -768,8 +770,8 @@ impl Vault {
         response_hash: Option<String>,
     ) -> Promise {
         let heir = &self.heirs[index];
-        let reserve = value + heir.gas_limit as u128 * self.max_fee_ceiling;
-        require!(self.committed_wei + reserve <= self.budget_wei, "budget exhausted");
+        let reserve = math::reserve(value, heir.gas_limit, self.max_fee_ceiling);
+        require!(math::fits_budget(self.committed_wei, reserve, self.budget_wei), "budget exhausted");
         self.committed_wei += reserve;
         let payout = Payout {
             heir_index: index as u32,

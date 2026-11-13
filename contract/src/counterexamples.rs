@@ -69,3 +69,22 @@ fn cex3_a_disproved_revert_restores_committed_value() {
     assert_eq!(v.committed_wei, reserve, "the value that landed is not counted as committed");
 }
 
+/// Kani, `time_arithmetic_cannot_overflow_for_any_accepted_config` (docs/evidence/kani/math.log):
+/// `new` accepts a grace period so long that `now + grace` overflows, so no claim can ever open and
+/// the funds are stranded. Either `new` must refuse the config, or the claim must open.
+#[test]
+fn cex4_every_accepted_config_can_open_a_claim() {
+    let mut c = config();
+    c.override_grace_secs = u64::MAX - 1_000;
+    c.contest_secs = 0;
+    c.freeze_max_secs = 0;
+    c.fallback_secs = u64::MAX;
+    at(START, "owner.testnet");
+    let Ok(mut v) = std::panic::catch_unwind(|| Vault::new(c)) else { return };
+    at(CLAIM_AT, "anyone.testnet");
+    let m = format!("ghost:override:{VAULT}:0:{DEATH}");
+    let opened = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+        v.open_claim(DEATH, vec![proof(1, 0, &m), proof(2, 1, &m), proof(3, 2, &m)], true)
+    }));
+    assert!(opened.is_ok(), "new accepted a config under which no claim can ever open");
+}

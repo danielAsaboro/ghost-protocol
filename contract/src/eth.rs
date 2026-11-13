@@ -203,3 +203,195 @@ mod tests {
         }
     }
 }
+
+#[cfg(kani)]
+mod proofs {
+    //! Bounded proofs. `cargo kani --features kani-proofs` from `contract/`.
+    use super::*;
+
+    /// Reads one RLP item header at `pos`. Returns `(payload_start, payload_len, is_list)`.
+    /// Rejects non-canonical headers, so a pass also proves the encoder is canonical.
+    fn header(buf: &[u8], pos: usize) -> (usize, usize, bool) {
+        let b = buf[pos];
+        match b {
+            0x00..=0x7f => (pos, 1, false),
+            0x80..=0xb7 => {
+                let len = (b - 0x80) as usize;
+                if len == 1 {
+                    assert!(buf[pos + 1] >= 0x80, "single byte below 0x80 must encode as itself");
+                }
+                (pos + 1, len, false)
+            }
+            0xb8..=0xbf | 0xf8..=0xff => {
+                let n = (b - if b >= 0xf8 { 0xf7 } else { 0xb7 }) as usize;
+                assert!(buf[pos + 1] != 0, "length of length has a leading zero");
+                let mut len = 0usize;
+                for k in 0..n {
+                    len = (len << 8) | buf[pos + 1 + k] as usize;
+                }
+                assert!(len >= 56, "long form used for a short payload");
+                (pos + 1 + n, len, b >= 0xf8)
+            }
+            _ => ((pos + 1), (b - 0xc0) as usize, true),
+        }
+    }
+
+    /// Decodes a canonical RLP unsigned integer item and returns `(value, next_pos)`.
+    fn uint_at(buf: &[u8], pos: usize) -> (u128, usize) {
+        let (start, len, list) = header(buf, pos);
+        assert!(!list && len <= 16);
+        if len > 0 && start != pos {
+            assert!(buf[start] != 0, "integer has a leading zero");
+        }
+        let mut v = 0u128;
+        for k in 0..len {
+            v = (v << 8) | buf[start + k] as u128;
+        }
+        (v, start + len)
+    }
+
+    fn any_transfer() -> Transfer {
+        Transfer {
+            chain_id: kani::any(),
+            nonce: kani::any(),
+            max_priority_fee_per_gas: kani::any(),
+            max_fee_per_gas: kani::any(),
+            gas_limit: kani::any(),
+            to: kani::any(),
+            value: kani::any(),
+        }
+    }
+
+    /// Walks the nine EIP-1559 fields and checks each against the transfer. Returns the next position.
+    fn check_fields(buf: &[u8], mut pos: usize, tx: &Transfer) -> usize {
+        let expect = [tx.chain_id as u128, tx.nonce as u128, tx.max_priority_fee_per_gas, tx.max_fee_per_gas, tx.gas_limit as u128];
+        for want in expect {
+            let (v, next) = uint_at(buf, pos);
+            assert!(v == want);
+            pos = next;
+        }
+        let (start, len, list) = header(buf, pos);
+        assert!(!list && len == 20 && start == pos + 1);
+        for k in 0..20 {
+            assert!(buf[start + k] == tx.to[k]);
+        }
+        pos = start + 20;
+        let (v, next) = uint_at(buf, pos);
+        assert!(v == tx.value);
+        pos = next;
+        assert!(buf[pos] == 0x80, "data is the empty string");
+        assert!(buf[pos + 1] == 0xc0, "access list is the empty list");
+        pos + 2
+    }
+
+    #[kani::proof]
+    #[kani::unwind(20)]
+    fn rlp_uint_is_canonical_and_exact() {
+        let v: u128 = kani::any();
+        let out = rlp_uint(v);
+        let (decoded, end) = uint_at(&out, 0);
+        assert!(decoded == v && end == out.len());
+        if v == 0 {
+            assert!(out == [0x80]);
+        }
+    }
+
+    #[kani::proof]
+    #[kani::unwind(10)]
+    fn length_prefix_round_trips() {
+        let len: usize = kani::any();
+        kani::assume(len <= u32::MAX as usize);
+        let list: bool = kani::any();
+        let mut buf = length_prefix(len, if list { 0xc0 } else { 0x80 });
+        let hdr = buf.len();
+        buf.push(0x80); // a payload byte so the single-byte rule has something to read
+        let (start, decoded, is_list) = header(&buf, 0);
+        assert!(start == hdr && decoded == len && is_list == list);
+        assert!(hdr == if len < 56 { 1 } else { 1 + (usize::BITS as usize / 8 - len.leading_zeros() as usize / 8) });
+    }
+
+    #[kani::proof]
+    #[kani::unwind(130)]
+    #[kani::solver(kissat)]
+    fn eip1559_preimage_decodes_to_the_transfer() {
+        let tx = any_transfer();
+        let out = eip1559_preimage(&tx);
+        assert!(out[0] == 0x02, "typed transaction 2");
+        let (start, len, list) = header(&out, 1);
+        assert!(list && start + len == out.len(), "list length covers exactly the body");
+        assert!(check_fields(&out, start, &tx) == out.len());
+    }
+
+    #[kani::proof]
+    #[kani::unwind(200)]
+    #[kani::solver(kissat)]
+    fn eip1559_signed_decodes_to_the_transfer_and_signature() {
+        let tx = any_transfer();
+        let y: u8 = kani::any();
+        kani::assume(y <= 1);
+        let r: [u8; 32] = kani::any();
+        let s: [u8; 32] = kani::any();
+        let out = eip1559_signed(&tx, y, &r, &s);
+        assert!(out[0] == 0x02);
+        let (start, len, list) = header(&out, 1);
+        assert!(list && start + len == out.len());
+        let mut pos = check_fields(&out, start, &tx);
+        let (v, next) = uint_at(&out, pos);
+        assert!(v == y as u128);
+        pos = next;
+        for word in [r, s] {
+            let (st, l, list) = header(&out, pos);
+            assert!(!list && l <= 32);
+            // Big-endian without leading zeros: the trailing `l` bytes are the payload.
+            for k in 0..32 {
+                if k < 32 - l {
+                    assert!(word[k] == 0);
+                } else {
+                    assert!(out[st + k - (32 - l)] == word[k]);
+                }
+            }
+            pos = st + l;
+        }
+        assert!(pos == out.len());
+    }
+
+    #[kani::proof]
+    fn foreign_payload_is_fixed_layout() {
+        let id: [u8; 32] = kani::any();
+        let out = foreign_payload(&id);
+        assert!(out.len() == 43 && out[0] == 0 && out[1] == BASE_VARIANT && out[38] == FINALIZED_VARIANT);
+        assert!(out[2..34] == id);
+        assert!(out[34..38] == [0; 4] && out[39..43] == [0; 4]);
+    }
+
+    #[kani::proof]
+    #[kani::unwind(10)]
+    fn parse_hex_never_panics_and_is_exact() {
+        let bytes: [u8; 8] = kani::any();
+        let n: usize = kani::any();
+        kani::assume(n <= 8);
+        let Ok(text) = core::str::from_utf8(&bytes[..n]) else { return };
+        if let Some(out) = parse_hex(text) {
+            assert!(out.len() * 2 == n);
+            for (k, b) in out.iter().enumerate() {
+                let hi = (bytes[2 * k] as char).to_digit(16).unwrap();
+                let lo = (bytes[2 * k + 1] as char).to_digit(16).unwrap();
+                assert!(*b as u32 == hi * 16 + lo);
+            }
+        } else {
+            assert!(n % 2 == 1 || bytes[..n].chunks(2).any(|p| !(p[0] as char).is_ascii_hexdigit() || !(p[1] as char).is_ascii_hexdigit()));
+        }
+    }
+
+    #[kani::proof]
+    #[kani::unwind(45)]
+    fn parse_address_accepts_exactly_0x_and_40_hex() {
+        // ASCII input: any non-ASCII byte makes `parse_hex` return None before reading digits,
+        // which `parse_hex_never_panics_and_is_exact` already covers.
+        let bytes: [u8; 42] = kani::any();
+        kani::assume(bytes.iter().all(|b| b.is_ascii()));
+        let text = core::str::from_utf8(&bytes).unwrap();
+        let ok = bytes[0] == b'0' && bytes[1] == b'x' && bytes[2..].iter().all(|b| (*b as char).is_ascii_hexdigit());
+        assert!(parse_address(text).is_some() == ok);
+    }
+}
