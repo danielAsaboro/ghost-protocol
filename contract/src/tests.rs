@@ -336,7 +336,7 @@ fn i5_forged_signature_is_not_stored() {
     at(PAY_AT, "agent.testnet");
     pay(&mut v, 0, CAP);
     let forged = mpc_sign(77, &eth::eip1559_hash(&v.transfer(0, 0)));
-    assert!(!v.on_signed(0, 0, Ok(forged)));
+    assert!(!v.on_signed(0, 0, v.payouts[0 as usize].signing_since, Ok(forged)));
     assert!(v.payouts[0].attempts.is_empty());
     assert_eq!(v.next_nonce, 1, "nonce belongs to the payout, not the signature");
 }
@@ -356,7 +356,7 @@ fn i5_high_s_signature_is_rejected() {
         "s": { "scalar": eth::hex(&s.to_bytes()) },
         "recovery_id": id.to_byte() ^ 1,
     });
-    assert!(!v.on_signed(0, 0, Ok(forged)));
+    assert!(!v.on_signed(0, 0, v.payouts[0 as usize].signing_since, Ok(forged)));
 }
 
 #[test]
@@ -364,7 +364,7 @@ fn i18_failed_signing_can_be_retried_on_the_same_nonce() {
     let mut v = proven();
     at(PAY_AT, "agent.testnet");
     pay(&mut v, 0, CAP);
-    assert!(!v.on_signed(0, 0, Err(PromiseError::Failed)));
+    assert!(!v.on_signed(0, 0, v.payouts[0 as usize].signing_since, Err(PromiseError::Failed)));
     assert!(!v.payouts[0].signing);
     at(PAY_AT, "anyone.testnet");
     v.request_signature(0, U128(INITIAL_FEE));
@@ -827,8 +827,7 @@ fn i4_expected_hash_is_sha256_of_the_pinned_borsh_payload() {
 
 #[test]
 fn i4_transaction_hash_is_keccak_of_the_signed_encoding() {
-    let mut v = signed_payout();
-    sign_ok(&mut v, 0, 0);
+    let v = signed_payout();
     let a = v.payouts[0].attempts[0].clone();
     let tx = v.transfer(0, 0);
     let r: [u8; 32] = eth::parse_hex(a.r_hex.as_ref().unwrap()).unwrap().try_into().unwrap();
@@ -843,4 +842,122 @@ fn get_state_exposes_what_the_verifier_reads() {
     for field in ["vault_public_key", "budget_wei", "heirs", "payouts", "signers", "fallback_secs", "claim"] {
         assert!(!s[field].is_null(), "{field}");
     }
+}
+
+// v3: lease, abandonment, bounds
+
+#[test]
+fn d11_a_late_callback_for_a_replaced_request_is_ignored() {
+    let mut v = proven();
+    at(PAY_AT, "agent.testnet");
+    pay(&mut v, 0, CAP);
+    let first = v.payouts[0].signing_since;
+    at(PAY_AT + SIGN_LEASE_SECS, "relayer.testnet");
+    v.request_signature(0, U128(INITIAL_FEE));
+    let second = v.payouts[0].signing_since;
+    assert!(second > first);
+    // The lost request's callback arrives after all, with a valid signature for the same payload.
+    let sig = good_signature(&v, 0, 0);
+    assert!(!v.on_signed(0, 0, first, Ok(sig.clone())), "a replaced request must not be accepted");
+    assert!(v.payouts[0].signing && v.payouts[0].attempts[0].tx_hash_hex.is_none());
+    assert!(v.on_signed(0, 0, second, Ok(sig)));
+}
+
+#[test]
+#[should_panic(expected = "signature already in flight")]
+fn d11_the_lease_must_expire_before_a_request_is_replaced() {
+    let mut v = proven();
+    at(PAY_AT, "agent.testnet");
+    pay(&mut v, 0, CAP);
+    at(PAY_AT + SIGN_LEASE_SECS - 1, "relayer.testnet");
+    v.request_signature(0, U128(INITIAL_FEE));
+}
+
+#[test]
+fn d11_a_replaced_request_keeps_the_fee_rule_of_the_last_signed_attempt() {
+    let mut v = proven();
+    at(PAY_AT, "agent.testnet");
+    pay(&mut v, 0, CAP);
+    sign_ok(&mut v, 0, 0);
+    at(PAY_AT + DAY, "relayer.testnet");
+    v.request_signature(0, U128(2 * INITIAL_FEE));
+    at(PAY_AT + DAY + SIGN_LEASE_SECS, "relayer.testnet");
+    // The lost attempt is dropped, so the next fee doubles the signed attempt's, not the lost one's.
+    v.request_signature(0, U128(2 * INITIAL_FEE));
+    assert_eq!(v.payouts[0].attempts.len(), 2);
+    assert_eq!(v.payouts[0].attempts[1].max_fee_per_gas.0, 2 * INITIAL_FEE);
+}
+
+fn abandoning_vault() -> Vault {
+    let mut c = config();
+    c.abandon_secs = Some(1_000 * DAY);
+    at(START, "owner.testnet");
+    Vault::new(c)
+}
+
+#[test]
+fn d20_after_abandonment_a_claim_needs_no_witness() {
+    let mut v = abandoning_vault();
+    at(START + 1_000 * DAY, "anyone.testnet");
+    v.open_claim(START + 999 * DAY, vec![], false);
+    assert_eq!(v.claim.as_ref().unwrap().kind, ClaimKind::Normal);
+    // Still a normal claim: a living owner cancels it.
+    at(START + 1_000 * DAY + 1, "owner.testnet");
+    v.check_in();
+    assert!(v.claim.is_none());
+}
+
+#[test]
+#[should_panic(expected = "witness quorum not met")]
+fn d20_before_abandonment_witnesses_are_still_required() {
+    let mut v = abandoning_vault();
+    at(START + 999 * DAY, "anyone.testnet");
+    v.open_claim(START + 998 * DAY, vec![], false);
+}
+
+#[test]
+#[should_panic(expected = "witness quorum not met")]
+fn d20_abandonment_never_opens_an_override_claim() {
+    let mut v = abandoning_vault();
+    at(START + 2_000 * DAY, "anyone.testnet");
+    v.open_claim(START + 1_999 * DAY, vec![], true);
+}
+
+#[test]
+#[should_panic(expected = "witness quorum not met")]
+fn d20_without_abandon_secs_silence_alone_never_opens_a_claim() {
+    let mut v = vault();
+    at(START + 100_000 * DAY, "anyone.testnet");
+    v.open_claim(START + 99_999 * DAY, vec![], false);
+}
+
+#[test]
+#[should_panic(expected = "durations must be at most 100 years")]
+fn kani_durations_are_bounded_at_init() {
+    let mut c = config();
+    c.fallback_secs = MAX_DURATION_SECS + 1;
+    at(START, "owner.testnet");
+    Vault::new(c);
+}
+
+#[test]
+#[should_panic(expected = "too many attested signers")]
+fn d12_attested_signers_are_bounded() {
+    let mut v = vault();
+    at(START, "owner.testnet");
+    for i in 0..=MAX_SIGNERS {
+        v.register_signer(format!("0x{:040x}", i + 1), "q".into(), START + DAY, vec![]);
+    }
+}
+
+#[test]
+fn d12_expired_signers_make_room() {
+    let mut v = vault();
+    at(START, "owner.testnet");
+    for i in 0..MAX_SIGNERS {
+        v.register_signer(format!("0x{:040x}", i + 1), "q".into(), START + DAY, vec![]);
+    }
+    at(START + 2 * DAY, "owner.testnet");
+    v.register_signer(format!("0x{:040x}", 99), "q".into(), START + 3 * DAY, vec![]);
+    assert_eq!(v.signers.len(), 1);
 }

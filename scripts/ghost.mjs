@@ -7,16 +7,17 @@ import { baseSepolia } from 'viem/chains';
 import { attestation, reason, sha256 } from '../agent/reason.mjs';
 import { newAppKey, openWithIdentityKey, sealToIdentity, unwrapCkd } from '../agent/seal.mjs';
 import {
-  accessKeys, assembleSignedTx, assertFunded, base58Decode, base58Encode, ckdMasterKey, derivedKey, deriveVaultAddress,
+  accessKeys, assembleSignedTx, assertFunded, base58Decode, base58Encode, checkRevertFinal, ckdMasterKey, derivedKey, deriveVaultAddress,
   foreignTxKey, fullAccessKeys, nearKeyBytes, SIGNER, viewCall, WISHES_PATH,
 } from '../relay/base.mjs';
 import { callContract } from '../relay/near.mjs';
 
 try { process.loadEnvFile(new URL('../.env', import.meta.url).pathname); } catch { /* no .env */ }
 
-const STATE = new URL('../.ghost/state.json', import.meta.url);
+// GHOST_STATE and GHOST_EVIDENCE select another vault's files, e.g. .ghost/v3/state.json.
+const STATE = process.env.GHOST_STATE ?? new URL('../.ghost/state.json', import.meta.url);
 const OPENED = new URL('../.ghost/opened.json', import.meta.url);
-const EVIDENCE = new URL('../web/evidence.json', import.meta.url);
+const EVIDENCE = process.env.GHOST_EVIDENCE ?? new URL('../web/evidence.json', import.meta.url);
 const WASM = process.env.GHOST_WASM ?? new URL('../contract/target/near/ghost_protocol.wasm', import.meta.url).pathname;
 const BASE_RPC = process.env.BASE_SEPOLIA_RPC ?? 'https://base-sepolia-rpc.publicnode.com';
 
@@ -62,6 +63,17 @@ const latestSigned = (state, index) => {
 };
 
 const commands = {
+  /** D23: the witness quorum reopens a reverted payout, only once Base reports the revert final. */
+  async 'witness-revert'([payout = '0', attempt = '0']) {
+    const s = load();
+    const p = (await chain()).payouts[Number(payout)];
+    const hash = `0x${p?.attempts[Number(attempt)]?.tx_hash_hex ?? ''}`;
+    const check = await checkRevertFinal(client(), hash);
+    if (!check.ok) throw new Error(`not signing: ${check.reason}`);
+    const message = `ghost:reverted:${s.vault}:${payout}:${hash.slice(2)}`;
+    await act('Witness quorum reopens a final revert', 'reopen_reverted',
+      { payout_index: Number(payout), attempt_index: Number(attempt), proofs: proofs(s, message) }, s.agent);
+  },
   /** Generates local test keys and seals the wishes to the vault's MPC identity. */
   async init([vault, ...heirs]) {
     if (!vault || !heirs.length) throw new Error('usage: init <vault.testnet> <0xHeir> [0xHeir...]');
@@ -101,6 +113,7 @@ const commands = {
       witnesses: s.witnesses.map((w) => w.pub), witness_threshold: 2, registrar: s.registrar.pub,
       inactivity_secs: Number(process.env.GHOST_INACTIVITY ?? 60), grace_secs: Number(process.env.GHOST_GRACE ?? 60),
       override_grace_secs: 120, contest_secs: 30, freeze_max_secs: 60, fallback_secs: Number(process.env.GHOST_FALLBACK ?? 600),
+      ...(process.env.GHOST_ABANDON ? { abandon_secs: Number(process.env.GHOST_ABANDON) } : {}),
       chain_id: 84532, initial_max_fee_per_gas: parseGwei('0.1').toString(), max_fee_ceiling: ceiling.toString(),
       max_priority_fee_per_gas: parseGwei('0.01').toString(),
       budget_wei: (BigInt(s.heirs.length) * (cap + 2n * 21000n * ceiling)).toString(),

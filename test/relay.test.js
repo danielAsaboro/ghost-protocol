@@ -47,3 +47,13 @@ test('fullAccessKeys finds only FullAccess entries', () => {
   const keys = [{ public_key: 'a', access_key: { permission: 'FullAccess' } }, { public_key: 'b', access_key: { permission: { FunctionCall: {} } } }];
   assert.deepEqual(fullAccessKeys(keys).map((k) => k.public_key), ['a']);
 });
+
+test('witnesses sign a revert only when Base reports it final and canonical (D23)', async () => {
+  const { revertIsFinal } = await import('../relay/base.mjs');
+  const receipt = { status: 'reverted', blockNumber: 100n, blockHash: '0xaa' };
+  assert.equal(revertIsFinal(receipt, { number: 100n }, { hash: '0xaa' }).ok, true);
+  assert.match(revertIsFinal(receipt, { number: 99n }, { hash: '0xaa' }).reason, /not finalized/);
+  assert.match(revertIsFinal(receipt, { number: 120n }, { hash: '0xbb' }).reason, /canonical/);
+  assert.match(revertIsFinal({ ...receipt, status: 'success' }, { number: 120n }, { hash: '0xaa' }).reason, /not reverted/);
+  assert.match(revertIsFinal(null, { number: 120n }, null).reason, /not found/);
+});

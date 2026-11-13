@@ -7,8 +7,8 @@ use super::test_support::*;
 use super::*;
 use near_sdk::serde_json::Value;
 
-/// One model time unit, in seconds.
-const UNIT: u64 = 100;
+/// One model time unit, in seconds. Equal to SIGN_LEASE_SECS, so the model's LEASE of 1 is the contract's.
+const UNIT: u64 = SIGN_LEASE_SECS;
 /// One model value unit, in wei: the gas limit, so a reserve is `value + CEILING` units.
 const WEI: u128 = 21_000;
 const M_CEILING: u128 = 4;
@@ -27,6 +27,7 @@ fn model_config() -> VaultConfig {
     c.contest_secs = UNIT;
     c.freeze_max_secs = UNIT;
     c.fallback_secs = 7 * UNIT;
+    c.abandon_secs = Some(4 * UNIT);
     c.initial_max_fee_per_gas = U128(1);
     c.max_fee_ceiling = U128(M_CEILING);
     c.max_priority_fee_per_gas = U128(1);
@@ -104,6 +105,7 @@ fn project(v: &Vault) -> Value {
                 "nonce": p.nonce,
                 "status": format!("{:?}", p.status),
                 "signing": p.signing,
+                "signingSince": if p.signing_since == 0 { 0 } else { (p.signing_since - START) / UNIT },
                 "attempts": p.attempts.iter().map(|a| json!({ "fee": a.max_fee_per_gas.0, "signed": a.tx_hash_hex.is_some() })).collect::<Vec<_>>(),
                 "settledAttempt": p.settled_attempt.map_or(-1, |a| a as i64),
                 "source": p.source,
@@ -158,6 +160,7 @@ fn model(state: &Value) -> Value {
                 "nonce": int(&p["nonce"]),
                 "status": s(&p["status"]),
                 "signing": p["signing"].as_bool().unwrap(),
+                "signingSince": int(&p["signingSince"]),
                 "attempts": list(&p["attempts"]).iter().map(|a| json!({ "fee": int(&a["fee"]), "signed": a["signed"].as_bool().unwrap() })).collect::<Vec<_>>(),
                 "settledAttempt": int(&p["settledAttempt"]),
                 "source": s(&p["source"]),
@@ -244,9 +247,20 @@ fn apply(v: &mut Vault, now: u64, action: &str, args: &[i64]) {
         "on_signed" => {
             at(t, VAULT);
             let p = arg(0) as usize;
-            let attempt = v.payouts[p].attempts.len() - 1;
-            let result = if args[1] == 1 { Ok(good_signature(v, p, attempt)) } else { Err(PromiseError::Failed) };
-            v.on_signed(p as u32, attempt as u32, result);
+            let requested_at = secs(args[1] as u64);
+            let attempt = v.payouts[p].attempts.len().saturating_sub(1);
+            let current = v.payouts[p].signing && v.payouts[p].signing_since == requested_at;
+            let result = if args[2] == 1 && current { Ok(good_signature(v, p, attempt)) } else if args[2] == 1 {
+                // A stale callback carries a signature over the replaced attempt's payload.
+                Ok(mpc_sign(VAULT_KEY, &[7u8; 32]))
+            } else {
+                Err(PromiseError::Failed)
+            };
+            v.on_signed(p as u32, attempt as u32, requested_at, result);
+        }
+        "open_claim_abandoned" => {
+            at(t, "anyone.testnet");
+            v.open_claim(t, vec![], false);
         }
         "settle" => {
             at(t, "anyone.testnet");

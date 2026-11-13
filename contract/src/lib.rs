@@ -3,7 +3,7 @@
 use near_sdk::json_types::{Base64VecU8, U128};
 use near_sdk::serde::Deserialize;
 use near_sdk::serde_json::{self, json, Value};
-use near_sdk::{env, near, require, AccountId, Gas, NearToken, PanicOnDefault, Promise, PromiseError};
+use near_sdk::{env, near, require, AccountId, Gas, GasWeight, NearToken, PanicOnDefault, Promise, PromiseError};
 
 pub mod eth;
 pub mod math;
@@ -22,6 +22,18 @@ const MAX_RESPONSE_BYTES: usize = 16_384;
 const ONE_YOCTO: NearToken = NearToken::from_yoctonear(1);
 const MIN_GAS_LIMIT: u64 = 21_000;
 const MAX_GAS_LIMIT: u64 = 2_000_000;
+/// After this long without its callback, a signature request is presumed lost (D11) and anyone may
+/// replace it. A late callback for the old request is ignored, so the lease is not a safety bound.
+pub const SIGN_LEASE_SECS: u64 = 3_600;
+/// No duration may exceed 100 years, so every deadline sum fits in u64 (Kani, `math.rs`).
+pub const MAX_DURATION_SECS: u64 = 100 * 365 * 86_400;
+/// Bounds on state, so the gas a callback needs is bounded (D11, D12).
+pub const MAX_WITNESSES: usize = 32;
+pub const MAX_HEIRS: usize = 16;
+pub const MAX_SIGNERS: usize = 8;
+/// 2^126 wei, about 8.5e19 ETH: far above any estate, and low enough that committed value plus one
+/// reinstated payout cannot overflow.
+pub const MAX_BUDGET_WEI: u128 = 1 << 126;
 
 #[near(serializers = [json, borsh])]
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
@@ -97,6 +109,8 @@ pub struct Payout {
     pub request_hash: Option<String>,
     pub response_hash: Option<String>,
     pub signing: bool,
+    /// Block time of the request in flight; its callback must quote it.
+    pub signing_since: u64,
     pub status: PayoutStatus,
     pub settled_attempt: Option<u32>,
     pub attempts: Vec<Attempt>,
@@ -140,6 +154,9 @@ pub struct VaultConfig {
     pub contest_secs: u64,
     pub freeze_max_secs: u64,
     pub fallback_secs: u64,
+    /// After this long without a check-in, a normal claim opens with no witnesses (D20). None: never.
+    #[serde(default)]
+    pub abandon_secs: Option<u64>,
     pub chain_id: u64,
     pub initial_max_fee_per_gas: U128,
     pub max_fee_ceiling: U128,
@@ -195,6 +212,7 @@ pub struct Vault {
     contest_secs: u64,
     freeze_max_secs: u64,
     fallback_secs: u64,
+    abandon_secs: Option<u64>,
     chain_id: u64,
     initial_max_fee_per_gas: u128,
     max_fee_ceiling: u128,
@@ -211,6 +229,8 @@ pub struct Vault {
     payouts: Vec<Payout>,
     signers: Vec<AttestedSigner>,
     false_revert_proven: bool,
+    /// Set when the wishes key is requested. From then on the claim cannot be cancelled (I20).
+    wishes_released: bool,
 }
 
 fn now_secs() -> u64 {
@@ -252,6 +272,12 @@ fn recovers_to(hash: &[u8; 32], r: &[u8; 32], s: &[u8; 32], recovery_id: u8, exp
     env::ecrecover(hash, &compact, recovery_id, true).is_some_and(|key| key.as_slice() == expected)
 }
 
+/// D3: the signer's deposit is a constant in its code today. A caller who attaches more passes it
+/// on, so a raised deposit does not strand the vault. With nothing attached the vault pays 1 yocto.
+fn forwarded_deposit() -> NearToken {
+    env::attached_deposit().max(ONE_YOCTO)
+}
+
 fn ensure(condition: bool, message: &str) {
     if !condition {
         env::panic_str(message)
@@ -283,6 +309,21 @@ impl Vault {
                 && config.max_priority_fee_per_gas.0 <= config.initial_max_fee_per_gas.0,
             "invalid fee settings"
         );
+        require!(witnesses.len() <= MAX_WITNESSES, "too many witnesses");
+        require!(config.heirs.len() <= MAX_HEIRS, "too many heirs");
+        let durations = [
+            config.inactivity_secs,
+            config.grace_secs,
+            config.override_grace_secs,
+            config.contest_secs,
+            config.freeze_max_secs,
+            config.fallback_secs,
+            config.abandon_secs.unwrap_or(0),
+        ];
+        require!(durations.iter().all(|d| *d <= MAX_DURATION_SECS), "durations must be at most 100 years");
+        if let Some(abandon) = config.abandon_secs {
+            require!(abandon > config.inactivity_secs, "abandonment must outlast inactivity");
+        }
         let delays = math::longest_delay(
             config.grace_secs,
             config.override_grace_secs,
@@ -320,6 +361,8 @@ impl Vault {
             });
         }
         require!(required <= config.budget_wei.0, "caps and gas exceed the budget");
+        // Leaves headroom for one reinstated payout on top of a full budget (Kani, math.rs).
+        require!(config.budget_wei.0 <= MAX_BUDGET_WEI, "budget too large");
 
         Self {
             owner: config.owner,
@@ -338,6 +381,7 @@ impl Vault {
             contest_secs: config.contest_secs,
             freeze_max_secs: config.freeze_max_secs,
             fallback_secs: config.fallback_secs,
+            abandon_secs: config.abandon_secs,
             chain_id: config.chain_id,
             initial_max_fee_per_gas: config.initial_max_fee_per_gas.0,
             max_fee_ceiling: ceiling,
@@ -354,6 +398,7 @@ impl Vault {
             payouts: vec![],
             signers: vec![],
             false_revert_proven: false,
+            wishes_released: false,
         }
     }
 
@@ -363,6 +408,7 @@ impl Vault {
         self.last_check_in = now_secs();
         if self.claim.as_ref().is_some_and(|c| c.kind == ClaimKind::Normal) {
             require!(self.payouts.is_empty(), "payout already started");
+            require!(!self.wishes_released, "wishes already released");
             self.claim = None;
             self.claim_epoch += 1;
         }
@@ -391,7 +437,17 @@ impl Vault {
             require!(verify_ed25519(&proof.signature.0, &message, &self.witnesses[i]), "invalid witness signature");
             valid += 1;
         }
-        let needed = if override_claim { self.witnesses.len() as u32 } else { self.witness_threshold };
+        // D20: after a very long silence a normal claim needs no witnesses, so lost witness keys
+        // cannot strand the estate. A check-in still cancels it (I9).
+        let abandoned = !override_claim
+            && self.abandon_secs.is_some_and(|a| math::silence(now, self.last_check_in) >= a);
+        let needed = if override_claim {
+            self.witnesses.len() as u32
+        } else if abandoned {
+            0
+        } else {
+            self.witness_threshold
+        };
         require!(valid >= needed, "witness quorum not met");
 
         let delay = if override_claim { self.override_grace_secs } else { self.grace_secs };
@@ -411,6 +467,7 @@ impl Vault {
         let claim = self.claim.as_ref().unwrap_or_else(|| env::panic_str("no open claim"));
         require!(claim.kind == ClaimKind::Override, "not an override claim");
         require!(self.payouts.is_empty(), "payout already started");
+        require!(!self.wishes_released, "wishes already released");
         let message = format!("ghost:cancel:{}:{}:{}", env::current_account_id(), self.claim_epoch, claim.opened_at);
         require!(verify_ed25519(&signature.0, &message, &self.recovery_key), "invalid recovery signature");
         self.claim = None;
@@ -484,10 +541,14 @@ impl Vault {
             }
             require!(valid >= self.witness_threshold, "witness quorum not met");
         }
+        let now = now_secs();
+        self.signers.retain(|s| s.expires_at > now);
+        require!(self.signers.len() < MAX_SIGNERS, "too many attested signers");
         self.signers.push(AttestedSigner { address: address.to_lowercase(), quote_sha256, expires_at });
     }
 
     /// I2, I14: the agent's only power, bounded by floor and cap and bound to an attested response.
+    #[payable]
     pub fn propose_payout(&mut self, heir_index: u32, value_wei: U128, proof: DecisionProof) -> Promise {
         require!(env::predecessor_account_id() == self.agent, "only the agent can propose");
         let index = heir_index as usize;
@@ -501,6 +562,7 @@ impl Vault {
     }
 
     /// I13: after the long timeout anyone can pay an open heir its cap with no AI.
+    #[payable]
     pub fn execute_fallback(&mut self, heir_index: u32) -> Promise {
         let index = heir_index as usize;
         require!(index < self.heirs.len(), "recipient is not an heir");
@@ -512,14 +574,21 @@ impl Vault {
     }
 
     /// I6: anyone may ask for a re-priced signature. Same nonce, recipient and value.
+    #[payable]
     pub fn request_signature(&mut self, payout_index: u32, max_fee_per_gas: U128) -> Promise {
         let i = payout_index as usize;
         require!(i < self.payouts.len(), "unknown payout");
         self.assert_not_frozen();
+        require!(self.payouts[i].status == PayoutStatus::Active, "payout is not active");
+        if self.payouts[i].signing {
+            // D11: a callback that ran out of gas or storage rolled back and will never come.
+            let since = self.payouts[i].signing_since;
+            require!(now_secs() >= math::after(since, SIGN_LEASE_SECS), "signature already in flight");
+            let last = self.payouts[i].attempts.pop();
+            ensure(last.is_some_and(|a| a.tx_hash_hex.is_none()), "in-flight attempt is already signed");
+            self.payouts[i].signing = false;
+        }
         let previous = self.payouts[i].attempts.last().map(|a| a.max_fee_per_gas.0);
-        let payout = &self.payouts[i];
-        require!(payout.status == PayoutStatus::Active, "payout is not active");
-        require!(!payout.signing, "signature already in flight");
         require!(max_fee_per_gas.0 <= self.max_fee_ceiling, "fee above ceiling");
         ensure(
             math::fee_allowed(previous, max_fee_per_gas.0, self.initial_max_fee_per_gas, self.max_fee_ceiling),
@@ -534,9 +603,18 @@ impl Vault {
         &mut self,
         payout_index: u32,
         attempt_index: u32,
+        requested_at: u64,
         #[callback_result] result: Result<Value, PromiseError>,
     ) -> bool {
         let i = payout_index as usize;
+        let current = &self.payouts[i];
+        if !current.signing
+            || current.signing_since != requested_at
+            || attempt_index as usize + 1 != current.attempts.len()
+        {
+            // A callback for a request that was presumed lost and replaced: ignore it.
+            return false;
+        }
         self.payouts[i].signing = false;
         let parsed = result.ok().as_ref().and_then(parse_mpc_signature);
         let tx = self.transfer(i, attempt_index as usize);
@@ -556,6 +634,7 @@ impl Vault {
     }
 
     /// I4: asks the MPC network to attest that this exact transaction succeeded on Base.
+    #[payable]
     pub fn settle(&mut self, payout_index: u32, attempt_index: u32) -> Promise {
         let i = payout_index as usize;
         require!(i < self.payouts.len(), "unknown payout");
@@ -571,7 +650,13 @@ impl Vault {
             }
         });
         Promise::new(self.signer_contract.clone())
-            .function_call("verify_foreign_transaction".to_string(), serde_json::to_vec(&args).unwrap(), ONE_YOCTO, VERIFY_GAS)
+            .function_call_weight(
+                "verify_foreign_transaction".to_string(),
+                serde_json::to_vec(&args).unwrap(),
+                forwarded_deposit(),
+                VERIFY_GAS,
+                GasWeight(1),
+            )
             .then(self.callback(
                 "on_settled",
                 json!({ "payout_index": payout_index, "attempt_index": attempt_index }),
@@ -609,7 +694,9 @@ impl Vault {
         if self.payouts[i].status == PayoutStatus::Reverted {
             // I17: the quorum said this failed and the MPC network just proved it landed.
             // The retry stays active: its nonce must remain signable or later payouts strand.
+            // The value left the vault after all, so it counts as committed again (I7).
             self.false_revert_proven = true;
+            self.committed_wei = math::reinstate(self.committed_wei, self.payouts[i].value_wei.0);
         }
         self.payouts[i].status = PayoutStatus::Settled;
         self.payouts[i].settled_attempt = Some(attempt_index);
@@ -640,23 +727,27 @@ impl Vault {
         require!(valid >= self.witness_threshold, "witness quorum not met");
         self.payouts[i].status = PayoutStatus::Reverted;
         self.payouts[i].settled_attempt = Some(attempt_index);
-        self.committed_wei -= self.payouts[i].value_wei.0;
+        self.committed_wei = math::release(self.committed_wei, self.payouts[i].value_wei.0);
         self.heirs[heir_index].status = HeirStatus::Open;
         self.heirs[heir_index].reopened = true;
     }
 
     /// I15: only after the trigger, only for the registered key. The reply is encrypted to it.
+    #[payable]
     pub fn request_wishes_key(&mut self) -> Promise {
         self.assert_claim_matured();
         let app_key = self.wishes_app_key.clone().unwrap_or_else(|| env::panic_str("no wishes app key"));
+        // I20: once the key may be out, the claim is permanent.
+        self.wishes_released = true;
         let args = json!({
             "request": { "derivation_path": WISHES_PATH, "app_public_key": app_key, "domain_id": CKD_DOMAIN }
         });
-        Promise::new(self.signer_contract.clone()).function_call(
+        Promise::new(self.signer_contract.clone()).function_call_weight(
             "request_app_private_key".to_string(),
             serde_json::to_vec(&args).unwrap(),
-            ONE_YOCTO,
+            forwarded_deposit(),
             CKD_GAS,
+            GasWeight(1),
         )
     }
 
@@ -692,6 +783,8 @@ impl Vault {
             "payouts": self.payouts,
             "signers": self.signers,
             "false_revert_proven": self.false_revert_proven,
+            "wishes_released": self.wishes_released,
+            "abandon_secs": self.abandon_secs,
         })
     }
 }
@@ -784,6 +877,7 @@ impl Vault {
             request_hash,
             response_hash,
             signing: false,
+            signing_since: 0,
             status: PayoutStatus::Active,
             settled_attempt: None,
             attempts: vec![],
@@ -823,21 +917,28 @@ impl Vault {
         let payload_hex = eth::hex(&eth::eip1559_hash(&self.transfer(payout, attempt)));
         self.payouts[payout].attempts[attempt].payload_hex = payload_hex.clone();
         self.payouts[payout].signing = true;
+        let requested_at = now_secs();
+        self.payouts[payout].signing_since = requested_at;
 
         let args = json!({
             "request": { "path": DERIVATION_PATH, "payload_v2": { "Ecdsa": payload_hex }, "domain_id": SIGN_DOMAIN }
         });
         Promise::new(self.signer_contract.clone())
-            .function_call("sign".to_string(), serde_json::to_vec(&args).unwrap(), ONE_YOCTO, SIGN_GAS)
-            .then(self.callback("on_signed", json!({ "payout_index": payout, "attempt_index": attempt })))
+            .function_call_weight("sign".to_string(), serde_json::to_vec(&args).unwrap(), forwarded_deposit(), SIGN_GAS, GasWeight(1))
+            .then(self.callback(
+                "on_signed",
+                json!({ "payout_index": payout, "attempt_index": attempt, "requested_at": requested_at }),
+            ))
     }
 
+    /// D2, D11: callbacks get at least CALLBACK_GAS plus a share of whatever the caller attached.
     fn callback(&self, method: &str, args: Value) -> Promise {
-        Promise::new(env::current_account_id()).function_call(
+        Promise::new(env::current_account_id()).function_call_weight(
             method.to_string(),
             serde_json::to_vec(&args).unwrap(),
             NearToken::from_yoctonear(0),
             CALLBACK_GAS,
+            GasWeight(1),
         )
     }
 

@@ -1,0 +1,1436 @@
+Kani Rust Verifier 0.68.0 (cargo plugin)
+CBMC 6.11.0
+   Compiling near-sdk v5.30.1
+warning: use of an unstable feature
+ --> <crate attribute>:1:12
+  |
+1 | #![feature(register_tool)]
+  |            ^^^^^^^^^^^^^
+  |
+  = note: requested on the command line with `--force-warn unstable-features`
+
+   Compiling ghost-protocol v0.1.0 (/Users/MAC/development/afterlife-clause/contract)
+warning: trailing semicolon in macro used in expression position
+  --> src/math.rs:74:28
+   |
+74 |                 Some(p) => assert!(fee > p && (fee >= ceiling || fee / 2 >= p)),
+   |                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = warning: this was previously accepted by the compiler but is being phased out; it will become a hard error in a future release!
+   = note: for more information, see issue #79813 <https://github.com/rust-lang/rust/issues/79813>
+   = note: `#[warn(semicolon_in_expressions_from_non_local_macros)]` (part of `#[warn(future_incompatible)]`) on by default
+   = note: this warning originates in the macro `assert` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: trailing semicolon in macro used in expression position
+  --> src/math.rs:75:25
+   |
+75 |                 None => assert!(fee >= initial),
+   |                         ^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = warning: this was previously accepted by the compiler but is being phased out; it will become a hard error in a future release!
+   = note: for more information, see issue #79813 <https://github.com/rust-lang/rust/issues/79813>
+   = note: this warning originates in the macro `assert` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: use of an unstable feature
+ --> <crate attribute>:1:12
+  |
+1 | #![feature(register_tool)]
+  |            ^^^^^^^^^^^^^
+  |
+  = note: requested on the command line with `--force-warn unstable-features`
+
+warning: Found the following unsupported constructs:
+             - caller_location (1)
+             - foreign function (1)
+         
+         Verification will fail if one or more of these constructs is reachable.
+         See https://model-checking.github.io/kani/rust-feature-support.html for more details.
+
+warning: linker stdout: -Wl,-exported_symbols_list -Wl,/Users/MAC/development/afterlife-clause/contract/target/kani/aarch64-apple-darwin/debug/build/ghost-protocol/812323c885627cb7/out/rustcr7cpQi/list /Users/MAC/development/afterlife-clause/contract/target/kani/aarch64-apple-darwin/debug/build/ghost-protocol/812323c885627cb7/out/rustcr7cpQi/symbols.o /Users/MAC/.kani/kani-0.68.0/lib/rustlib/aarch64-apple-darwin/lib/libpanic_abort-dc15bfb1ff53828d.rlib /Users/MAC/development/afterlife-clause/contract/target/kani/aarch64-apple-darwin/debug/build/near-sdk/e3bc9c958784caa6/out/libnear_sdk-e3bc9c958784caa6.rlib /Users/MAC/development/afterlife-clause/contract/target/kani/aarch64-apple-darwin/debug/build/hex-literal/8c04049347f00fb9/out/libhex_literal-8c04049347f00fb9.rlib /Users/MAC/development/afterlife-clause/contract/target/kani/aarch64-apple-darwin/debug/build/near-global-contracts/64c6361aa9dfa65e/out/libnear_global_contracts-64c6361aa9dfa65e.rlib /Users/MAC/development/afterlife-clause/contract/target/kani/aarch64-apple-darwin/debug/build/near-digest/65193b3e36007dd4/out/libnear_digest-65193b3e36007dd4.rlib /Users/MAC/development/afterlife-clause/contract/target/kani/aarch64-apple-darwin/debug/build/digest-io/800b9d3701e09cae/out/libdigest_io-800b9d3701e09cae.rlib /Users/MAC/development/afterlife-clause/contract/target/kani/aarch64-apple-darwin/debug/build/near-sdk-core/9dd5041416493d3b/out/libnear_sdk_core-9dd5041416493d3b.rlib /Users/MAC/development/afterlife-clause/contract/target/kani/aarch64-apple-darwin/debug/build/near-primitives-core/7da543ca7aca9baf/out/libnear_primitives_core-7da543ca7aca9baf.rlib /Users/MAC/development/afterlife-clause/contract/target/kani/aarch64-apple-darwin/debug/build/near-token/893fc3daae47e74d/out/libnear_token-893fc3daae47e74d.rlib /Users/MAC/development/afterlife-clause/contract/target/kani/aarch64-apple-darwin/debug/build/arbitrary/7d51692f420dad95/out/libarbitrary-7d51692f420dad95.rlib /Users/MAC/development/afterlife-clause/contract/target/kani/aarch64-apple-darwin/debug/build/enum-map/5469ed5cbb205e32/out/libenum_map-5469ed5cbb205e32.rlib /Users/MAC/development/afterlife-clause/contract/target/kani/aarch64-apple-darwin/debug/build/base64/bad5ddff8f74c150/out/libbase64-bad5ddff8f74c150.rlib /Users/MAC/development/afterlife-clause/contract/target/kani/aarch64-apple-darwin/debug/build/near-gas/c3dcd8913be5ea9d/out/libnear_gas-c3dcd8913be5ea9d.rlib /Users/MAC/development/afterlife-clause/contract/target/kani/aarch64-apple-darwin/debug/build/serde_with/f8aa75232aceecea/out/libserde_with-f8aa75232aceecea.rlib /Users/MAC/development/afterlife-clause/contract/target/kani/aarch64-apple-darwin/debug/build/base64/83ef7c0f88411674/out/libbase64-83ef7c0f88411674.rlib /Users/MAC/development/afterlife-clause/contract/target/kani/aarch64-apple-darwin/debug/build/num-rational/698a1fae8c992b1b/out/libnum_rational-698a1fae8c992b1b.rlib /Users/MAC/development/afterlife-clause/contract/target/kani/aarch64-apple-darwin/debug/build/num-bigint/573ced9f24e461a5/out/libnum_bigint-573ced9f24e461a5.rlib /Users/MAC/development/afterlife-clause/contract/target/kani/aarch64-apple-darwin/debug/build/num-integer/4c162b8d0881919d/out/libnum_integer-4c162b8d0881919d.rlib /Users/MAC/development/afterlife-clause/contract/target/kani/aarch64-apple-darwin/debug/build/base64/48cfb7d7952f5d29/out/libbase64-48cfb7d7952f5d29.rlib /Users/MAC/development/afterlife-clause/contract/target/kani/aarch64-apple-darwin/debug/build/near-crypto-hash/a8d28027aef7b705/out/libnear_crypto_hash-a8d28027aef7b705.rlib /Users/MAC/development/afterlife-clause/contract/target/kani/aarch64-apple-darwin/debug/build/bs58/c7437dab773e20d2/out/libbs58-c7437dab773e20d2.rlib /Users/MAC/development/afterlife-clause/contract/target/kani/aarch64-apple-darwin/debug/build/p256/70ede3fc7ff072f7/out/libp256-70ede3fc7ff072f7.rlib /Users/MAC/development/afterlife-clause/contract/target/kani/aarch64-apple-darwin/debug/build/primeorder/e49487b3fcce9d8c/out/libprimeorder-e49487b3fcce9d8c.rlib /Users/MAC/development/afterlife-clause/contract/target/kani/aarch64-apple-darwin/debug/build/wnaf/0b7527a5e251dbd5/out/libwnaf-0b7527a5e251dbd5.rlib /Users/MAC/development/afterlife-clause/contract/target/kani/aarch64-apple-darwin/debug/build/primefield/215d7752702d989d/out/libprimefield-215d7752702d989d.rlib /Users/MAC/development/afterlife-clause/contract/target/kani/aarch64-apple-darwin/debug/build/ecdsa/f046f0c569a967af/out/libecdsa-f046f0c569a967af.rlib /Users/MAC/development/afterlife-clause/contract/target/kani/aarch64-apple-darwin/debug/build/rfc6979/e624ae4d2214a489/out/librfc6979-e624ae4d2214a489.rlib /Users/MAC/development/afterlife-clause/contract/target/kani/aarch64-apple-darwin/debug/build/hmac/7872700563559749/out/libhmac-7872700563559749.rlib /Users/MAC/development/afterlife-clause/contract/target/kani/aarch64-apple-darwin/debug/build/spki/60cd12d3c46b6cf7/out/libspki-60cd12d3c46b6cf7.rlib /Users/MAC/development/afterlife-clause/contract/target/kani/aarch64-apple-darwin/debug/build/signature/1fc74ac1736be612/out/libsignature-1fc74ac1736be612.rlib /Users/MAC/development/afterlife-clause/contract/target/kani/aarch64-apple-darwin/debug/build/elliptic-curve/cc203ad1e010e230/out/libelliptic_curve-cc203ad1e010e230.rlib /Users/MAC/development/afterlife-clause/contract/target/kani/aarch64-apple-darwin/debug/build/sec1/2dce0f1e4c584ca0/out/libsec1-2dce0f1e4c584ca0.rlib /Users/MAC/development/afterlife-clause/contract/target/kani/aarch64-apple-darwin/debug/build/der/45b49fc58e0c4a8d/out/libder-45b49fc58e0c4a8d.rlib /Users/MAC/development/afterlife-clause/contract/target/kani/aarch64-apple-darwin/debug/build/base16ct/017ffdce4bf9cbda/out/libbase16ct-017ffdce4bf9cbda.rlib /Users/MAC/development/afterlife-clause/contract/target/kani/aarch64-apple-darwin/debug/build/group/1b2d18a894202db0/out/libgroup-1b2d18a894202db0.rlib /Users/MAC/development/afterlife-clause/contract/target/kani/aarch64-apple-darwin/debug/build/ff/2b571c727f5d98cd/out/libff-2b571c727f5d98cd.rlib /Users/MAC/development/afterlife-clause/contract/target/kani/aarch64-apple-darwin/debug/build/crypto-bigint/322fa06ae24aca9d/out/libcrypto_bigint-322fa06ae24aca9d.rlib /Users/MAC/development/afterlife-clause/contract/target/kani/aarch64-apple-darwin/debug/build/num-traits/5e38ce26de29d50e/out/libnum_traits-5e38ce26de29d50e.rlib /Users/MAC/development/afterlife-clause/contract/target/kani/aarch64-apple-darwin/debug/build/cpubits/2527973431e50135/out/libcpubits-2527973431e50135.rlib /Users/MAC/development/afterlife-clause/contract/target/kani/aarch64-apple-darwin/debug/build/near-crypto/b7fb672f57223400/out/libnear_crypto-b7fb672f57223400.rlib /Users/MAC/development/afterlife-clause/contract/target/kani/aarch64-apple-darwin/debug/build/near-config-utils/5f9f906f79555321/out/libnear_config_utils-5f9f906f79555321.rlib /Users/MAC/development/afterlife-clause/contract/target/kani/aarch64-apple-darwin/debug/build/anyhow/4a4464b3ff308d0d/out/libanyhow-4a4464b3ff308d0d.rlib /Users/MAC/development/afterlife-clause/contract/target/kani/aarch64-apple-darwin/debug/build/tracing/f9acb0c1e1528ec8/out/libtracing-f9acb0c1e1528ec8.rlib /Users/MAC/development/afterlife-clause/contract/target/kani/aarch64-apple-darwin/debug/build/pin-project-lite/76b0f5b3daf2304e/out/libpin_project_lite-76b0f5b3daf2304e.rlib /Users/MAC/development/afterlife-clause/contract/target/kani/aarch64-apple-darwin/debug/build/tracing-core/387e13025f9474c5/out/libtracing_core-387e13025f9474c5.rlib /Users/MAC/development/afterlife-clause/contract/target/kani/aarch64-apple-darwin/debug/build/json_comments/0b111c1a7a9b5787/out/libjson_comments-0b111c1a7a9b5787.rlib /Users/MAC/development/afterlife-clause/contract/target/kani/aarch64-apple-darwin/debug/build/serde_json/4fb39bf1a701e54d/out/libserde_json-4fb39bf1a701e54d.rlib /Users/MAC/development/afterlife-clause/contract/target/kani/aarch64-apple-darwin/debug/build/memchr/e95a044795e9d49d/out/libmemchr-e95a044795e9d49d.rlib /Users/MAC/development/afterlife-clause/contract/target/kani/aarch64-apple-darwin/debug/build/itoa/488182bdfeb2dc2d/out/libitoa-488182bdfeb2dc2d.rlib /Users/MAC/development/afterlife-clause/contract/target/kani/aarch64-apple-darwin/debug/build/foldhash/0094f28e4243e867/out/libfoldhash-0094f28e4243e867.rlib /Users/MAC/development/afterlife-clause/contract/target/kani/aarch64-apple-darwin/debug/build/zmij/4f2185cf6b4a1407/out/libzmij-4f2185cf6b4a1407.rlib /Users/MAC/development/afterlife-clause/contract/target/kani/aarch64-apple-darwin/debug/build/indexmap/1e970c558b9a4d1e/out/libindexmap-1e970c558b9a4d1e.rlib /Users/MAC/development/afterlife-clause/contract/target/kani/aarch64-apple-darwin/debug/build/equivalent/7eaa60aaa088723a/out/libequivalent-7eaa60aaa088723a.rlib /Users/MAC/development/afterlife-clause/contract/target/kani/aarch64-apple-darwin/debug/build/hashbrown/22a388b3587854b2/out/libhashbrown-22a388b3587854b2.rlib /Users/MAC/development/afterlife-clause/contract/target/kani/aarch64-apple-darwin/debug/build/near-stdx/86bd0aabeae04b1b/out/libnear_stdx-86bd0aabeae04b1b.rlib /Users/MAC/development/afterlife-clause/contract/target/kani/aarch64-apple-darwin/debug/build/derive_more/350c0e3af014046c/out/libderive_more-350c0e3af014046c.rlib /Users/MAC/development/afterlife-clause/contract/target/kani/aarch64-apple-darwin/debug/build/thiserror/d4c147db1de3c092/out/libthiserror-d4c147db1de3c092.rlib /Users/MAC/development/afterlife-clause/contract/target/kani/aarch64-apple-darwin/debug/build/bs58/61bd4faf26ad781d/out/libbs58-61bd4faf26ad781d.rlib /Users/MAC/development/afterlife-clause/contract/target/kani/aarch64-apple-darwin/debug/build/sha3/a0ed8c451cf0c060/out/libsha3-a0ed8c451cf0c060.rlib /Users/MAC/development/afterlife-clause/contract/target/kani/aarch64-apple-darwin/debug/build/keccak/e52df4e503cb3941/out/libkeccak-e52df4e503cb3941.rlib /Users/MAC/development/afterlife-clause/contract/target/kani/aarch64-apple-darwin/debug/build/secp256k1/f68cc8b80b2bf2de/out/libsecp256k1-f68cc8b80b2bf2de.rlib /Users/MAC/development/afterlife-clause/contract/target/kani/aarch64-apple-darwin/debug/build/secp256k1-sys/7bfed2bac2b88b01/out/libsecp256k1_sys-7bfed2bac2b88b01.rlib /Users/MAC/development/afterlife-clause/contract/target/kani/aarch64-apple-darwin/debug/build/primitive-types/c4d4517e2dc72e4b/out/libprimitive_types-c4d4517e2dc72e4b.rlib /Users/MAC/development/afterlife-clause/contract/target/kani/aarch64-apple-darwin/debug/build/uint/2fa8d6be68a3d752/out/libuint-2fa8d6be68a3d752.rlib /Users/MAC/development/afterlife-clause/contract/target/kani/aarch64-apple-darwin/debug/build/crunchy/c9e8724184d2ad71/out/libcrunchy-c9e8724184d2ad71.rlib /Users/MAC/development/afterlife-clause/contract/target/kani/aarch64-apple-darwin/debug/build/hex/dfe3a7860543f7bd/out/libhex-dfe3a7860543f7bd.rlib /Users/MAC/development/afterlife-clause/contract/target/kani/aarch64-apple-darwin/debug/build/byteorder/73cfba1fcf668b40/out/libbyteorder-73cfba1fcf668b40.rlib /Users/MAC/development/afterlife-clause/contract/target/kani/aarch64-apple-darwin/debug/build/fixed-hash/799a4140bb2d8d2b/out/libfixed_hash-799a4140bb2d8d2b.rlib /Users/MAC/development/afterlife-clause/contract/target/kani/aarch64-apple-darwin/debug/build/static_assertions/8746b9a33ed0e599/out/libstatic_assertions-8746b9a33ed0e599.rlib /Users/MAC/development/afterlife-clause/contract/target/kani/aarch64-apple-darwin/debug/build/near-schema-checker-lib/a93c7b31ac37b0d0/out/libnear_schema_checker_lib-a93c7b31ac37b0d0.rlib /Users/MAC/development/afterlife-clause/contract/target/kani/aarch64-apple-darwin/debug/build/near-schema-checker-core/1aab7bb0f2dc635b/out/libnear_schema_checker_core-1aab7bb0f2dc635b.rlib /Users/MAC/development/afterlife-clause/contract/target/kani/aarch64-apple-darwin/debug/build/ed25519-dalek/002b4da8d2528342/out/libed25519_dalek-002b4da8d2528342.rlib /Users/MAC/development/afterlife-clause/contract/target/kani/aarch64-apple-darwin/debug/build/sha2/0c663bbfc313f5ae/out/libsha2-0c663bbfc313f5ae.rlib /Users/MAC/development/afterlife-clause/contract/target/kani/aarch64-apple-darwin/debug/build/ed25519/faa698eb7de3d65f/out/libed25519-faa698eb7de3d65f.rlib /Users/MAC/development/afterlife-clause/contract/target/kani/aarch64-apple-darwin/debug/build/signature/1f4f100462020cb6/out/libsignature-1f4f100462020cb6.rlib /Users/MAC/development/afterlife-clause/contract/target/kani/aarch64-apple-darwin/debug/build/aws-lc-rs/4709f66db8925164/out/libaws_lc_rs-4709f66db8925164.rlib /Users/MAC/development/afterlife-clause/contract/target/kani/aarch64-apple-darwin/debug/build/untrusted/05d55a6feb1355aa/out/libuntrusted-05d55a6feb1355aa.rlib /Users/MAC/development/afterlife-clause/contract/target/kani/aarch64-apple-darwin/debug/build/aws-lc-sys/3a0f561a29dc9ac5/out/libaws_lc_sys-3a0f561a29dc9ac5.rlib /Users/MAC/development/afterlife-clause/contract/target/kani/aarch64-apple-darwin/debug/build/near-account-id/7872273bb15c1b2a/out/libnear_account_id-7872273bb15c1b2a.rlib /Users/MAC/development/afterlife-clause/contract/target/kani/aarch64-apple-darwin/debug/build/serde/c0ef8aba6c3fb949/out/libserde-c0ef8aba6c3fb949.rlib /Users/MAC/development/afterlife-clause/contract/target/kani/aarch64-apple-darwin/debug/build/serde_core/b54d05c9c68528c6/out/libserde_core-b54d05c9c68528c6.rlib /Users/MAC/development/afterlife-clause/contract/target/kani/aarch64-apple-darwin/debug/build/curve25519-dalek/e70000b497a4a6ae/out/libcurve25519_dalek-e70000b497a4a6ae.rlib /Users/MAC/development/afterlife-clause/contract/target/kani/aarch64-apple-darwin/debug/build/blake2/69e71cd0627c7c91/out/libblake2-69e71cd0627c7c91.rlib /Users/MAC/development/afterlife-clause/contract/target/kani/aarch64-apple-darwin/debug/build/near-sdk-env/62ce10e4b1093b07/out/libnear_sdk_env-62ce10e4b1093b07.rlib /Users/MAC/development/afterlife-clause/contract/target/kani/aarch64-apple-darwin/debug/build/ripemd/619f8fb6039a01ad/out/libripemd-619f8fb6039a01ad.rlib /Users/MAC/development/afterlife-clause/contract/target/kani/aarch64-apple-darwin/debug/build/digest/c18013ff71dd4a7d/out/libdigest-c18013ff71dd4a7d.rlib /Users/MAC/development/afterlife-clause/contract/target/kani/aarch64-apple-darwin/debug/build/block-buffer/5c27b8d1d550df18/out/libblock_buffer-5c27b8d1d550df18.rlib /Users/MAC/development/afterlife-clause/contract/target/kani/aarch64-apple-darwin/debug/build/crypto-common/f8e9c47c3b557525/out/libcrypto_common-f8e9c47c3b557525.rlib /Users/MAC/development/afterlife-clause/contract/target/kani/aarch64-apple-darwin/debug/build/generic-array/626c5875a8e14339/out/libgeneric_array-626c5875a8e14339.rlib /Users/MAC/development/afterlife-clause/contract/target/kani/aarch64-apple-darwin/debug/build/sha3/9acdd5b5a0953ce2/out/libsha3-9acdd5b5a0953ce2.rlib /Users/MAC/development/afterlife-clause/contract/target/kani/aarch64-apple-darwin/debug/build/keccak/b8dac870048ce562/out/libkeccak-b8dac870048ce562.rlib /Users/MAC/development/afterlife-clause/contract/target/kani/aarch64-apple-darwin/debug/build/sha2/9177cb9dd6481ebe/out/libsha2-9177cb9dd6481ebe.rlib /Users/MAC/development/afterlife-clause/contract/target/kani/aarch64-apple-darwin/debug/build/cpufeatures/ef1587e4232c5148/out/libcpufeatures-ef1587e4232c5148.rlib /Users/MAC/development/afterlife-clause/contract/target/kani/aarch64-apple-darwin/debug/build/digest/46f176e0e84a550d/out/libdigest-46f176e0e84a550d.rlib /Users/MAC/development/afterlife-clause/contract/target/kani/aarch64-apple-darwin/debug/build/ctutils/82d73742143a10ae/out/libctutils-82d73742143a10ae.rlib /Users/MAC/development/afterlife-clause/contract/target/kani/aarch64-apple-darwin/debug/build/cmov/37585acf1c6519f2/out/libcmov-37585acf1c6519f2.rlib /Users/MAC/development/afterlife-clause/contract/target/kani/aarch64-apple-darwin/debug/build/const-oid/ed05434d1b6d6004/out/libconst_oid-ed05434d1b6d6004.rlib /Users/MAC/development/afterlife-clause/contract/target/kani/aarch64-apple-darwin/debug/build/crypto-common/bcf8805975f0ece1/out/libcrypto_common-bcf8805975f0ece1.rlib /Users/MAC/development/afterlife-clause/contract/target/kani/aarch64-apple-darwin/debug/build/getrandom/ff71a13038ed3d51/out/libgetrandom-ff71a13038ed3d51.rlib /Users/MAC/development/afterlife-clause/contract/target/kani/aarch64-apple-darwin/debug/build/libc/aad8e43e70568686/out/liblibc-aad8e43e70568686.rlib /Users/MAC/development/afterlife-clause/contract/target/kani/aarch64-apple-darwin/debug/build/cfg-if/7218894c817c6984/out/libcfg_if-7218894c817c6984.rlib /Users/MAC/development/afterlife-clause/contract/target/kani/aarch64-apple-darwin/debug/build/rand_core/d6907218229b8cd0/out/librand_core-d6907218229b8cd0.rlib /Users/MAC/development/afterlife-clause/contract/target/kani/aarch64-apple-darwin/debug/build/block-buffer/e9a833589f7f6542/out/libblock_buffer-e9a833589f7f6542.rlib /Users/MAC/development/afterlife-clause/contract/target/kani/aarch64-apple-darwin/debug/build/hybrid-array/1f5ecd454416d639/out/libhybrid_array-1f5ecd454416d639.rlib /Users/MAC/development/afterlife-clause/contract/target/kani/aarch64-apple-darwin/debug/build/subtle/366132d53439318a/out/libsubtle-366132d53439318a.rlib /Users/MAC/development/afterlife-clause/contract/target/kani/aarch64-apple-darwin/debug/build/zeroize/257a8f02357c1962/out/libzeroize-257a8f02357c1962.rlib /Users/MAC/development/afterlife-clause/contract/target/kani/aarch64-apple-darwin/debug/build/typenum/1a066e3fea9b7799/out/libtypenum-1a066e3fea9b7799.rlib /Users/MAC/development/afterlife-clause/contract/target/kani/aarch64-apple-darwin/debug/build/near-sys/fd72d51dead3ce82/out/libnear_sys-fd72d51dead3ce82.rlib /Users/MAC/development/afterlife-clause/contract/target/kani/aarch64-apple-darwin/debug/build/once_cell/ea5fb96e0607d22c/out/libonce_cell-ea5fb96e0607d22c.rlib /Users/MAC/development/afterlife-clause/contract/target/kani/aarch64-apple-darwin/debug/build/borsh/65f04352fa2a157b/out/libborsh-65f04352fa2a157b.rlib /Users/MAC/.kani/kani-0.68.0/lib/libstd.rlib /Users/MAC/.kani/kani-0.68.0/lib/libkani.rlib /Users/MAC/.kani/kani-0.68.0/lib/libkani_core-efb13c49af90e259.rlib /Users/MAC/.kani/kani-0.68.0/lib/rustlib/aarch64-apple-darwin/lib/libstd-63d60d964c23bb10.rlib /Users/MAC/.kani/kani-0.68.0/lib/rustlib/aarch64-apple-darwin/lib/libobject-a52db044b41474d7.rlib /Users/MAC/.kani/kani-0.68.0/lib/rustlib/aarch64-apple-darwin/lib/libmemchr-4047fcd724e66a53.rlib /Users/MAC/.kani/kani-0.68.0/lib/rustlib/aarch64-apple-darwin/lib/libaddr2line-cebd1a496c4f45de.rlib /Users/MAC/.kani/kani-0.68.0/lib/rustlib/aarch64-apple-darwin/lib/libgimli-b64c0a35ba4b9d7c.rlib /Users/MAC/.kani/kani-0.68.0/lib/rustlib/aarch64-apple-darwin/lib/libcfg_if-cb173a5fe0e64274.rlib /Users/MAC/.kani/kani-0.68.0/lib/rustlib/aarch64-apple-darwin/lib/librustc_demangle-b65799793abf550d.rlib /Users/MAC/.kani/kani-0.68.0/lib/rustlib/aarch64-apple-darwin/lib/libstd_detect-7f2d215bbe3e5251.rlib /Users/MAC/.kani/kani-0.68.0/lib/rustlib/aarch64-apple-darwin/lib/libhashbrown-333835371d45a7b2.rlib /Users/MAC/.kani/kani-0.68.0/lib/rustlib/aarch64-apple-darwin/lib/librustc_std_workspace_alloc-b31f504bd966906e.rlib /Users/MAC/.kani/kani-0.68.0/lib/rustlib/aarch64-apple-darwin/lib/libminiz_oxide-8b4dfd4ed7157102.rlib /Users/MAC/.kani/kani-0.68.0/lib/rustlib/aarch64-apple-darwin/lib/libadler2-9dd0869c98311236.rlib /Users/MAC/.kani/kani-0.68.0/lib/rustlib/aarch64-apple-darwin/lib/libunwind-b5bbab1b8be5d2df.rlib /Users/MAC/.kani/kani-0.68.0/lib/rustlib/aarch64-apple-darwin/lib/liblibc-7654b8caa5371697.rlib /Users/MAC/.kani/kani-0.68.0/lib/rustlib/aarch64-apple-darwin/lib/librustc_std_workspace_core-9796b2b0f7fb1004.rlib /Users/MAC/.kani/kani-0.68.0/lib/rustlib/aarch64-apple-darwin/lib/liballoc-1bf6213988893eaa.rlib /Users/MAC/.kani/kani-0.68.0/lib/rustlib/aarch64-apple-darwin/lib/libcore-0b10416cf9e530e3.rlib /Users/MAC/.kani/kani-0.68.0/lib/rustlib/aarch64-apple-darwin/lib/libcompiler_builtins-98b6766e30ab35dd.rlib -lc -lm -liconv -lSystem -lc -lm -arch arm64 -mmacosx-version-min=11.0.0 -L /Users/MAC/.kani/kani-0.68.0/lib -L /Users/MAC/development/afterlife-clause/contract/target/kani/aarch64-apple-darwin/debug/build/aws-lc-sys/5464e7b70714d637/out -L /Users/MAC/development/afterlife-clause/contract/target/kani/aarch64-apple-darwin/debug/build/secp256k1-sys/d9804b4e1537994c/out -o /Users/MAC/development/afterlife-clause/contract/target/kani/aarch64-apple-darwin/debug/build/ghost-protocol/812323c885627cb7/out/libghost_protocol.dylib -Wl,-dead_strip -dynamiclib -nodefaultlibs
+  |
+  = note: `#[warn(linker_messages)]` on by default
+
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 1.84s
+warning: the following packages contain code that will be rejected by a future version of Rust: ghost-protocol v0.1.0 (/Users/MAC/development/afterlife-clause/contract), primitive-types v0.10.1
+note: to see what the problems were, use the option `--future-incompat-report`, or run `cargo report future-incompatibilities --id 3`
+Checking harness math::proofs::budget_arithmetic_cannot_overflow_for_any_accepted_config...
+CBMC 6.11.0 (cbmc-6.11.0)
+CBMC version 6.11.0 (cbmc-6.11.0) 64-bit arm64 macos
+Reading GOTO program from file /Users/MAC/development/afterlife-clause/contract/target/kani/aarch64-apple-darwin/debug/build/ghost-protocol/812323c885627cb7/out/ghost_protocol__RNvNtNtCskkI2ZFe9nMQ_14ghost_protocol4math6proofs57budget_arithmetic_cannot_overflow_for_any_accepted_config.out
+Generating GOTO Program
+Adding CPROVER library (arm64)
+Removal of function pointers and virtual functions
+Generic Property Instrumentation
+Running with 16 object bits, 48 offset bits (user-specified)
+Starting Bounded Model Checking
+aborting path on assume(false) at file /Users/runner/.rustup/toolchains/nightly-2026-08-21-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/option.rs line 2869 column 15 function <std::option::Option<u128> as std::ops::Try>::branch thread 0
+aborting path on assume(false) at file /Users/runner/.rustup/toolchains/nightly-2026-08-21-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/option.rs line 2869 column 15 function <std::option::Option<u128> as std::ops::Try>::branch thread 0
+aborting path on assume(false) at file src/lib.rs line 0 column 0 function math::proofs::budget_arithmetic_cannot_overflow_for_any_accepted_config::{closure#0} thread 0
+aborting path on assume(false) at file /Users/runner/.rustup/toolchains/nightly-2026-08-21-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/option.rs line 2869 column 15 function <std::option::Option<u128> as std::ops::Try>::branch thread 0
+aborting path on assume(false) at file /Users/runner/.rustup/toolchains/nightly-2026-08-21-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/option.rs line 2869 column 15 function <std::option::Option<u128> as std::ops::Try>::branch thread 0
+aborting path on assume(false) at file src/lib.rs line 0 column 0 function math::proofs::budget_arithmetic_cannot_overflow_for_any_accepted_config::{closure#0} thread 0
+aborting path on assume(false) at file src/math.rs line 135 column 5 function math::proofs::budget_arithmetic_cannot_overflow_for_any_accepted_config thread 0
+Runtime Symex: 0.0341986s
+size of program expression: 2141 steps
+slicing removed 1224 assignments
+Generated 46 VCC(s), 21 remaining after simplification
+Runtime Postprocess Equation: 0.000506834s
+Passing problem to propositional reduction
+converting SSA
+Runtime Convert SSA: 0.0844948s
+Running propositional reduction
+Post-processing
+Runtime Post-process: 1.2416e-05s
+Solving with CaDiCaL 3.0.0
+110847 variables, 581283 clauses
+SAT checker: instance is SATISFIABLE
+Runtime Solver: 0.463044s
+Runtime decision procedure: 0.54829s
+Running propositional reduction
+Solving with CaDiCaL 3.0.0
+110848 variables, 581284 clauses
+SAT checker: instance is UNSATISFIABLE
+Runtime Solver: 50.8327s
+Runtime decision procedure: 50.8331s
+
+RESULTS:
+Check 1: <std::option::Option<u128> as std::ops::FromResidual<std::option::Option<std::convert::Infallible>>>::from_residual.unreachable.1
+	 - Status: SUCCESS
+	 - Description: "unreachable code"
+	 - Location: ../../../../runner/.rustup/toolchains/nightly-2026-08-21-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/option.rs:2883:15 in function <std::option::Option<u128> as std::ops::FromResidual<std::option::Option<std::convert::Infallible>>>::from_residual
+
+Check 2: math::fits_budget.assertion.1
+	 - Status: SUCCESS
+	 - Description: "attempt to add with overflow"
+	 - Location: src/math.rs:16:5 in function math::fits_budget
+
+Check 3: <std::option::Option<u128> as std::ops::Try>::branch.unreachable.1
+	 - Status: SUCCESS
+	 - Description: "unreachable code"
+	 - Location: ../../../../runner/.rustup/toolchains/nightly-2026-08-21-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/option.rs:2869:15 in function <std::option::Option<u128> as std::ops::Try>::branch
+
+Check 4: math::proofs::budget_arithmetic_cannot_overflow_for_any_accepted_config::{closure#0}.unreachable.1
+	 - Status: SUCCESS
+	 - Description: "unreachable code"
+	 - Location: src/lib.rs:0:0 in function math::proofs::budget_arithmetic_cannot_overflow_for_any_accepted_config::{closure#0}
+
+Check 5: math::reserve.assertion.1
+	 - Status: SUCCESS
+	 - Description: "attempt to multiply with overflow"
+	 - Location: src/math.rs:6:13 in function math::reserve
+
+Check 6: math::reserve.assertion.2
+	 - Status: SUCCESS
+	 - Description: "attempt to add with overflow"
+	 - Location: src/math.rs:6:5 in function math::reserve
+
+Check 7: core::num::<impl u128>::checked_add.arithmetic_overflow.1
+	 - Status: SUCCESS
+	 - Description: "attempt to compute `unchecked_add` which would overflow"
+	 - Location: ../../../../runner/.rustup/toolchains/nightly-2026-08-21-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/num/uint_macros.rs:942:31 in function core::num::<impl u128>::checked_add
+
+Check 8: math::proofs::budget_arithmetic_cannot_overflow_for_any_accepted_config.unreachable.1
+	 - Status: SUCCESS
+	 - Description: "unreachable code"
+	 - Location: src/math.rs:135:5 in function math::proofs::budget_arithmetic_cannot_overflow_for_any_accepted_config
+
+Check 9: math::proofs::budget_arithmetic_cannot_overflow_for_any_accepted_config::{closure#0}.pointer_dereference.1
+	 - Status: SUCCESS
+	 - Description: "dereference failure: pointer NULL"
+	 - Location: src/math.rs:139:84 in function math::proofs::budget_arithmetic_cannot_overflow_for_any_accepted_config::{closure#0}
+
+Check 10: math::proofs::budget_arithmetic_cannot_overflow_for_any_accepted_config::{closure#0}.pointer_dereference.2
+	 - Status: SUCCESS
+	 - Description: "dereference failure: pointer invalid"
+	 - Location: src/math.rs:139:84 in function math::proofs::budget_arithmetic_cannot_overflow_for_any_accepted_config::{closure#0}
+
+Check 11: math::proofs::budget_arithmetic_cannot_overflow_for_any_accepted_config::{closure#0}.pointer_dereference.3
+	 - Status: SUCCESS
+	 - Description: "dereference failure: deallocated dynamic object"
+	 - Location: src/math.rs:139:84 in function math::proofs::budget_arithmetic_cannot_overflow_for_any_accepted_config::{closure#0}
+
+Check 12: math::proofs::budget_arithmetic_cannot_overflow_for_any_accepted_config::{closure#0}.pointer_dereference.4
+	 - Status: SUCCESS
+	 - Description: "dereference failure: dead object"
+	 - Location: src/math.rs:139:84 in function math::proofs::budget_arithmetic_cannot_overflow_for_any_accepted_config::{closure#0}
+
+Check 13: math::proofs::budget_arithmetic_cannot_overflow_for_any_accepted_config::{closure#0}.pointer_dereference.5
+	 - Status: SUCCESS
+	 - Description: "dereference failure: pointer outside object bounds"
+	 - Location: src/math.rs:139:84 in function math::proofs::budget_arithmetic_cannot_overflow_for_any_accepted_config::{closure#0}
+
+Check 14: math::proofs::budget_arithmetic_cannot_overflow_for_any_accepted_config::{closure#0}.pointer_dereference.6
+	 - Status: SUCCESS
+	 - Description: "dereference failure: invalid integer address"
+	 - Location: src/math.rs:139:84 in function math::proofs::budget_arithmetic_cannot_overflow_for_any_accepted_config::{closure#0}
+
+Check 15: math::proofs::budget_arithmetic_cannot_overflow_for_any_accepted_config::{closure#0}.pointer_dereference.7
+	 - Status: SUCCESS
+	 - Description: "dereference failure: pointer NULL"
+	 - Location: src/math.rs:139:84 in function math::proofs::budget_arithmetic_cannot_overflow_for_any_accepted_config::{closure#0}
+
+Check 16: math::proofs::budget_arithmetic_cannot_overflow_for_any_accepted_config::{closure#0}.pointer_dereference.8
+	 - Status: SUCCESS
+	 - Description: "dereference failure: pointer invalid"
+	 - Location: src/math.rs:139:84 in function math::proofs::budget_arithmetic_cannot_overflow_for_any_accepted_config::{closure#0}
+
+Check 17: math::proofs::budget_arithmetic_cannot_overflow_for_any_accepted_config::{closure#0}.pointer_dereference.9
+	 - Status: SUCCESS
+	 - Description: "dereference failure: deallocated dynamic object"
+	 - Location: src/math.rs:139:84 in function math::proofs::budget_arithmetic_cannot_overflow_for_any_accepted_config::{closure#0}
+
+Check 18: math::proofs::budget_arithmetic_cannot_overflow_for_any_accepted_config::{closure#0}.pointer_dereference.10
+	 - Status: SUCCESS
+	 - Description: "dereference failure: dead object"
+	 - Location: src/math.rs:139:84 in function math::proofs::budget_arithmetic_cannot_overflow_for_any_accepted_config::{closure#0}
+
+Check 19: math::proofs::budget_arithmetic_cannot_overflow_for_any_accepted_config::{closure#0}.pointer_dereference.11
+	 - Status: SUCCESS
+	 - Description: "dereference failure: pointer outside object bounds"
+	 - Location: src/math.rs:139:84 in function math::proofs::budget_arithmetic_cannot_overflow_for_any_accepted_config::{closure#0}
+
+Check 20: math::proofs::budget_arithmetic_cannot_overflow_for_any_accepted_config::{closure#0}.pointer_dereference.12
+	 - Status: SUCCESS
+	 - Description: "dereference failure: invalid integer address"
+	 - Location: src/math.rs:139:84 in function math::proofs::budget_arithmetic_cannot_overflow_for_any_accepted_config::{closure#0}
+
+
+SUMMARY:
+ ** 0 of 20 failed
+
+VERIFICATION:- SUCCESSFUL
+Verification Time: 51.47255s
+
+Checking harness math::proofs::time_arithmetic_cannot_overflow_for_any_accepted_config...
+CBMC 6.11.0 (cbmc-6.11.0)
+CBMC version 6.11.0 (cbmc-6.11.0) 64-bit arm64 macos
+Reading GOTO program from file /Users/MAC/development/afterlife-clause/contract/target/kani/aarch64-apple-darwin/debug/build/ghost-protocol/812323c885627cb7/out/ghost_protocol__RNvNtNtCskkI2ZFe9nMQ_14ghost_protocol4math6proofs55time_arithmetic_cannot_overflow_for_any_accepted_config.out
+Generating GOTO Program
+Adding CPROVER library (arm64)
+Removal of function pointers and virtual functions
+Generic Property Instrumentation
+Running with 16 object bits, 48 offset bits (user-specified)
+Starting Bounded Model Checking
+Unwinding loop _RNvNtNtCskkI2ZFe9nMQ_14ghost_protocol4math6proofs55time_arithmetic_cannot_overflow_for_any_accepted_config.0 iteration 1 file src/math.rs line 116 column 9 function math::proofs::time_arithmetic_cannot_overflow_for_any_accepted_config thread 0
+Unwinding loop _RNvNtNtCskkI2ZFe9nMQ_14ghost_protocol4math6proofs55time_arithmetic_cannot_overflow_for_any_accepted_config.0 iteration 2 file src/math.rs line 116 column 9 function math::proofs::time_arithmetic_cannot_overflow_for_any_accepted_config thread 0
+Unwinding loop _RNvNtNtCskkI2ZFe9nMQ_14ghost_protocol4math6proofs55time_arithmetic_cannot_overflow_for_any_accepted_config.0 iteration 3 file src/math.rs line 116 column 9 function math::proofs::time_arithmetic_cannot_overflow_for_any_accepted_config thread 0
+Unwinding loop _RNvNtNtCskkI2ZFe9nMQ_14ghost_protocol4math6proofs55time_arithmetic_cannot_overflow_for_any_accepted_config.0 iteration 4 file src/math.rs line 116 column 9 function math::proofs::time_arithmetic_cannot_overflow_for_any_accepted_config thread 0
+Unwinding loop _RNvNtNtCskkI2ZFe9nMQ_14ghost_protocol4math6proofs55time_arithmetic_cannot_overflow_for_any_accepted_config.0 iteration 5 file src/math.rs line 116 column 9 function math::proofs::time_arithmetic_cannot_overflow_for_any_accepted_config thread 0
+aborting path on assume(false) at file /Users/runner/.rustup/toolchains/nightly-2026-08-21-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/option.rs line 1541 column 15 function std::option::Option::<u64>::and_then::<u64, {closure@src/math.rs:120:85: 120:88}> thread 0
+aborting path on assume(false) at file src/lib.rs line 0 column 0 function math::proofs::time_arithmetic_cannot_overflow_for_any_accepted_config thread 0
+Unwinding loop _RNvNtNtCskkI2ZFe9nMQ_14ghost_protocol4math6proofs55time_arithmetic_cannot_overflow_for_any_accepted_config.1 iteration 1 file src/math.rs line 126 column 9 function math::proofs::time_arithmetic_cannot_overflow_for_any_accepted_config thread 0
+aborting path on assume(false) at file src/lib.rs line 0 column 0 function math::proofs::time_arithmetic_cannot_overflow_for_any_accepted_config thread 0
+Unwinding loop _RNvNtNtCskkI2ZFe9nMQ_14ghost_protocol4math6proofs55time_arithmetic_cannot_overflow_for_any_accepted_config.1 iteration 2 file src/math.rs line 126 column 9 function math::proofs::time_arithmetic_cannot_overflow_for_any_accepted_config thread 0
+aborting path on assume(false) at file src/lib.rs line 0 column 0 function math::proofs::time_arithmetic_cannot_overflow_for_any_accepted_config thread 0
+Unwinding loop _RNvNtNtCskkI2ZFe9nMQ_14ghost_protocol4math6proofs55time_arithmetic_cannot_overflow_for_any_accepted_config.1 iteration 3 file src/math.rs line 126 column 9 function math::proofs::time_arithmetic_cannot_overflow_for_any_accepted_config thread 0
+aborting path on assume(false) at file src/lib.rs line 0 column 0 function math::proofs::time_arithmetic_cannot_overflow_for_any_accepted_config thread 0
+Unwinding loop _RNvNtNtCskkI2ZFe9nMQ_14ghost_protocol4math6proofs55time_arithmetic_cannot_overflow_for_any_accepted_config.1 iteration 4 file src/math.rs line 126 column 9 function math::proofs::time_arithmetic_cannot_overflow_for_any_accepted_config thread 0
+aborting path on assume(false) at file src/lib.rs line 0 column 0 function math::proofs::time_arithmetic_cannot_overflow_for_any_accepted_config thread 0
+Unwinding loop _RNvNtNtCskkI2ZFe9nMQ_14ghost_protocol4math6proofs55time_arithmetic_cannot_overflow_for_any_accepted_config.1 iteration 5 file src/math.rs line 126 column 9 function math::proofs::time_arithmetic_cannot_overflow_for_any_accepted_config thread 0
+aborting path on assume(false) at file src/lib.rs line 0 column 0 function math::proofs::time_arithmetic_cannot_overflow_for_any_accepted_config thread 0
+Unwinding loop _RNvNtNtCskkI2ZFe9nMQ_14ghost_protocol4math6proofs55time_arithmetic_cannot_overflow_for_any_accepted_config.1 iteration 6 file src/math.rs line 126 column 9 function math::proofs::time_arithmetic_cannot_overflow_for_any_accepted_config thread 0
+aborting path on assume(false) at file src/lib.rs line 0 column 0 function math::proofs::time_arithmetic_cannot_overflow_for_any_accepted_config thread 0
+Unwinding loop _RNvNtNtCskkI2ZFe9nMQ_14ghost_protocol4math6proofs55time_arithmetic_cannot_overflow_for_any_accepted_config.1 iteration 7 file src/math.rs line 126 column 9 function math::proofs::time_arithmetic_cannot_overflow_for_any_accepted_config thread 0
+aborting path on assume(false) at file src/lib.rs line 0 column 0 function math::proofs::time_arithmetic_cannot_overflow_for_any_accepted_config thread 0
+Unwinding loop _RNvNtNtCskkI2ZFe9nMQ_14ghost_protocol4math6proofs55time_arithmetic_cannot_overflow_for_any_accepted_config.1 iteration 8 file src/math.rs line 126 column 9 function math::proofs::time_arithmetic_cannot_overflow_for_any_accepted_config thread 0
+aborting path on assume(false) at file src/lib.rs line 0 column 0 function math::proofs::time_arithmetic_cannot_overflow_for_any_accepted_config thread 0
+Unwinding loop _RNvNtNtCskkI2ZFe9nMQ_14ghost_protocol4math6proofs55time_arithmetic_cannot_overflow_for_any_accepted_config.1 iteration 9 file src/math.rs line 126 column 9 function math::proofs::time_arithmetic_cannot_overflow_for_any_accepted_config thread 0
+aborting path on assume(false) at file src/lib.rs line 0 column 0 function math::proofs::time_arithmetic_cannot_overflow_for_any_accepted_config thread 0
+Unwinding loop _RNvNtNtCskkI2ZFe9nMQ_14ghost_protocol4math6proofs55time_arithmetic_cannot_overflow_for_any_accepted_config.1 iteration 10 file src/math.rs line 126 column 9 function math::proofs::time_arithmetic_cannot_overflow_for_any_accepted_config thread 0
+aborting path on assume(false) at file src/lib.rs line 0 column 0 function math::proofs::time_arithmetic_cannot_overflow_for_any_accepted_config thread 0
+Unwinding loop _RNvNtNtCskkI2ZFe9nMQ_14ghost_protocol4math6proofs55time_arithmetic_cannot_overflow_for_any_accepted_config.1 iteration 11 file src/math.rs line 126 column 9 function math::proofs::time_arithmetic_cannot_overflow_for_any_accepted_config thread 0
+aborting path on assume(false) at file src/lib.rs line 0 column 0 function math::proofs::time_arithmetic_cannot_overflow_for_any_accepted_config thread 0
+Unwinding loop _RNvNtNtCskkI2ZFe9nMQ_14ghost_protocol4math6proofs55time_arithmetic_cannot_overflow_for_any_accepted_config.1 iteration 12 file src/math.rs line 126 column 9 function math::proofs::time_arithmetic_cannot_overflow_for_any_accepted_config thread 0
+aborting path on assume(false) at file src/lib.rs line 0 column 0 function math::proofs::time_arithmetic_cannot_overflow_for_any_accepted_config thread 0
+Unwinding loop _RNvNtNtCskkI2ZFe9nMQ_14ghost_protocol4math6proofs55time_arithmetic_cannot_overflow_for_any_accepted_config.1 iteration 13 file src/math.rs line 126 column 9 function math::proofs::time_arithmetic_cannot_overflow_for_any_accepted_config thread 0
+aborting path on assume(false) at file src/lib.rs line 0 column 0 function math::proofs::time_arithmetic_cannot_overflow_for_any_accepted_config thread 0
+Unwinding loop _RNvNtNtCskkI2ZFe9nMQ_14ghost_protocol4math6proofs55time_arithmetic_cannot_overflow_for_any_accepted_config.1 iteration 14 file src/math.rs line 126 column 9 function math::proofs::time_arithmetic_cannot_overflow_for_any_accepted_config thread 0
+aborting path on assume(false) at file src/lib.rs line 0 column 0 function math::proofs::time_arithmetic_cannot_overflow_for_any_accepted_config thread 0
+Unwinding loop _RNvNtNtCskkI2ZFe9nMQ_14ghost_protocol4math6proofs55time_arithmetic_cannot_overflow_for_any_accepted_config.1 iteration 15 file src/math.rs line 126 column 9 function math::proofs::time_arithmetic_cannot_overflow_for_any_accepted_config thread 0
+aborting path on assume(false) at file src/lib.rs line 0 column 0 function math::proofs::time_arithmetic_cannot_overflow_for_any_accepted_config thread 0
+Unwinding loop _RNvNtNtCskkI2ZFe9nMQ_14ghost_protocol4math6proofs55time_arithmetic_cannot_overflow_for_any_accepted_config.1 iteration 16 file src/math.rs line 126 column 9 function math::proofs::time_arithmetic_cannot_overflow_for_any_accepted_config thread 0
+aborting path on assume(false) at file src/lib.rs line 0 column 0 function math::proofs::time_arithmetic_cannot_overflow_for_any_accepted_config thread 0
+Unwinding loop _RNvNtNtCskkI2ZFe9nMQ_14ghost_protocol4math6proofs55time_arithmetic_cannot_overflow_for_any_accepted_config.1 iteration 17 file src/math.rs line 126 column 9 function math::proofs::time_arithmetic_cannot_overflow_for_any_accepted_config thread 0
+aborting path on assume(false) at file src/lib.rs line 0 column 0 function math::proofs::time_arithmetic_cannot_overflow_for_any_accepted_config thread 0
+Unwinding loop _RNvNtNtCskkI2ZFe9nMQ_14ghost_protocol4math6proofs55time_arithmetic_cannot_overflow_for_any_accepted_config.1 iteration 18 file src/math.rs line 126 column 9 function math::proofs::time_arithmetic_cannot_overflow_for_any_accepted_config thread 0
+aborting path on assume(false) at file src/lib.rs line 0 column 0 function math::proofs::time_arithmetic_cannot_overflow_for_any_accepted_config thread 0
+Unwinding loop _RNvNtNtCskkI2ZFe9nMQ_14ghost_protocol4math6proofs55time_arithmetic_cannot_overflow_for_any_accepted_config.1 iteration 19 file src/math.rs line 126 column 9 function math::proofs::time_arithmetic_cannot_overflow_for_any_accepted_config thread 0
+aborting path on assume(false) at file src/lib.rs line 0 column 0 function math::proofs::time_arithmetic_cannot_overflow_for_any_accepted_config thread 0
+Unwinding loop _RNvNtNtCskkI2ZFe9nMQ_14ghost_protocol4math6proofs55time_arithmetic_cannot_overflow_for_any_accepted_config.1 iteration 20 file src/math.rs line 126 column 9 function math::proofs::time_arithmetic_cannot_overflow_for_any_accepted_config thread 0
+aborting path on assume(false) at file src/lib.rs line 0 column 0 function math::proofs::time_arithmetic_cannot_overflow_for_any_accepted_config thread 0
+Unwinding loop _RNvNtNtCskkI2ZFe9nMQ_14ghost_protocol4math6proofs55time_arithmetic_cannot_overflow_for_any_accepted_config.1 iteration 21 file src/math.rs line 126 column 9 function math::proofs::time_arithmetic_cannot_overflow_for_any_accepted_config thread 0
+aborting path on assume(false) at file src/lib.rs line 0 column 0 function math::proofs::time_arithmetic_cannot_overflow_for_any_accepted_config thread 0
+Unwinding loop _RNvNtNtCskkI2ZFe9nMQ_14ghost_protocol4math6proofs55time_arithmetic_cannot_overflow_for_any_accepted_config.1 iteration 22 file src/math.rs line 126 column 9 function math::proofs::time_arithmetic_cannot_overflow_for_any_accepted_config thread 0
+aborting path on assume(false) at file src/lib.rs line 0 column 0 function math::proofs::time_arithmetic_cannot_overflow_for_any_accepted_config thread 0
+Unwinding loop _RNvNtNtCskkI2ZFe9nMQ_14ghost_protocol4math6proofs55time_arithmetic_cannot_overflow_for_any_accepted_config.1 iteration 23 file src/math.rs line 126 column 9 function math::proofs::time_arithmetic_cannot_overflow_for_any_accepted_config thread 0
+aborting path on assume(false) at file src/lib.rs line 0 column 0 function math::proofs::time_arithmetic_cannot_overflow_for_any_accepted_config thread 0
+Unwinding loop _RNvNtNtCskkI2ZFe9nMQ_14ghost_protocol4math6proofs55time_arithmetic_cannot_overflow_for_any_accepted_config.1 iteration 24 file src/math.rs line 126 column 9 function math::proofs::time_arithmetic_cannot_overflow_for_any_accepted_config thread 0
+aborting path on assume(false) at file src/lib.rs line 0 column 0 function math::proofs::time_arithmetic_cannot_overflow_for_any_accepted_config thread 0
+Unwinding loop _RNvNtNtCskkI2ZFe9nMQ_14ghost_protocol4math6proofs55time_arithmetic_cannot_overflow_for_any_accepted_config.1 iteration 25 file src/math.rs line 126 column 9 function math::proofs::time_arithmetic_cannot_overflow_for_any_accepted_config thread 0
+aborting path on assume(false) at file src/lib.rs line 0 column 0 function math::proofs::time_arithmetic_cannot_overflow_for_any_accepted_config thread 0
+Unwinding loop _RNvNtNtCskkI2ZFe9nMQ_14ghost_protocol4math6proofs55time_arithmetic_cannot_overflow_for_any_accepted_config.1 iteration 26 file src/math.rs line 126 column 9 function math::proofs::time_arithmetic_cannot_overflow_for_any_accepted_config thread 0
+aborting path on assume(false) at file src/lib.rs line 0 column 0 function math::proofs::time_arithmetic_cannot_overflow_for_any_accepted_config thread 0
+Unwinding loop _RNvNtNtCskkI2ZFe9nMQ_14ghost_protocol4math6proofs55time_arithmetic_cannot_overflow_for_any_accepted_config.1 iteration 27 file src/math.rs line 126 column 9 function math::proofs::time_arithmetic_cannot_overflow_for_any_accepted_config thread 0
+aborting path on assume(false) at file src/lib.rs line 0 column 0 function math::proofs::time_arithmetic_cannot_overflow_for_any_accepted_config thread 0
+Unwinding loop _RNvNtNtCskkI2ZFe9nMQ_14ghost_protocol4math6proofs55time_arithmetic_cannot_overflow_for_any_accepted_config.1 iteration 28 file src/math.rs line 126 column 9 function math::proofs::time_arithmetic_cannot_overflow_for_any_accepted_config thread 0
+aborting path on assume(false) at file src/lib.rs line 0 column 0 function math::proofs::time_arithmetic_cannot_overflow_for_any_accepted_config thread 0
+Unwinding loop _RNvNtNtCskkI2ZFe9nMQ_14ghost_protocol4math6proofs55time_arithmetic_cannot_overflow_for_any_accepted_config.1 iteration 29 file src/math.rs line 126 column 9 function math::proofs::time_arithmetic_cannot_overflow_for_any_accepted_config thread 0
+aborting path on assume(false) at file src/lib.rs line 0 column 0 function math::proofs::time_arithmetic_cannot_overflow_for_any_accepted_config thread 0
+Unwinding loop _RNvNtNtCskkI2ZFe9nMQ_14ghost_protocol4math6proofs55time_arithmetic_cannot_overflow_for_any_accepted_config.1 iteration 30 file src/math.rs line 126 column 9 function math::proofs::time_arithmetic_cannot_overflow_for_any_accepted_config thread 0
+aborting path on assume(false) at file src/lib.rs line 0 column 0 function math::proofs::time_arithmetic_cannot_overflow_for_any_accepted_config thread 0
+Unwinding loop _RNvNtNtCskkI2ZFe9nMQ_14ghost_protocol4math6proofs55time_arithmetic_cannot_overflow_for_any_accepted_config.1 iteration 31 file src/math.rs line 126 column 9 function math::proofs::time_arithmetic_cannot_overflow_for_any_accepted_config thread 0
+aborting path on assume(false) at file src/lib.rs line 0 column 0 function math::proofs::time_arithmetic_cannot_overflow_for_any_accepted_config thread 0
+Unwinding loop _RNvNtNtCskkI2ZFe9nMQ_14ghost_protocol4math6proofs55time_arithmetic_cannot_overflow_for_any_accepted_config.1 iteration 32 file src/math.rs line 126 column 9 function math::proofs::time_arithmetic_cannot_overflow_for_any_accepted_config thread 0
+aborting path on assume(false) at file src/lib.rs line 0 column 0 function math::proofs::time_arithmetic_cannot_overflow_for_any_accepted_config thread 0
+Unwinding loop _RNvNtNtCskkI2ZFe9nMQ_14ghost_protocol4math6proofs55time_arithmetic_cannot_overflow_for_any_accepted_config.1 iteration 33 file src/math.rs line 126 column 9 function math::proofs::time_arithmetic_cannot_overflow_for_any_accepted_config thread 0
+aborting path on assume(false) at file src/lib.rs line 0 column 0 function math::proofs::time_arithmetic_cannot_overflow_for_any_accepted_config thread 0
+Not unwinding loop _RNvNtNtCskkI2ZFe9nMQ_14ghost_protocol4math6proofs55time_arithmetic_cannot_overflow_for_any_accepted_config.1 iteration 34 file src/math.rs line 126 column 9 function math::proofs::time_arithmetic_cannot_overflow_for_any_accepted_config thread 0
+Runtime Symex: 0.240582s
+size of program expression: 14430 steps
+slicing removed 10225 assignments
+Generated 1218 VCC(s), 151 remaining after simplification
+Runtime Postprocess Equation: 0.00352425s
+Passing problem to propositional reduction
+converting SSA
+Runtime Convert SSA: 0.0347545s
+Running propositional reduction
+Post-processing
+Runtime Post-process: 1.4166e-05s
+Solving with CaDiCaL 3.0.0
+57843 variables, 171377 clauses
+SAT checker: instance is SATISFIABLE
+Runtime Solver: 0.088492s
+Runtime decision procedure: 0.123803s
+Running propositional reduction
+Solving with CaDiCaL 3.0.0
+57844 variables, 171378 clauses
+SAT checker: instance is UNSATISFIABLE
+Runtime Solver: 0.0150603s
+Runtime decision procedure: 0.0152479s
+
+RESULTS:
+Check 1: kani::mem::cbmc::same_allocation.unsupported_construct.1
+	 - Status: SUCCESS
+	 - Description: "Kani does not support reasoning about pointer to unallocated memory"
+	 - Location: library/kani/src/lib.rs:57:1 in function kani::mem::cbmc::same_allocation
+
+Check 2: core::slice::<impl [std::mem::MaybeUninit<u64>]>::get_unchecked::<usize>.safety_check.1
+	 - Status: SUCCESS
+	 - Description: "misaligned pointer to reference cast: address must be a multiple of its type's alignment"
+	 - Location: ../../../../runner/.rustup/toolchains/nightly-2026-08-21-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/slice/mod.rs:647:18 in function core::slice::<impl [std::mem::MaybeUninit<u64>]>::get_unchecked::<usize>
+
+Check 3: core::slice::<impl [std::mem::MaybeUninit<u64>]>::get_unchecked::<usize>.safety_check.2
+	 - Status: SUCCESS
+	 - Description: "dereference failure: pointer invalid"
+	 - Location: ../../../../runner/.rustup/toolchains/nightly-2026-08-21-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/slice/mod.rs:647:18 in function core::slice::<impl [std::mem::MaybeUninit<u64>]>::get_unchecked::<usize>
+
+Check 4: std::option::Option::<u64>::and_then::<u64, {closure@src/math.rs:120:85: 120:88}>.unreachable.1
+	 - Status: SUCCESS
+	 - Description: "unreachable code"
+	 - Location: ../../../../runner/.rustup/toolchains/nightly-2026-08-21-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/option.rs:1541:15 in function std::option::Option::<u64>::and_then::<u64, {closure@src/math.rs:120:85: 120:88}>
+
+Check 5: std::fmt::Arguments::<'_>::from_str.assertion.1
+	 - Status: UNREACHABLE
+	 - Description: "attempt to shift left with overflow"
+	 - Location: ../../../../runner/.rustup/toolchains/nightly-2026-08-21-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/fmt/mod.rs:820:38 in function std::fmt::Arguments::<'_>::from_str
+
+Check 6: core::slice::<impl [std::mem::MaybeUninit<u64>]>::get_unchecked_mut::<std::ops::index_range::IndexRange>.safety_check.1
+	 - Status: SUCCESS
+	 - Description: "misaligned pointer to reference cast: address must be a multiple of its type's alignment"
+	 - Location: ../../../../runner/.rustup/toolchains/nightly-2026-08-21-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/slice/mod.rs:693:18 in function core::slice::<impl [std::mem::MaybeUninit<u64>]>::get_unchecked_mut::<std::ops::index_range::IndexRange>
+
+Check 7: core::slice::<impl [std::mem::MaybeUninit<u64>]>::get_unchecked_mut::<std::ops::index_range::IndexRange>.safety_check.2
+	 - Status: SUCCESS
+	 - Description: "dereference failure: pointer invalid"
+	 - Location: ../../../../runner/.rustup/toolchains/nightly-2026-08-21-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/slice/mod.rs:693:18 in function core::slice::<impl [std::mem::MaybeUninit<u64>]>::get_unchecked_mut::<std::ops::index_range::IndexRange>
+
+Check 8: std::panic::Location::<'_>::caller.unsupported_construct.1
+	 - Status: SUCCESS
+	 - Description: "caller_location is not currently supported by Kani. Please post your example at https://github.com/model-checking/kani/issues/374"
+	 - Location: ../../../../runner/.rustup/toolchains/nightly-2026-08-21-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/panic/location.rs:181:9 in function std::panic::Location::<'_>::caller
+
+Check 9: kani::rustc_intrinsics::offset::<std::mem::MaybeUninit<u64>, *mut std::mem::MaybeUninit<u64>, usize>.safety_check.1
+	 - Status: SUCCESS
+	 - Description: "Offset in bytes overflows isize"
+	 - Location: library/kani/src/lib.rs:57:1 in function kani::rustc_intrinsics::offset::<std::mem::MaybeUninit<u64>, *mut std::mem::MaybeUninit<u64>, usize>
+
+Check 10: kani::rustc_intrinsics::offset::<std::mem::MaybeUninit<u64>, *mut std::mem::MaybeUninit<u64>, usize>.safety_check.2
+	 - Status: SUCCESS
+	 - Description: "Offset result address must equal original pointer address plus offset"
+	 - Location: library/kani/src/lib.rs:57:1 in function kani::rustc_intrinsics::offset::<std::mem::MaybeUninit<u64>, *mut std::mem::MaybeUninit<u64>, usize>
+
+Check 11: kani::rustc_intrinsics::offset::<std::mem::MaybeUninit<u64>, *mut std::mem::MaybeUninit<u64>, usize>.safety_check.3
+	 - Status: SUCCESS
+	 - Description: "Offset result and original pointer must point to the same allocation"
+	 - Location: library/kani/src/lib.rs:57:1 in function kani::rustc_intrinsics::offset::<std::mem::MaybeUninit<u64>, *mut std::mem::MaybeUninit<u64>, usize>
+
+Check 12: std::ptr::drop_in_place::<[u64]>.safety_check.1
+	 - Status: SUCCESS
+	 - Description: "misaligned pointer to reference cast: address must be a multiple of its type's alignment"
+	 - Location: ../../../../runner/.rustup/toolchains/nightly-2026-08-21-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/ptr/mod.rs:843:24 in function std::ptr::drop_in_place::<[u64]>
+
+Check 13: std::ptr::drop_in_place::<[u64]>.safety_check.2
+	 - Status: SUCCESS
+	 - Description: "dereference failure: pointer invalid"
+	 - Location: ../../../../runner/.rustup/toolchains/nightly-2026-08-21-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/ptr/mod.rs:843:24 in function std::ptr::drop_in_place::<[u64]>
+
+Check 14: std::ops::index_range::IndexRange::len.arithmetic_overflow.1
+	 - Status: SUCCESS
+	 - Description: "attempt to compute `unchecked_sub` which would overflow"
+	 - Location: ../../../../runner/.rustup/toolchains/nightly-2026-08-21-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/ops/index_range.rs:52:18 in function std::ops::index_range::IndexRange::len
+
+Check 15: math::after.assertion.1
+	 - Status: SUCCESS
+	 - Description: "attempt to add with overflow"
+	 - Location: src/math.rs:37:5 in function math::after
+
+Check 16: core::panicking::panic_nounwind_fmt::runtime.unsupported_construct.1
+	 - Status: SUCCESS
+	 - Description: "call to foreign "Rust" function `_RNvCskSgPeDzUGbv_7___rustc17rust_begin_unwind` is not currently supported by Kani. Please post your example at https://github.com/model-checking/kani/issues/new/choose"
+	 - Location: ../../../../runner/.rustup/toolchains/nightly-2026-08-21-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/panicking.rs:110:17 in function core::panicking::panic_nounwind_fmt::runtime
+
+Check 17: <usize as kani::rustc_intrinsics::ToISize>::to_isize.unreachable.1
+	 - Status: SUCCESS
+	 - Description: "unreachable code"
+	 - Location: library/kani_core/src/models.rs:203:17 in function <usize as kani::rustc_intrinsics::ToISize>::to_isize
+
+Check 18: <usize as kani::rustc_intrinsics::ToISize>::to_isize.safety_check.1
+	 - Status: SUCCESS
+	 - Description: "Offset value overflows isize"
+	 - Location: library/kani/src/lib.rs:57:1 in function <usize as kani::rustc_intrinsics::ToISize>::to_isize
+
+Check 19: <usize as kani::rustc_intrinsics::ToISize>::to_isize.assertion.1
+	 - Status: SUCCESS
+	 - Description: "internal error: entered unreachable code"
+	 - Location: library/kani/src/lib.rs:57:1 in function <usize as kani::rustc_intrinsics::ToISize>::to_isize
+
+Check 20: std::option::Option::<usize>::map::<u64, {closure@std::array::iter::iter_inner::PolymorphicIter<[std::mem::MaybeUninit<u64>]>::next::{closure#0}}>.unreachable.1
+	 - Status: SUCCESS
+	 - Description: "unreachable code"
+	 - Location: ../../../../runner/.rustup/toolchains/nightly-2026-08-21-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/option.rs:1162:15 in function std::option::Option::<usize>::map::<u64, {closure@std::array::iter::iter_inner::PolymorphicIter<[std::mem::MaybeUninit<u64>]>::next::{closure#0}}>
+
+Check 21: math::proofs::time_arithmetic_cannot_overflow_for_any_accepted_config.assertion.1
+	 - Status: SUCCESS
+	 - Description: "attempt to shift left with overflow"
+	 - Location: src/math.rs:123:66 in function math::proofs::time_arithmetic_cannot_overflow_for_any_accepted_config
+
+Check 22: math::proofs::time_arithmetic_cannot_overflow_for_any_accepted_config.unreachable.1
+	 - Status: SUCCESS
+	 - Description: "unreachable code"
+	 - Location: src/lib.rs:0:0 in function math::proofs::time_arithmetic_cannot_overflow_for_any_accepted_config
+
+Check 23: <usize as std::slice::SliceIndex<[std::mem::MaybeUninit<u64>]>>::get_unchecked.assume.1
+	 - Status: SUCCESS
+	 - Description: "Rust intrinsic assumption failed"
+	 - Location: ../../../../runner/.rustup/toolchains/nightly-2026-08-21-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/slice/index.rs:218:13 in function <usize as std::slice::SliceIndex<[std::mem::MaybeUninit<u64>]>>::get_unchecked
+
+Check 24: core::num::<impl usize>::unchecked_add.arithmetic_overflow.1
+	 - Status: SUCCESS
+	 - Description: "attempt to compute `unchecked_add` which would overflow"
+	 - Location: ../../../../runner/.rustup/toolchains/nightly-2026-08-21-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/num/uint_macros.rs:1013:17 in function core::num::<impl usize>::unchecked_add
+
+Check 25: core::num::<impl u64>::checked_add.arithmetic_overflow.1
+	 - Status: SUCCESS
+	 - Description: "attempt to compute `unchecked_add` which would overflow"
+	 - Location: ../../../../runner/.rustup/toolchains/nightly-2026-08-21-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/num/uint_macros.rs:942:31 in function core::num::<impl u64>::checked_add
+
+Check 26: std::ptr::drop_in_place::<std::array::iter::iter_inner::PolymorphicIter<[std::mem::MaybeUninit<u64>; 5]>>.safety_check.1
+	 - Status: SUCCESS
+	 - Description: "misaligned pointer to reference cast: address must be a multiple of its type's alignment"
+	 - Location: ../../../../runner/.rustup/toolchains/nightly-2026-08-21-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/ptr/mod.rs:843:24 in function std::ptr::drop_in_place::<std::array::iter::iter_inner::PolymorphicIter<[std::mem::MaybeUninit<u64>; 5]>>
+
+Check 27: std::ptr::drop_in_place::<std::array::iter::iter_inner::PolymorphicIter<[std::mem::MaybeUninit<u64>; 5]>>.safety_check.2
+	 - Status: SUCCESS
+	 - Description: "dereference failure: pointer invalid"
+	 - Location: ../../../../runner/.rustup/toolchains/nightly-2026-08-21-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/ptr/mod.rs:843:24 in function std::ptr::drop_in_place::<std::array::iter::iter_inner::PolymorphicIter<[std::mem::MaybeUninit<u64>; 5]>>
+
+Check 28: std::ptr::read::<u64>.pointer_dereference.1
+	 - Status: SUCCESS
+	 - Description: "dereference failure: pointer NULL"
+	 - Location: ../../../../runner/.rustup/toolchains/nightly-2026-08-21-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/ptr/mod.rs:1756:9 in function std::ptr::read::<u64>
+
+Check 29: std::ptr::read::<u64>.pointer_dereference.2
+	 - Status: SUCCESS
+	 - Description: "dereference failure: pointer invalid"
+	 - Location: ../../../../runner/.rustup/toolchains/nightly-2026-08-21-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/ptr/mod.rs:1756:9 in function std::ptr::read::<u64>
+
+Check 30: std::ptr::read::<u64>.pointer_dereference.3
+	 - Status: SUCCESS
+	 - Description: "dereference failure: deallocated dynamic object"
+	 - Location: ../../../../runner/.rustup/toolchains/nightly-2026-08-21-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/ptr/mod.rs:1756:9 in function std::ptr::read::<u64>
+
+Check 31: std::ptr::read::<u64>.pointer_dereference.4
+	 - Status: SUCCESS
+	 - Description: "dereference failure: dead object"
+	 - Location: ../../../../runner/.rustup/toolchains/nightly-2026-08-21-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/ptr/mod.rs:1756:9 in function std::ptr::read::<u64>
+
+Check 32: std::ptr::read::<u64>.pointer_dereference.5
+	 - Status: SUCCESS
+	 - Description: "dereference failure: pointer outside object bounds"
+	 - Location: ../../../../runner/.rustup/toolchains/nightly-2026-08-21-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/ptr/mod.rs:1756:9 in function std::ptr::read::<u64>
+
+Check 33: std::ptr::read::<u64>.pointer_dereference.6
+	 - Status: SUCCESS
+	 - Description: "dereference failure: invalid integer address"
+	 - Location: ../../../../runner/.rustup/toolchains/nightly-2026-08-21-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/ptr/mod.rs:1756:9 in function std::ptr::read::<u64>
+
+Check 34: math::proofs::time_arithmetic_cannot_overflow_for_any_accepted_config::{closure#0}.pointer_dereference.1
+	 - Status: SUCCESS
+	 - Description: "dereference failure: pointer NULL"
+	 - Location: src/math.rs:120:103 in function math::proofs::time_arithmetic_cannot_overflow_for_any_accepted_config::{closure#0}
+
+Check 35: math::proofs::time_arithmetic_cannot_overflow_for_any_accepted_config::{closure#0}.pointer_dereference.2
+	 - Status: SUCCESS
+	 - Description: "dereference failure: pointer invalid"
+	 - Location: src/math.rs:120:103 in function math::proofs::time_arithmetic_cannot_overflow_for_any_accepted_config::{closure#0}
+
+Check 36: math::proofs::time_arithmetic_cannot_overflow_for_any_accepted_config::{closure#0}.pointer_dereference.3
+	 - Status: SUCCESS
+	 - Description: "dereference failure: deallocated dynamic object"
+	 - Location: src/math.rs:120:103 in function math::proofs::time_arithmetic_cannot_overflow_for_any_accepted_config::{closure#0}
+
+Check 37: math::proofs::time_arithmetic_cannot_overflow_for_any_accepted_config::{closure#0}.pointer_dereference.4
+	 - Status: SUCCESS
+	 - Description: "dereference failure: dead object"
+	 - Location: src/math.rs:120:103 in function math::proofs::time_arithmetic_cannot_overflow_for_any_accepted_config::{closure#0}
+
+Check 38: math::proofs::time_arithmetic_cannot_overflow_for_any_accepted_config::{closure#0}.pointer_dereference.5
+	 - Status: SUCCESS
+	 - Description: "dereference failure: pointer outside object bounds"
+	 - Location: src/math.rs:120:103 in function math::proofs::time_arithmetic_cannot_overflow_for_any_accepted_config::{closure#0}
+
+Check 39: math::proofs::time_arithmetic_cannot_overflow_for_any_accepted_config::{closure#0}.pointer_dereference.6
+	 - Status: SUCCESS
+	 - Description: "dereference failure: invalid integer address"
+	 - Location: src/math.rs:120:103 in function math::proofs::time_arithmetic_cannot_overflow_for_any_accepted_config::{closure#0}
+
+Check 40: std::ops::index_range::IndexRange::next_unchecked.pointer_dereference.1
+	 - Status: SUCCESS
+	 - Description: "dereference failure: pointer NULL"
+	 - Location: ../../../../runner/.rustup/toolchains/nightly-2026-08-21-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/ops/index_range.rs:61:21 in function std::ops::index_range::IndexRange::next_unchecked
+
+Check 41: std::ops::index_range::IndexRange::next_unchecked.pointer_dereference.2
+	 - Status: SUCCESS
+	 - Description: "dereference failure: pointer invalid"
+	 - Location: ../../../../runner/.rustup/toolchains/nightly-2026-08-21-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/ops/index_range.rs:61:21 in function std::ops::index_range::IndexRange::next_unchecked
+
+Check 42: std::ops::index_range::IndexRange::next_unchecked.pointer_dereference.3
+	 - Status: SUCCESS
+	 - Description: "dereference failure: deallocated dynamic object"
+	 - Location: ../../../../runner/.rustup/toolchains/nightly-2026-08-21-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/ops/index_range.rs:61:21 in function std::ops::index_range::IndexRange::next_unchecked
+
+Check 43: std::ops::index_range::IndexRange::next_unchecked.pointer_dereference.4
+	 - Status: SUCCESS
+	 - Description: "dereference failure: dead object"
+	 - Location: ../../../../runner/.rustup/toolchains/nightly-2026-08-21-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/ops/index_range.rs:61:21 in function std::ops::index_range::IndexRange::next_unchecked
+
+Check 44: std::ops::index_range::IndexRange::next_unchecked.pointer_dereference.5
+	 - Status: SUCCESS
+	 - Description: "dereference failure: pointer outside object bounds"
+	 - Location: ../../../../runner/.rustup/toolchains/nightly-2026-08-21-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/ops/index_range.rs:61:21 in function std::ops::index_range::IndexRange::next_unchecked
+
+Check 45: std::ops::index_range::IndexRange::next_unchecked.pointer_dereference.6
+	 - Status: SUCCESS
+	 - Description: "dereference failure: invalid integer address"
+	 - Location: ../../../../runner/.rustup/toolchains/nightly-2026-08-21-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/ops/index_range.rs:61:21 in function std::ops::index_range::IndexRange::next_unchecked
+
+Check 46: std::ops::index_range::IndexRange::next_unchecked.pointer_dereference.7
+	 - Status: SUCCESS
+	 - Description: "dereference failure: pointer NULL"
+	 - Location: ../../../../runner/.rustup/toolchains/nightly-2026-08-21-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/ops/index_range.rs:63:9 in function std::ops::index_range::IndexRange::next_unchecked
+
+Check 47: std::ops::index_range::IndexRange::next_unchecked.pointer_dereference.8
+	 - Status: SUCCESS
+	 - Description: "dereference failure: pointer invalid"
+	 - Location: ../../../../runner/.rustup/toolchains/nightly-2026-08-21-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/ops/index_range.rs:63:9 in function std::ops::index_range::IndexRange::next_unchecked
+
+Check 48: std::ops::index_range::IndexRange::next_unchecked.pointer_dereference.9
+	 - Status: SUCCESS
+	 - Description: "dereference failure: deallocated dynamic object"
+	 - Location: ../../../../runner/.rustup/toolchains/nightly-2026-08-21-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/ops/index_range.rs:63:9 in function std::ops::index_range::IndexRange::next_unchecked
+
+Check 49: std::ops::index_range::IndexRange::next_unchecked.pointer_dereference.10
+	 - Status: SUCCESS
+	 - Description: "dereference failure: dead object"
+	 - Location: ../../../../runner/.rustup/toolchains/nightly-2026-08-21-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/ops/index_range.rs:63:9 in function std::ops::index_range::IndexRange::next_unchecked
+
+Check 50: std::ops::index_range::IndexRange::next_unchecked.pointer_dereference.11
+	 - Status: SUCCESS
+	 - Description: "dereference failure: pointer outside object bounds"
+	 - Location: ../../../../runner/.rustup/toolchains/nightly-2026-08-21-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/ops/index_range.rs:63:9 in function std::ops::index_range::IndexRange::next_unchecked
+
+Check 51: std::ops::index_range::IndexRange::next_unchecked.pointer_dereference.12
+	 - Status: SUCCESS
+	 - Description: "dereference failure: invalid integer address"
+	 - Location: ../../../../runner/.rustup/toolchains/nightly-2026-08-21-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/ops/index_range.rs:63:9 in function std::ops::index_range::IndexRange::next_unchecked
+
+Check 52: std::ops::index_range::IndexRange::end.pointer_dereference.1
+	 - Status: SUCCESS
+	 - Description: "dereference failure: pointer NULL"
+	 - Location: ../../../../runner/.rustup/toolchains/nightly-2026-08-21-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/ops/index_range.rs:45:9 in function std::ops::index_range::IndexRange::end
+
+Check 53: std::ops::index_range::IndexRange::end.pointer_dereference.2
+	 - Status: SUCCESS
+	 - Description: "dereference failure: pointer invalid"
+	 - Location: ../../../../runner/.rustup/toolchains/nightly-2026-08-21-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/ops/index_range.rs:45:9 in function std::ops::index_range::IndexRange::end
+
+Check 54: std::ops::index_range::IndexRange::end.pointer_dereference.3
+	 - Status: SUCCESS
+	 - Description: "dereference failure: deallocated dynamic object"
+	 - Location: ../../../../runner/.rustup/toolchains/nightly-2026-08-21-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/ops/index_range.rs:45:9 in function std::ops::index_range::IndexRange::end
+
+Check 55: std::ops::index_range::IndexRange::end.pointer_dereference.4
+	 - Status: SUCCESS
+	 - Description: "dereference failure: dead object"
+	 - Location: ../../../../runner/.rustup/toolchains/nightly-2026-08-21-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/ops/index_range.rs:45:9 in function std::ops::index_range::IndexRange::end
+
+Check 56: std::ops::index_range::IndexRange::end.pointer_dereference.5
+	 - Status: SUCCESS
+	 - Description: "dereference failure: pointer outside object bounds"
+	 - Location: ../../../../runner/.rustup/toolchains/nightly-2026-08-21-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/ops/index_range.rs:45:9 in function std::ops::index_range::IndexRange::end
+
+Check 57: std::ops::index_range::IndexRange::end.pointer_dereference.6
+	 - Status: SUCCESS
+	 - Description: "dereference failure: invalid integer address"
+	 - Location: ../../../../runner/.rustup/toolchains/nightly-2026-08-21-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/ops/index_range.rs:45:9 in function std::ops::index_range::IndexRange::end
+
+Check 58: std::ops::index_range::IndexRange::len.pointer_dereference.1
+	 - Status: SUCCESS
+	 - Description: "dereference failure: pointer NULL"
+	 - Location: ../../../../runner/.rustup/toolchains/nightly-2026-08-21-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/ops/index_range.rs:52:51 in function std::ops::index_range::IndexRange::len
+
+Check 59: std::ops::index_range::IndexRange::len.pointer_dereference.2
+	 - Status: SUCCESS
+	 - Description: "dereference failure: pointer invalid"
+	 - Location: ../../../../runner/.rustup/toolchains/nightly-2026-08-21-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/ops/index_range.rs:52:51 in function std::ops::index_range::IndexRange::len
+
+Check 60: std::ops::index_range::IndexRange::len.pointer_dereference.3
+	 - Status: SUCCESS
+	 - Description: "dereference failure: deallocated dynamic object"
+	 - Location: ../../../../runner/.rustup/toolchains/nightly-2026-08-21-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/ops/index_range.rs:52:51 in function std::ops::index_range::IndexRange::len
+
+Check 61: std::ops::index_range::IndexRange::len.pointer_dereference.4
+	 - Status: SUCCESS
+	 - Description: "dereference failure: dead object"
+	 - Location: ../../../../runner/.rustup/toolchains/nightly-2026-08-21-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/ops/index_range.rs:52:51 in function std::ops::index_range::IndexRange::len
+
+Check 62: std::ops::index_range::IndexRange::len.pointer_dereference.5
+	 - Status: SUCCESS
+	 - Description: "dereference failure: pointer outside object bounds"
+	 - Location: ../../../../runner/.rustup/toolchains/nightly-2026-08-21-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/ops/index_range.rs:52:51 in function std::ops::index_range::IndexRange::len
+
+Check 63: std::ops::index_range::IndexRange::len.pointer_dereference.6
+	 - Status: SUCCESS
+	 - Description: "dereference failure: invalid integer address"
+	 - Location: ../../../../runner/.rustup/toolchains/nightly-2026-08-21-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/ops/index_range.rs:52:51 in function std::ops::index_range::IndexRange::len
+
+Check 64: std::ops::index_range::IndexRange::len.pointer_dereference.7
+	 - Status: SUCCESS
+	 - Description: "dereference failure: pointer NULL"
+	 - Location: ../../../../runner/.rustup/toolchains/nightly-2026-08-21-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/ops/index_range.rs:52:61 in function std::ops::index_range::IndexRange::len
+
+Check 65: std::ops::index_range::IndexRange::len.pointer_dereference.8
+	 - Status: SUCCESS
+	 - Description: "dereference failure: pointer invalid"
+	 - Location: ../../../../runner/.rustup/toolchains/nightly-2026-08-21-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/ops/index_range.rs:52:61 in function std::ops::index_range::IndexRange::len
+
+Check 66: std::ops::index_range::IndexRange::len.pointer_dereference.9
+	 - Status: SUCCESS
+	 - Description: "dereference failure: deallocated dynamic object"
+	 - Location: ../../../../runner/.rustup/toolchains/nightly-2026-08-21-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/ops/index_range.rs:52:61 in function std::ops::index_range::IndexRange::len
+
+Check 67: std::ops::index_range::IndexRange::len.pointer_dereference.10
+	 - Status: SUCCESS
+	 - Description: "dereference failure: dead object"
+	 - Location: ../../../../runner/.rustup/toolchains/nightly-2026-08-21-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/ops/index_range.rs:52:61 in function std::ops::index_range::IndexRange::len
+
+Check 68: std::ops::index_range::IndexRange::len.pointer_dereference.11
+	 - Status: SUCCESS
+	 - Description: "dereference failure: pointer outside object bounds"
+	 - Location: ../../../../runner/.rustup/toolchains/nightly-2026-08-21-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/ops/index_range.rs:52:61 in function std::ops::index_range::IndexRange::len
+
+Check 69: std::ops::index_range::IndexRange::len.pointer_dereference.12
+	 - Status: SUCCESS
+	 - Description: "dereference failure: invalid integer address"
+	 - Location: ../../../../runner/.rustup/toolchains/nightly-2026-08-21-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/ops/index_range.rs:52:61 in function std::ops::index_range::IndexRange::len
+
+Check 70: std::ops::index_range::IndexRange::start.pointer_dereference.1
+	 - Status: SUCCESS
+	 - Description: "dereference failure: pointer NULL"
+	 - Location: ../../../../runner/.rustup/toolchains/nightly-2026-08-21-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/ops/index_range.rs:40:9 in function std::ops::index_range::IndexRange::start
+
+Check 71: std::ops::index_range::IndexRange::start.pointer_dereference.2
+	 - Status: SUCCESS
+	 - Description: "dereference failure: pointer invalid"
+	 - Location: ../../../../runner/.rustup/toolchains/nightly-2026-08-21-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/ops/index_range.rs:40:9 in function std::ops::index_range::IndexRange::start
+
+Check 72: std::ops::index_range::IndexRange::start.pointer_dereference.3
+	 - Status: SUCCESS
+	 - Description: "dereference failure: deallocated dynamic object"
+	 - Location: ../../../../runner/.rustup/toolchains/nightly-2026-08-21-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/ops/index_range.rs:40:9 in function std::ops::index_range::IndexRange::start
+
+Check 73: std::ops::index_range::IndexRange::start.pointer_dereference.4
+	 - Status: SUCCESS
+	 - Description: "dereference failure: dead object"
+	 - Location: ../../../../runner/.rustup/toolchains/nightly-2026-08-21-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/ops/index_range.rs:40:9 in function std::ops::index_range::IndexRange::start
+
+Check 74: std::ops::index_range::IndexRange::start.pointer_dereference.5
+	 - Status: SUCCESS
+	 - Description: "dereference failure: pointer outside object bounds"
+	 - Location: ../../../../runner/.rustup/toolchains/nightly-2026-08-21-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/ops/index_range.rs:40:9 in function std::ops::index_range::IndexRange::start
+
+Check 75: std::ops::index_range::IndexRange::start.pointer_dereference.6
+	 - Status: SUCCESS
+	 - Description: "dereference failure: invalid integer address"
+	 - Location: ../../../../runner/.rustup/toolchains/nightly-2026-08-21-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/ops/index_range.rs:40:9 in function std::ops::index_range::IndexRange::start
+
+Check 76: <&mut std::ops::index_range::IndexRange as std::iter::ExactSizeIterator>::len.pointer_dereference.1
+	 - Status: SUCCESS
+	 - Description: "dereference failure: pointer NULL"
+	 - Location: ../../../../runner/.rustup/toolchains/nightly-2026-08-21-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/iter/traits/exact_size.rs:156:9 in function <&mut std::ops::index_range::IndexRange as std::iter::ExactSizeIterator>::len
+
+Check 77: <&mut std::ops::index_range::IndexRange as std::iter::ExactSizeIterator>::len.pointer_dereference.2
+	 - Status: SUCCESS
+	 - Description: "dereference failure: pointer invalid"
+	 - Location: ../../../../runner/.rustup/toolchains/nightly-2026-08-21-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/iter/traits/exact_size.rs:156:9 in function <&mut std::ops::index_range::IndexRange as std::iter::ExactSizeIterator>::len
+
+Check 78: <&mut std::ops::index_range::IndexRange as std::iter::ExactSizeIterator>::len.pointer_dereference.3
+	 - Status: SUCCESS
+	 - Description: "dereference failure: deallocated dynamic object"
+	 - Location: ../../../../runner/.rustup/toolchains/nightly-2026-08-21-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/iter/traits/exact_size.rs:156:9 in function <&mut std::ops::index_range::IndexRange as std::iter::ExactSizeIterator>::len
+
+Check 79: <&mut std::ops::index_range::IndexRange as std::iter::ExactSizeIterator>::len.pointer_dereference.4
+	 - Status: SUCCESS
+	 - Description: "dereference failure: dead object"
+	 - Location: ../../../../runner/.rustup/toolchains/nightly-2026-08-21-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/iter/traits/exact_size.rs:156:9 in function <&mut std::ops::index_range::IndexRange as std::iter::ExactSizeIterator>::len
+
+Check 80: <&mut std::ops::index_range::IndexRange as std::iter::ExactSizeIterator>::len.pointer_dereference.5
+	 - Status: SUCCESS
+	 - Description: "dereference failure: pointer outside object bounds"
+	 - Location: ../../../../runner/.rustup/toolchains/nightly-2026-08-21-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/iter/traits/exact_size.rs:156:9 in function <&mut std::ops::index_range::IndexRange as std::iter::ExactSizeIterator>::len
+
+Check 81: <&mut std::ops::index_range::IndexRange as std::iter::ExactSizeIterator>::len.pointer_dereference.6
+	 - Status: SUCCESS
+	 - Description: "dereference failure: invalid integer address"
+	 - Location: ../../../../runner/.rustup/toolchains/nightly-2026-08-21-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/iter/traits/exact_size.rs:156:9 in function <&mut std::ops::index_range::IndexRange as std::iter::ExactSizeIterator>::len
+
+Check 82: std::cmp::impls::<impl std::cmp::PartialOrd for u64>::lt.pointer_dereference.1
+	 - Status: SUCCESS
+	 - Description: "dereference failure: pointer NULL"
+	 - Location: ../../../../runner/.rustup/toolchains/nightly-2026-08-21-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/cmp.rs:2192:50 in function std::cmp::impls::<impl std::cmp::PartialOrd for u64>::lt
+
+Check 83: std::cmp::impls::<impl std::cmp::PartialOrd for u64>::lt.pointer_dereference.2
+	 - Status: SUCCESS
+	 - Description: "dereference failure: pointer invalid"
+	 - Location: ../../../../runner/.rustup/toolchains/nightly-2026-08-21-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/cmp.rs:2192:50 in function std::cmp::impls::<impl std::cmp::PartialOrd for u64>::lt
+
+Check 84: std::cmp::impls::<impl std::cmp::PartialOrd for u64>::lt.pointer_dereference.3
+	 - Status: SUCCESS
+	 - Description: "dereference failure: deallocated dynamic object"
+	 - Location: ../../../../runner/.rustup/toolchains/nightly-2026-08-21-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/cmp.rs:2192:50 in function std::cmp::impls::<impl std::cmp::PartialOrd for u64>::lt
+
+Check 85: std::cmp::impls::<impl std::cmp::PartialOrd for u64>::lt.pointer_dereference.4
+	 - Status: SUCCESS
+	 - Description: "dereference failure: dead object"
+	 - Location: ../../../../runner/.rustup/toolchains/nightly-2026-08-21-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/cmp.rs:2192:50 in function std::cmp::impls::<impl std::cmp::PartialOrd for u64>::lt
+
+Check 86: std::cmp::impls::<impl std::cmp::PartialOrd for u64>::lt.pointer_dereference.5
+	 - Status: SUCCESS
+	 - Description: "dereference failure: pointer outside object bounds"
+	 - Location: ../../../../runner/.rustup/toolchains/nightly-2026-08-21-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/cmp.rs:2192:50 in function std::cmp::impls::<impl std::cmp::PartialOrd for u64>::lt
+
+Check 87: std::cmp::impls::<impl std::cmp::PartialOrd for u64>::lt.pointer_dereference.6
+	 - Status: SUCCESS
+	 - Description: "dereference failure: invalid integer address"
+	 - Location: ../../../../runner/.rustup/toolchains/nightly-2026-08-21-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/cmp.rs:2192:50 in function std::cmp::impls::<impl std::cmp::PartialOrd for u64>::lt
+
+Check 88: std::cmp::impls::<impl std::cmp::PartialOrd for u64>::lt.pointer_dereference.7
+	 - Status: SUCCESS
+	 - Description: "dereference failure: pointer NULL"
+	 - Location: ../../../../runner/.rustup/toolchains/nightly-2026-08-21-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/cmp.rs:2192:59 in function std::cmp::impls::<impl std::cmp::PartialOrd for u64>::lt
+
+Check 89: std::cmp::impls::<impl std::cmp::PartialOrd for u64>::lt.pointer_dereference.8
+	 - Status: SUCCESS
+	 - Description: "dereference failure: pointer invalid"
+	 - Location: ../../../../runner/.rustup/toolchains/nightly-2026-08-21-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/cmp.rs:2192:59 in function std::cmp::impls::<impl std::cmp::PartialOrd for u64>::lt
+
+Check 90: std::cmp::impls::<impl std::cmp::PartialOrd for u64>::lt.pointer_dereference.9
+	 - Status: SUCCESS
+	 - Description: "dereference failure: deallocated dynamic object"
+	 - Location: ../../../../runner/.rustup/toolchains/nightly-2026-08-21-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/cmp.rs:2192:59 in function std::cmp::impls::<impl std::cmp::PartialOrd for u64>::lt
+
+Check 91: std::cmp::impls::<impl std::cmp::PartialOrd for u64>::lt.pointer_dereference.10
+	 - Status: SUCCESS
+	 - Description: "dereference failure: dead object"
+	 - Location: ../../../../runner/.rustup/toolchains/nightly-2026-08-21-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/cmp.rs:2192:59 in function std::cmp::impls::<impl std::cmp::PartialOrd for u64>::lt
+
+Check 92: std::cmp::impls::<impl std::cmp::PartialOrd for u64>::lt.pointer_dereference.11
+	 - Status: SUCCESS
+	 - Description: "dereference failure: pointer outside object bounds"
+	 - Location: ../../../../runner/.rustup/toolchains/nightly-2026-08-21-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/cmp.rs:2192:59 in function std::cmp::impls::<impl std::cmp::PartialOrd for u64>::lt
+
+Check 93: std::cmp::impls::<impl std::cmp::PartialOrd for u64>::lt.pointer_dereference.12
+	 - Status: SUCCESS
+	 - Description: "dereference failure: invalid integer address"
+	 - Location: ../../../../runner/.rustup/toolchains/nightly-2026-08-21-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/cmp.rs:2192:59 in function std::cmp::impls::<impl std::cmp::PartialOrd for u64>::lt
+
+Check 94: <std::ops::Range<usize> as std::iter::range::RangeIteratorImpl>::spec_next.pointer_dereference.1
+	 - Status: SUCCESS
+	 - Description: "dereference failure: pointer NULL"
+	 - Location: ../../../../runner/.rustup/toolchains/nightly-2026-08-21-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/iter/range.rs:1101:23 in function <std::ops::Range<usize> as std::iter::range::RangeIteratorImpl>::spec_next
+
+Check 95: <std::ops::Range<usize> as std::iter::range::RangeIteratorImpl>::spec_next.pointer_dereference.2
+	 - Status: SUCCESS
+	 - Description: "dereference failure: pointer invalid"
+	 - Location: ../../../../runner/.rustup/toolchains/nightly-2026-08-21-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/iter/range.rs:1101:23 in function <std::ops::Range<usize> as std::iter::range::RangeIteratorImpl>::spec_next
+
+Check 96: <std::ops::Range<usize> as std::iter::range::RangeIteratorImpl>::spec_next.pointer_dereference.3
+	 - Status: SUCCESS
+	 - Description: "dereference failure: deallocated dynamic object"
+	 - Location: ../../../../runner/.rustup/toolchains/nightly-2026-08-21-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/iter/range.rs:1101:23 in function <std::ops::Range<usize> as std::iter::range::RangeIteratorImpl>::spec_next
+
+Check 97: <std::ops::Range<usize> as std::iter::range::RangeIteratorImpl>::spec_next.pointer_dereference.4
+	 - Status: SUCCESS
+	 - Description: "dereference failure: dead object"
+	 - Location: ../../../../runner/.rustup/toolchains/nightly-2026-08-21-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/iter/range.rs:1101:23 in function <std::ops::Range<usize> as std::iter::range::RangeIteratorImpl>::spec_next
+
+Check 98: <std::ops::Range<usize> as std::iter::range::RangeIteratorImpl>::spec_next.pointer_dereference.5
+	 - Status: SUCCESS
+	 - Description: "dereference failure: pointer outside object bounds"
+	 - Location: ../../../../runner/.rustup/toolchains/nightly-2026-08-21-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/iter/range.rs:1101:23 in function <std::ops::Range<usize> as std::iter::range::RangeIteratorImpl>::spec_next
+
+Check 99: <std::ops::Range<usize> as std::iter::range::RangeIteratorImpl>::spec_next.pointer_dereference.6
+	 - Status: SUCCESS
+	 - Description: "dereference failure: invalid integer address"
+	 - Location: ../../../../runner/.rustup/toolchains/nightly-2026-08-21-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/iter/range.rs:1101:23 in function <std::ops::Range<usize> as std::iter::range::RangeIteratorImpl>::spec_next
+
+Check 100: <std::ops::Range<usize> as std::iter::range::RangeIteratorImpl>::spec_next.pointer_dereference.7
+	 - Status: SUCCESS
+	 - Description: "dereference failure: pointer NULL"
+	 - Location: ../../../../runner/.rustup/toolchains/nightly-2026-08-21-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/iter/range.rs:1103:13 in function <std::ops::Range<usize> as std::iter::range::RangeIteratorImpl>::spec_next
+
+Check 101: <std::ops::Range<usize> as std::iter::range::RangeIteratorImpl>::spec_next.pointer_dereference.8
+	 - Status: SUCCESS
+	 - Description: "dereference failure: pointer invalid"
+	 - Location: ../../../../runner/.rustup/toolchains/nightly-2026-08-21-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/iter/range.rs:1103:13 in function <std::ops::Range<usize> as std::iter::range::RangeIteratorImpl>::spec_next
+
+Check 102: <std::ops::Range<usize> as std::iter::range::RangeIteratorImpl>::spec_next.pointer_dereference.9
+	 - Status: SUCCESS
+	 - Description: "dereference failure: deallocated dynamic object"
+	 - Location: ../../../../runner/.rustup/toolchains/nightly-2026-08-21-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/iter/range.rs:1103:13 in function <std::ops::Range<usize> as std::iter::range::RangeIteratorImpl>::spec_next
+
+Check 103: <std::ops::Range<usize> as std::iter::range::RangeIteratorImpl>::spec_next.pointer_dereference.10
+	 - Status: SUCCESS
+	 - Description: "dereference failure: dead object"
+	 - Location: ../../../../runner/.rustup/toolchains/nightly-2026-08-21-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/iter/range.rs:1103:13 in function <std::ops::Range<usize> as std::iter::range::RangeIteratorImpl>::spec_next
+
+Check 104: <std::ops::Range<usize> as std::iter::range::RangeIteratorImpl>::spec_next.pointer_dereference.11
+	 - Status: SUCCESS
+	 - Description: "dereference failure: pointer outside object bounds"
+	 - Location: ../../../../runner/.rustup/toolchains/nightly-2026-08-21-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/iter/range.rs:1103:13 in function <std::ops::Range<usize> as std::iter::range::RangeIteratorImpl>::spec_next
+
+Check 105: <std::ops::Range<usize> as std::iter::range::RangeIteratorImpl>::spec_next.pointer_dereference.12
+	 - Status: SUCCESS
+	 - Description: "dereference failure: invalid integer address"
+	 - Location: ../../../../runner/.rustup/toolchains/nightly-2026-08-21-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/iter/range.rs:1103:13 in function <std::ops::Range<usize> as std::iter::range::RangeIteratorImpl>::spec_next
+
+Check 106: <std::ops::index_range::IndexRange as std::clone::Clone>::clone.pointer_dereference.1
+	 - Status: SUCCESS
+	 - Description: "dereference failure: pointer NULL"
+	 - Location: ../../../../runner/.rustup/toolchains/nightly-2026-08-21-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/ops/index_range.rs:15:5 in function <std::ops::index_range::IndexRange as std::clone::Clone>::clone
+
+Check 107: <std::ops::index_range::IndexRange as std::clone::Clone>::clone.pointer_dereference.2
+	 - Status: SUCCESS
+	 - Description: "dereference failure: pointer invalid"
+	 - Location: ../../../../runner/.rustup/toolchains/nightly-2026-08-21-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/ops/index_range.rs:15:5 in function <std::ops::index_range::IndexRange as std::clone::Clone>::clone
+
+Check 108: <std::ops::index_range::IndexRange as std::clone::Clone>::clone.pointer_dereference.3
+	 - Status: SUCCESS
+	 - Description: "dereference failure: deallocated dynamic object"
+	 - Location: ../../../../runner/.rustup/toolchains/nightly-2026-08-21-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/ops/index_range.rs:15:5 in function <std::ops::index_range::IndexRange as std::clone::Clone>::clone
+
+Check 109: <std::ops::index_range::IndexRange as std::clone::Clone>::clone.pointer_dereference.4
+	 - Status: SUCCESS
+	 - Description: "dereference failure: dead object"
+	 - Location: ../../../../runner/.rustup/toolchains/nightly-2026-08-21-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/ops/index_range.rs:15:5 in function <std::ops::index_range::IndexRange as std::clone::Clone>::clone
+
+Check 110: <std::ops::index_range::IndexRange as std::clone::Clone>::clone.pointer_dereference.5
+	 - Status: SUCCESS
+	 - Description: "dereference failure: pointer outside object bounds"
+	 - Location: ../../../../runner/.rustup/toolchains/nightly-2026-08-21-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/ops/index_range.rs:15:5 in function <std::ops::index_range::IndexRange as std::clone::Clone>::clone
+
+Check 111: <std::ops::index_range::IndexRange as std::clone::Clone>::clone.pointer_dereference.6
+	 - Status: SUCCESS
+	 - Description: "dereference failure: invalid integer address"
+	 - Location: ../../../../runner/.rustup/toolchains/nightly-2026-08-21-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/ops/index_range.rs:15:5 in function <std::ops::index_range::IndexRange as std::clone::Clone>::clone
+
+Check 112: <std::ops::index_range::IndexRange as std::clone::Clone>::clone.pointer_dereference.7
+	 - Status: SUCCESS
+	 - Description: "dereference failure: pointer NULL"
+	 - Location: ../../../../runner/.rustup/toolchains/nightly-2026-08-21-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/ops/index_range.rs:16:5 in function <std::ops::index_range::IndexRange as std::clone::Clone>::clone
+
+Check 113: <std::ops::index_range::IndexRange as std::clone::Clone>::clone.pointer_dereference.8
+	 - Status: SUCCESS
+	 - Description: "dereference failure: pointer invalid"
+	 - Location: ../../../../runner/.rustup/toolchains/nightly-2026-08-21-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/ops/index_range.rs:16:5 in function <std::ops::index_range::IndexRange as std::clone::Clone>::clone
+
+Check 114: <std::ops::index_range::IndexRange as std::clone::Clone>::clone.pointer_dereference.9
+	 - Status: SUCCESS
+	 - Description: "dereference failure: deallocated dynamic object"
+	 - Location: ../../../../runner/.rustup/toolchains/nightly-2026-08-21-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/ops/index_range.rs:16:5 in function <std::ops::index_range::IndexRange as std::clone::Clone>::clone
+
+Check 115: <std::ops::index_range::IndexRange as std::clone::Clone>::clone.pointer_dereference.10
+	 - Status: SUCCESS
+	 - Description: "dereference failure: dead object"
+	 - Location: ../../../../runner/.rustup/toolchains/nightly-2026-08-21-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/ops/index_range.rs:16:5 in function <std::ops::index_range::IndexRange as std::clone::Clone>::clone
+
+Check 116: <std::ops::index_range::IndexRange as std::clone::Clone>::clone.pointer_dereference.11
+	 - Status: SUCCESS
+	 - Description: "dereference failure: pointer outside object bounds"
+	 - Location: ../../../../runner/.rustup/toolchains/nightly-2026-08-21-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/ops/index_range.rs:16:5 in function <std::ops::index_range::IndexRange as std::clone::Clone>::clone
+
+Check 117: <std::ops::index_range::IndexRange as std::clone::Clone>::clone.pointer_dereference.12
+	 - Status: SUCCESS
+	 - Description: "dereference failure: invalid integer address"
+	 - Location: ../../../../runner/.rustup/toolchains/nightly-2026-08-21-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/ops/index_range.rs:16:5 in function <std::ops::index_range::IndexRange as std::clone::Clone>::clone
+
+Check 118: std::cmp::impls::<impl std::cmp::PartialOrd for usize>::lt.pointer_dereference.1
+	 - Status: SUCCESS
+	 - Description: "dereference failure: pointer NULL"
+	 - Location: ../../../../runner/.rustup/toolchains/nightly-2026-08-21-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/cmp.rs:2192:50 in function std::cmp::impls::<impl std::cmp::PartialOrd for usize>::lt
+
+Check 119: std::cmp::impls::<impl std::cmp::PartialOrd for usize>::lt.pointer_dereference.2
+	 - Status: SUCCESS
+	 - Description: "dereference failure: pointer invalid"
+	 - Location: ../../../../runner/.rustup/toolchains/nightly-2026-08-21-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/cmp.rs:2192:50 in function std::cmp::impls::<impl std::cmp::PartialOrd for usize>::lt
+
+Check 120: std::cmp::impls::<impl std::cmp::PartialOrd for usize>::lt.pointer_dereference.3
+	 - Status: SUCCESS
+	 - Description: "dereference failure: deallocated dynamic object"
+	 - Location: ../../../../runner/.rustup/toolchains/nightly-2026-08-21-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/cmp.rs:2192:50 in function std::cmp::impls::<impl std::cmp::PartialOrd for usize>::lt
+
+Check 121: std::cmp::impls::<impl std::cmp::PartialOrd for usize>::lt.pointer_dereference.4
+	 - Status: SUCCESS
+	 - Description: "dereference failure: dead object"
+	 - Location: ../../../../runner/.rustup/toolchains/nightly-2026-08-21-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/cmp.rs:2192:50 in function std::cmp::impls::<impl std::cmp::PartialOrd for usize>::lt
+
+Check 122: std::cmp::impls::<impl std::cmp::PartialOrd for usize>::lt.pointer_dereference.5
+	 - Status: SUCCESS
+	 - Description: "dereference failure: pointer outside object bounds"
+	 - Location: ../../../../runner/.rustup/toolchains/nightly-2026-08-21-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/cmp.rs:2192:50 in function std::cmp::impls::<impl std::cmp::PartialOrd for usize>::lt
+
+Check 123: std::cmp::impls::<impl std::cmp::PartialOrd for usize>::lt.pointer_dereference.6
+	 - Status: SUCCESS
+	 - Description: "dereference failure: invalid integer address"
+	 - Location: ../../../../runner/.rustup/toolchains/nightly-2026-08-21-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/cmp.rs:2192:50 in function std::cmp::impls::<impl std::cmp::PartialOrd for usize>::lt
+
+Check 124: std::cmp::impls::<impl std::cmp::PartialOrd for usize>::lt.pointer_dereference.7
+	 - Status: SUCCESS
+	 - Description: "dereference failure: pointer NULL"
+	 - Location: ../../../../runner/.rustup/toolchains/nightly-2026-08-21-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/cmp.rs:2192:59 in function std::cmp::impls::<impl std::cmp::PartialOrd for usize>::lt
+
+Check 125: std::cmp::impls::<impl std::cmp::PartialOrd for usize>::lt.pointer_dereference.8
+	 - Status: SUCCESS
+	 - Description: "dereference failure: pointer invalid"
+	 - Location: ../../../../runner/.rustup/toolchains/nightly-2026-08-21-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/cmp.rs:2192:59 in function std::cmp::impls::<impl std::cmp::PartialOrd for usize>::lt
+
+Check 126: std::cmp::impls::<impl std::cmp::PartialOrd for usize>::lt.pointer_dereference.9
+	 - Status: SUCCESS
+	 - Description: "dereference failure: deallocated dynamic object"
+	 - Location: ../../../../runner/.rustup/toolchains/nightly-2026-08-21-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/cmp.rs:2192:59 in function std::cmp::impls::<impl std::cmp::PartialOrd for usize>::lt
+
+Check 127: std::cmp::impls::<impl std::cmp::PartialOrd for usize>::lt.pointer_dereference.10
+	 - Status: SUCCESS
+	 - Description: "dereference failure: dead object"
+	 - Location: ../../../../runner/.rustup/toolchains/nightly-2026-08-21-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/cmp.rs:2192:59 in function std::cmp::impls::<impl std::cmp::PartialOrd for usize>::lt
+
+Check 128: std::cmp::impls::<impl std::cmp::PartialOrd for usize>::lt.pointer_dereference.11
+	 - Status: SUCCESS
+	 - Description: "dereference failure: pointer outside object bounds"
+	 - Location: ../../../../runner/.rustup/toolchains/nightly-2026-08-21-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/cmp.rs:2192:59 in function std::cmp::impls::<impl std::cmp::PartialOrd for usize>::lt
+
+Check 129: std::cmp::impls::<impl std::cmp::PartialOrd for usize>::lt.pointer_dereference.12
+	 - Status: SUCCESS
+	 - Description: "dereference failure: invalid integer address"
+	 - Location: ../../../../runner/.rustup/toolchains/nightly-2026-08-21-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/cmp.rs:2192:59 in function std::cmp::impls::<impl std::cmp::PartialOrd for usize>::lt
+
+Check 130: math::proofs::time_arithmetic_cannot_overflow_for_any_accepted_config.unwind.1
+	 - Status: SUCCESS
+	 - Description: "unwinding assertion loop 1"
+	 - Location: src/math.rs:126:9 in function math::proofs::time_arithmetic_cannot_overflow_for_any_accepted_config
+
+
+SUMMARY:
+ ** 0 of 130 failed (1 unreachable)
+
+VERIFICATION:- SUCCESSFUL
+Verification Time: 0.48046294s
+
+Checking harness math::proofs::silence_never_underflows...
+CBMC 6.11.0 (cbmc-6.11.0)
+CBMC version 6.11.0 (cbmc-6.11.0) 64-bit arm64 macos
+Reading GOTO program from file /Users/MAC/development/afterlife-clause/contract/target/kani/aarch64-apple-darwin/debug/build/ghost-protocol/812323c885627cb7/out/ghost_protocol__RNvNtNtCskkI2ZFe9nMQ_14ghost_protocol4math6proofs24silence_never_underflows.out
+Generating GOTO Program
+Adding CPROVER library (arm64)
+Removal of function pointers and virtual functions
+Generic Property Instrumentation
+Running with 16 object bits, 48 offset bits (user-specified)
+Starting Bounded Model Checking
+Runtime Symex: 0.00157488s
+size of program expression: 161 steps
+slicing removed 57 assignments
+Generated 2 VCC(s), 2 remaining after simplification
+Runtime Postprocess Equation: 2.9417e-05s
+Passing problem to propositional reduction
+converting SSA
+Runtime Convert SSA: 0.000527333s
+Running propositional reduction
+Post-processing
+Runtime Post-process: 6.459e-06s
+Solving with CaDiCaL 3.0.0
+834 variables, 2678 clauses
+SAT checker: instance is SATISFIABLE
+Runtime Solver: 6.6459e-05s
+Runtime decision procedure: 0.000624291s
+Running propositional reduction
+Solving with CaDiCaL 3.0.0
+835 variables, 2679 clauses
+SAT checker: instance is UNSATISFIABLE
+Runtime Solver: 0.00711104s
+Runtime decision procedure: 0.00712529s
+
+RESULTS:
+Check 1: math::proofs::silence_never_underflows.assertion.1
+	 - Status: SUCCESS
+	 - Description: "assertion failed: s <= now"
+	 - Location: src/math.rs:103:9 in function math::proofs::silence_never_underflows
+
+
+SUMMARY:
+ ** 0 of 1 failed
+
+VERIFICATION:- SUCCESSFUL
+Verification Time: 0.015113167s
+
+Checking harness math::proofs::adult_time_is_never_later_than_adult_by...
+CBMC 6.11.0 (cbmc-6.11.0)
+CBMC version 6.11.0 (cbmc-6.11.0) 64-bit arm64 macos
+Reading GOTO program from file /Users/MAC/development/afterlife-clause/contract/target/kani/aarch64-apple-darwin/debug/build/ghost-protocol/812323c885627cb7/out/ghost_protocol__RNvNtNtCskkI2ZFe9nMQ_14ghost_protocol4math6proofs39adult_time_is_never_later_than_adult_by.out
+Generating GOTO Program
+Adding CPROVER library (arm64)
+Removal of function pointers and virtual functions
+Generic Property Instrumentation
+Running with 16 object bits, 48 offset bits (user-specified)
+Starting Bounded Model Checking
+aborting path on assume(false) at file /Users/runner/.rustup/toolchains/nightly-2026-08-21-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/option.rs line 1227 column 15 function std::option::Option::<u64>::map_or::<u64, {closure@src/math.rs:59:31: 59:35}> thread 0
+Runtime Symex: 0.00467704s
+size of program expression: 406 steps
+slicing removed 183 assignments
+Generated 23 VCC(s), 5 remaining after simplification
+Runtime Postprocess Equation: 6.0833e-05s
+Passing problem to propositional reduction
+converting SSA
+Runtime Convert SSA: 0.000931667s
+Running propositional reduction
+Post-processing
+Runtime Post-process: 7.583e-06s
+Solving with CaDiCaL 3.0.0
+1760 variables, 3369 clauses
+SAT checker: instance is SATISFIABLE
+Runtime Solver: 7.45e-05s
+Runtime decision procedure: 0.001051s
+Running propositional reduction
+Solving with CaDiCaL 3.0.0
+1761 variables, 3370 clauses
+SAT checker: instance is SATISFIABLE
+Runtime Solver: 5.4292e-05s
+Runtime decision procedure: 7.5125e-05s
+Running propositional reduction
+Solving with CaDiCaL 3.0.0
+1762 variables, 3371 clauses
+SAT checker: instance is UNSATISFIABLE
+Runtime Solver: 0.00626325s
+Runtime decision procedure: 0.00628008s
+
+RESULTS:
+Check 1: std::option::Option::<u64>::map_or::<u64, {closure@src/math.rs:59:31: 59:35}>.unreachable.1
+	 - Status: SUCCESS
+	 - Description: "unreachable code"
+	 - Location: ../../../../runner/.rustup/toolchains/nightly-2026-08-21-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/option.rs:1227:15 in function std::option::Option::<u64>::map_or::<u64, {closure@src/math.rs:59:31: 59:35}>
+
+Check 2: math::proofs::adult_time_is_never_later_than_adult_by.assertion.1
+	 - Status: SUCCESS
+	 - Description: "assertion failed: t <= by"
+	 - Location: src/math.rs:93:9 in function math::proofs::adult_time_is_never_later_than_adult_by
+
+Check 3: math::proofs::adult_time_is_never_later_than_adult_by.assertion.2
+	 - Status: SUCCESS
+	 - Description: "assertion failed: t <= at"
+	 - Location: src/math.rs:95:13 in function math::proofs::adult_time_is_never_later_than_adult_by
+
+Check 4: math::adult_time::{closure#0}.pointer_dereference.1
+	 - Status: SUCCESS
+	 - Description: "dereference failure: pointer NULL"
+	 - Location: src/math.rs:59:43 in function math::adult_time::{closure#0}
+
+Check 5: math::adult_time::{closure#0}.pointer_dereference.2
+	 - Status: SUCCESS
+	 - Description: "dereference failure: pointer invalid"
+	 - Location: src/math.rs:59:43 in function math::adult_time::{closure#0}
+
+Check 6: math::adult_time::{closure#0}.pointer_dereference.3
+	 - Status: SUCCESS
+	 - Description: "dereference failure: deallocated dynamic object"
+	 - Location: src/math.rs:59:43 in function math::adult_time::{closure#0}
+
+Check 7: math::adult_time::{closure#0}.pointer_dereference.4
+	 - Status: SUCCESS
+	 - Description: "dereference failure: dead object"
+	 - Location: src/math.rs:59:43 in function math::adult_time::{closure#0}
+
+Check 8: math::adult_time::{closure#0}.pointer_dereference.5
+	 - Status: SUCCESS
+	 - Description: "dereference failure: pointer outside object bounds"
+	 - Location: src/math.rs:59:43 in function math::adult_time::{closure#0}
+
+Check 9: math::adult_time::{closure#0}.pointer_dereference.6
+	 - Status: SUCCESS
+	 - Description: "dereference failure: invalid integer address"
+	 - Location: src/math.rs:59:43 in function math::adult_time::{closure#0}
+
+Check 10: std::cmp::impls::<impl std::cmp::PartialOrd for u64>::lt.pointer_dereference.1
+	 - Status: SUCCESS
+	 - Description: "dereference failure: pointer NULL"
+	 - Location: ../../../../runner/.rustup/toolchains/nightly-2026-08-21-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/cmp.rs:2192:50 in function std::cmp::impls::<impl std::cmp::PartialOrd for u64>::lt
+
+Check 11: std::cmp::impls::<impl std::cmp::PartialOrd for u64>::lt.pointer_dereference.2
+	 - Status: SUCCESS
+	 - Description: "dereference failure: pointer invalid"
+	 - Location: ../../../../runner/.rustup/toolchains/nightly-2026-08-21-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/cmp.rs:2192:50 in function std::cmp::impls::<impl std::cmp::PartialOrd for u64>::lt
+
+Check 12: std::cmp::impls::<impl std::cmp::PartialOrd for u64>::lt.pointer_dereference.3
+	 - Status: SUCCESS
+	 - Description: "dereference failure: deallocated dynamic object"
+	 - Location: ../../../../runner/.rustup/toolchains/nightly-2026-08-21-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/cmp.rs:2192:50 in function std::cmp::impls::<impl std::cmp::PartialOrd for u64>::lt
+
+Check 13: std::cmp::impls::<impl std::cmp::PartialOrd for u64>::lt.pointer_dereference.4
+	 - Status: SUCCESS
+	 - Description: "dereference failure: dead object"
+	 - Location: ../../../../runner/.rustup/toolchains/nightly-2026-08-21-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/cmp.rs:2192:50 in function std::cmp::impls::<impl std::cmp::PartialOrd for u64>::lt
+
+Check 14: std::cmp::impls::<impl std::cmp::PartialOrd for u64>::lt.pointer_dereference.5
+	 - Status: SUCCESS
+	 - Description: "dereference failure: pointer outside object bounds"
+	 - Location: ../../../../runner/.rustup/toolchains/nightly-2026-08-21-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/cmp.rs:2192:50 in function std::cmp::impls::<impl std::cmp::PartialOrd for u64>::lt
+
+Check 15: std::cmp::impls::<impl std::cmp::PartialOrd for u64>::lt.pointer_dereference.6
+	 - Status: SUCCESS
+	 - Description: "dereference failure: invalid integer address"
+	 - Location: ../../../../runner/.rustup/toolchains/nightly-2026-08-21-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/cmp.rs:2192:50 in function std::cmp::impls::<impl std::cmp::PartialOrd for u64>::lt
+
+Check 16: std::cmp::impls::<impl std::cmp::PartialOrd for u64>::lt.pointer_dereference.7
+	 - Status: SUCCESS
+	 - Description: "dereference failure: pointer NULL"
+	 - Location: ../../../../runner/.rustup/toolchains/nightly-2026-08-21-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/cmp.rs:2192:59 in function std::cmp::impls::<impl std::cmp::PartialOrd for u64>::lt
+
+Check 17: std::cmp::impls::<impl std::cmp::PartialOrd for u64>::lt.pointer_dereference.8
+	 - Status: SUCCESS
+	 - Description: "dereference failure: pointer invalid"
+	 - Location: ../../../../runner/.rustup/toolchains/nightly-2026-08-21-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/cmp.rs:2192:59 in function std::cmp::impls::<impl std::cmp::PartialOrd for u64>::lt
+
+Check 18: std::cmp::impls::<impl std::cmp::PartialOrd for u64>::lt.pointer_dereference.9
+	 - Status: SUCCESS
+	 - Description: "dereference failure: deallocated dynamic object"
+	 - Location: ../../../../runner/.rustup/toolchains/nightly-2026-08-21-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/cmp.rs:2192:59 in function std::cmp::impls::<impl std::cmp::PartialOrd for u64>::lt
+
+Check 19: std::cmp::impls::<impl std::cmp::PartialOrd for u64>::lt.pointer_dereference.10
+	 - Status: SUCCESS
+	 - Description: "dereference failure: dead object"
+	 - Location: ../../../../runner/.rustup/toolchains/nightly-2026-08-21-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/cmp.rs:2192:59 in function std::cmp::impls::<impl std::cmp::PartialOrd for u64>::lt
+
+Check 20: std::cmp::impls::<impl std::cmp::PartialOrd for u64>::lt.pointer_dereference.11
+	 - Status: SUCCESS
+	 - Description: "dereference failure: pointer outside object bounds"
+	 - Location: ../../../../runner/.rustup/toolchains/nightly-2026-08-21-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/cmp.rs:2192:59 in function std::cmp::impls::<impl std::cmp::PartialOrd for u64>::lt
+
+Check 21: std::cmp::impls::<impl std::cmp::PartialOrd for u64>::lt.pointer_dereference.12
+	 - Status: SUCCESS
+	 - Description: "dereference failure: invalid integer address"
+	 - Location: ../../../../runner/.rustup/toolchains/nightly-2026-08-21-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/cmp.rs:2192:59 in function std::cmp::impls::<impl std::cmp::PartialOrd for u64>::lt
+
+
+SUMMARY:
+ ** 0 of 21 failed
+
+VERIFICATION:- SUCCESSFUL
+Verification Time: 0.02355325s
+
+Checking harness math::proofs::fee_rule_lets_a_stuck_payout_reach_the_ceiling...
+CBMC 6.11.0 (cbmc-6.11.0)
+CBMC version 6.11.0 (cbmc-6.11.0) 64-bit arm64 macos
+Reading GOTO program from file /Users/MAC/development/afterlife-clause/contract/target/kani/aarch64-apple-darwin/debug/build/ghost-protocol/812323c885627cb7/out/ghost_protocol__RNvNtNtCskkI2ZFe9nMQ_14ghost_protocol4math6proofs46fee_rule_lets_a_stuck_payout_reach_the_ceiling.out
+Generating GOTO Program
+Adding CPROVER library (arm64)
+Removal of function pointers and virtual functions
+Generic Property Instrumentation
+Running with 16 object bits, 48 offset bits (user-specified)
+Starting Bounded Model Checking
+aborting path on assume(false) at file /Users/runner/.rustup/toolchains/nightly-2026-08-21-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/num/uint_macros.rs line 2585 column 19 function core::num::<impl u128>::saturating_mul thread 0
+Runtime Symex: 0.00566746s
+size of program expression: 477 steps
+slicing removed 226 assignments
+Generated 15 VCC(s), 3 remaining after simplification
+Runtime Postprocess Equation: 7.6291e-05s
+Passing problem to propositional reduction
+converting SSA
+Runtime Convert SSA: 0.00132938s
+Running propositional reduction
+Post-processing
+Runtime Post-process: 6.291e-06s
+Solving with CaDiCaL 3.0.0
+2888 variables, 6287 clauses
+SAT checker: instance is SATISFIABLE
+Runtime Solver: 0.000267375s
+Runtime decision procedure: 0.001641s
+Running propositional reduction
+Solving with CaDiCaL 3.0.0
+2889 variables, 6288 clauses
+SAT checker: instance is UNSATISFIABLE
+Runtime Solver: 0.0219692s
+Runtime decision procedure: 0.0219941s
+
+RESULTS:
+Check 1: math::fee_allowed.unreachable.1
+	 - Status: SUCCESS
+	 - Description: "unreachable code"
+	 - Location: src/math.rs:51:11 in function math::fee_allowed
+
+Check 2: core::num::<impl u128>::saturating_mul.unreachable.1
+	 - Status: SUCCESS
+	 - Description: "unreachable code"
+	 - Location: ../../../../runner/.rustup/toolchains/nightly-2026-08-21-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/num/uint_macros.rs:2585:19 in function core::num::<impl u128>::saturating_mul
+
+Check 3: math::proofs::fee_rule_lets_a_stuck_payout_reach_the_ceiling.assertion.1
+	 - Status: SUCCESS
+	 - Description: "assertion failed: fee_allowed(Some(prev), ceiling, 0, ceiling)"
+	 - Location: src/math.rs:85:9 in function math::proofs::fee_rule_lets_a_stuck_payout_reach_the_ceiling
+
+Check 4: std::cmp::impls::<impl std::cmp::PartialOrd for u128>::lt.pointer_dereference.1
+	 - Status: SUCCESS
+	 - Description: "dereference failure: pointer NULL"
+	 - Location: ../../../../runner/.rustup/toolchains/nightly-2026-08-21-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/cmp.rs:2192:50 in function std::cmp::impls::<impl std::cmp::PartialOrd for u128>::lt
+
+Check 5: std::cmp::impls::<impl std::cmp::PartialOrd for u128>::lt.pointer_dereference.2
+	 - Status: SUCCESS
+	 - Description: "dereference failure: pointer invalid"
+	 - Location: ../../../../runner/.rustup/toolchains/nightly-2026-08-21-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/cmp.rs:2192:50 in function std::cmp::impls::<impl std::cmp::PartialOrd for u128>::lt
+
+Check 6: std::cmp::impls::<impl std::cmp::PartialOrd for u128>::lt.pointer_dereference.3
+	 - Status: SUCCESS
+	 - Description: "dereference failure: deallocated dynamic object"
+	 - Location: ../../../../runner/.rustup/toolchains/nightly-2026-08-21-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/cmp.rs:2192:50 in function std::cmp::impls::<impl std::cmp::PartialOrd for u128>::lt
+
+Check 7: std::cmp::impls::<impl std::cmp::PartialOrd for u128>::lt.pointer_dereference.4
+	 - Status: SUCCESS
+	 - Description: "dereference failure: dead object"
+	 - Location: ../../../../runner/.rustup/toolchains/nightly-2026-08-21-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/cmp.rs:2192:50 in function std::cmp::impls::<impl std::cmp::PartialOrd for u128>::lt
+
+Check 8: std::cmp::impls::<impl std::cmp::PartialOrd for u128>::lt.pointer_dereference.5
+	 - Status: SUCCESS
+	 - Description: "dereference failure: pointer outside object bounds"
+	 - Location: ../../../../runner/.rustup/toolchains/nightly-2026-08-21-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/cmp.rs:2192:50 in function std::cmp::impls::<impl std::cmp::PartialOrd for u128>::lt
+
+Check 9: std::cmp::impls::<impl std::cmp::PartialOrd for u128>::lt.pointer_dereference.6
+	 - Status: SUCCESS
+	 - Description: "dereference failure: invalid integer address"
+	 - Location: ../../../../runner/.rustup/toolchains/nightly-2026-08-21-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/cmp.rs:2192:50 in function std::cmp::impls::<impl std::cmp::PartialOrd for u128>::lt
+
+Check 10: std::cmp::impls::<impl std::cmp::PartialOrd for u128>::lt.pointer_dereference.7
+	 - Status: SUCCESS
+	 - Description: "dereference failure: pointer NULL"
+	 - Location: ../../../../runner/.rustup/toolchains/nightly-2026-08-21-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/cmp.rs:2192:59 in function std::cmp::impls::<impl std::cmp::PartialOrd for u128>::lt
+
+Check 11: std::cmp::impls::<impl std::cmp::PartialOrd for u128>::lt.pointer_dereference.8
+	 - Status: SUCCESS
+	 - Description: "dereference failure: pointer invalid"
+	 - Location: ../../../../runner/.rustup/toolchains/nightly-2026-08-21-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/cmp.rs:2192:59 in function std::cmp::impls::<impl std::cmp::PartialOrd for u128>::lt
+
+Check 12: std::cmp::impls::<impl std::cmp::PartialOrd for u128>::lt.pointer_dereference.9
+	 - Status: SUCCESS
+	 - Description: "dereference failure: deallocated dynamic object"
+	 - Location: ../../../../runner/.rustup/toolchains/nightly-2026-08-21-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/cmp.rs:2192:59 in function std::cmp::impls::<impl std::cmp::PartialOrd for u128>::lt
+
+Check 13: std::cmp::impls::<impl std::cmp::PartialOrd for u128>::lt.pointer_dereference.10
+	 - Status: SUCCESS
+	 - Description: "dereference failure: dead object"
+	 - Location: ../../../../runner/.rustup/toolchains/nightly-2026-08-21-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/cmp.rs:2192:59 in function std::cmp::impls::<impl std::cmp::PartialOrd for u128>::lt
+
+Check 14: std::cmp::impls::<impl std::cmp::PartialOrd for u128>::lt.pointer_dereference.11
+	 - Status: SUCCESS
+	 - Description: "dereference failure: pointer outside object bounds"
+	 - Location: ../../../../runner/.rustup/toolchains/nightly-2026-08-21-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/cmp.rs:2192:59 in function std::cmp::impls::<impl std::cmp::PartialOrd for u128>::lt
+
+Check 15: std::cmp::impls::<impl std::cmp::PartialOrd for u128>::lt.pointer_dereference.12
+	 - Status: SUCCESS
+	 - Description: "dereference failure: invalid integer address"
+	 - Location: ../../../../runner/.rustup/toolchains/nightly-2026-08-21-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/cmp.rs:2192:59 in function std::cmp::impls::<impl std::cmp::PartialOrd for u128>::lt
+
+
+SUMMARY:
+ ** 0 of 15 failed
+
+VERIFICATION:- SUCCESSFUL
+Verification Time: 0.038989455s
+
+Checking harness math::proofs::fee_rule_only_raises_and_never_passes_the_ceiling...
+CBMC 6.11.0 (cbmc-6.11.0)
+CBMC version 6.11.0 (cbmc-6.11.0) 64-bit arm64 macos
+Reading GOTO program from file /Users/MAC/development/afterlife-clause/contract/target/kani/aarch64-apple-darwin/debug/build/ghost-protocol/812323c885627cb7/out/ghost_protocol__RNvNtNtCskkI2ZFe9nMQ_14ghost_protocol4math6proofs49fee_rule_only_raises_and_never_passes_the_ceiling.out
+Generating GOTO Program
+Adding CPROVER library (arm64)
+Removal of function pointers and virtual functions
+Generic Property Instrumentation
+Running with 16 object bits, 48 offset bits (user-specified)
+Starting Bounded Model Checking
+aborting path on assume(false) at file src/math.rs line 51 column 11 function math::fee_allowed thread 0
+aborting path on assume(false) at file /Users/runner/.rustup/toolchains/nightly-2026-08-21-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/num/uint_macros.rs line 2585 column 19 function core::num::<impl u128>::saturating_mul thread 0
+aborting path on assume(false) at file src/math.rs line 73 column 19 function math::proofs::fee_rule_only_raises_and_never_passes_the_ceiling thread 0
+Runtime Symex: 0.00910425s
+size of program expression: 836 steps
+slicing removed 395 assignments
+Generated 24 VCC(s), 10 remaining after simplification
+Runtime Postprocess Equation: 0.00012775s
+Passing problem to propositional reduction
+converting SSA
+Runtime Convert SSA: 0.00303696s
+Running propositional reduction
+Post-processing
+Runtime Post-process: 7.792e-06s
+Solving with CaDiCaL 3.0.0
+5267 variables, 13523 clauses
+SAT checker: instance is SATISFIABLE
+Runtime Solver: 0.000310375s
+Runtime decision procedure: 0.00343404s
+Running propositional reduction
+Solving with CaDiCaL 3.0.0
+5268 variables, 13524 clauses
+SAT checker: instance is SATISFIABLE
+Runtime Solver: 0.00031925s
+Runtime decision procedure: 0.000365708s
+Running propositional reduction
+Solving with CaDiCaL 3.0.0
+5269 variables, 13525 clauses
+SAT checker: instance is UNSATISFIABLE
+Runtime Solver: 0.0395827s
+Runtime decision procedure: 0.0396117s
+
+RESULTS:
+Check 1: math::proofs::fee_rule_only_raises_and_never_passes_the_ceiling.assertion.1
+	 - Status: SUCCESS
+	 - Description: "assertion failed: fee <= ceiling"
+	 - Location: src/math.rs:72:13 in function math::proofs::fee_rule_only_raises_and_never_passes_the_ceiling
+
+Check 2: math::proofs::fee_rule_only_raises_and_never_passes_the_ceiling.unreachable.1
+	 - Status: SUCCESS
+	 - Description: "unreachable code"
+	 - Location: src/math.rs:73:19 in function math::proofs::fee_rule_only_raises_and_never_passes_the_ceiling
+
+Check 3: math::proofs::fee_rule_only_raises_and_never_passes_the_ceiling.assertion.2
+	 - Status: SUCCESS
+	 - Description: "attempt to divide by zero"
+	 - Location: src/math.rs:74:66 in function math::proofs::fee_rule_only_raises_and_never_passes_the_ceiling
+
+Check 4: math::proofs::fee_rule_only_raises_and_never_passes_the_ceiling.arithmetic_overflow.1
+	 - Status: SUCCESS
+	 - Description: "attempt to divide by zero"
+	 - Location: src/math.rs:74:66 in function math::proofs::fee_rule_only_raises_and_never_passes_the_ceiling
+
+Check 5: math::proofs::fee_rule_only_raises_and_never_passes_the_ceiling.assertion.3
+	 - Status: SUCCESS
+	 - Description: "assertion failed: fee > p && (fee >= ceiling || fee / 2 >= p)"
+	 - Location: src/math.rs:74:28 in function math::proofs::fee_rule_only_raises_and_never_passes_the_ceiling
+
+Check 6: math::proofs::fee_rule_only_raises_and_never_passes_the_ceiling.assertion.4
+	 - Status: SUCCESS
+	 - Description: "assertion failed: fee >= initial"
+	 - Location: src/math.rs:75:25 in function math::proofs::fee_rule_only_raises_and_never_passes_the_ceiling
+
+Check 7: math::fee_allowed.unreachable.1
+	 - Status: SUCCESS
+	 - Description: "unreachable code"
+	 - Location: src/math.rs:51:11 in function math::fee_allowed
+
+Check 8: core::num::<impl u128>::saturating_mul.unreachable.1
+	 - Status: SUCCESS
+	 - Description: "unreachable code"
+	 - Location: ../../../../runner/.rustup/toolchains/nightly-2026-08-21-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/num/uint_macros.rs:2585:19 in function core::num::<impl u128>::saturating_mul
+
+Check 9: std::cmp::impls::<impl std::cmp::PartialOrd for u128>::lt.pointer_dereference.1
+	 - Status: SUCCESS
+	 - Description: "dereference failure: pointer NULL"
+	 - Location: ../../../../runner/.rustup/toolchains/nightly-2026-08-21-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/cmp.rs:2192:50 in function std::cmp::impls::<impl std::cmp::PartialOrd for u128>::lt
+
+Check 10: std::cmp::impls::<impl std::cmp::PartialOrd for u128>::lt.pointer_dereference.2
+	 - Status: SUCCESS
+	 - Description: "dereference failure: pointer invalid"
+	 - Location: ../../../../runner/.rustup/toolchains/nightly-2026-08-21-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/cmp.rs:2192:50 in function std::cmp::impls::<impl std::cmp::PartialOrd for u128>::lt
+
+Check 11: std::cmp::impls::<impl std::cmp::PartialOrd for u128>::lt.pointer_dereference.3
+	 - Status: SUCCESS
+	 - Description: "dereference failure: deallocated dynamic object"
+	 - Location: ../../../../runner/.rustup/toolchains/nightly-2026-08-21-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/cmp.rs:2192:50 in function std::cmp::impls::<impl std::cmp::PartialOrd for u128>::lt
+
+Check 12: std::cmp::impls::<impl std::cmp::PartialOrd for u128>::lt.pointer_dereference.4
+	 - Status: SUCCESS
+	 - Description: "dereference failure: dead object"
+	 - Location: ../../../../runner/.rustup/toolchains/nightly-2026-08-21-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/cmp.rs:2192:50 in function std::cmp::impls::<impl std::cmp::PartialOrd for u128>::lt
+
+Check 13: std::cmp::impls::<impl std::cmp::PartialOrd for u128>::lt.pointer_dereference.5
+	 - Status: SUCCESS
+	 - Description: "dereference failure: pointer outside object bounds"
+	 - Location: ../../../../runner/.rustup/toolchains/nightly-2026-08-21-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/cmp.rs:2192:50 in function std::cmp::impls::<impl std::cmp::PartialOrd for u128>::lt
+
+Check 14: std::cmp::impls::<impl std::cmp::PartialOrd for u128>::lt.pointer_dereference.6
+	 - Status: SUCCESS
+	 - Description: "dereference failure: invalid integer address"
+	 - Location: ../../../../runner/.rustup/toolchains/nightly-2026-08-21-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/cmp.rs:2192:50 in function std::cmp::impls::<impl std::cmp::PartialOrd for u128>::lt
+
+Check 15: std::cmp::impls::<impl std::cmp::PartialOrd for u128>::lt.pointer_dereference.7
+	 - Status: SUCCESS
+	 - Description: "dereference failure: pointer NULL"
+	 - Location: ../../../../runner/.rustup/toolchains/nightly-2026-08-21-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/cmp.rs:2192:59 in function std::cmp::impls::<impl std::cmp::PartialOrd for u128>::lt
+
+Check 16: std::cmp::impls::<impl std::cmp::PartialOrd for u128>::lt.pointer_dereference.8
+	 - Status: SUCCESS
+	 - Description: "dereference failure: pointer invalid"
+	 - Location: ../../../../runner/.rustup/toolchains/nightly-2026-08-21-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/cmp.rs:2192:59 in function std::cmp::impls::<impl std::cmp::PartialOrd for u128>::lt
+
+Check 17: std::cmp::impls::<impl std::cmp::PartialOrd for u128>::lt.pointer_dereference.9
+	 - Status: SUCCESS
+	 - Description: "dereference failure: deallocated dynamic object"
+	 - Location: ../../../../runner/.rustup/toolchains/nightly-2026-08-21-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/cmp.rs:2192:59 in function std::cmp::impls::<impl std::cmp::PartialOrd for u128>::lt
+
+Check 18: std::cmp::impls::<impl std::cmp::PartialOrd for u128>::lt.pointer_dereference.10
+	 - Status: SUCCESS
+	 - Description: "dereference failure: dead object"
+	 - Location: ../../../../runner/.rustup/toolchains/nightly-2026-08-21-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/cmp.rs:2192:59 in function std::cmp::impls::<impl std::cmp::PartialOrd for u128>::lt
+
+Check 19: std::cmp::impls::<impl std::cmp::PartialOrd for u128>::lt.pointer_dereference.11
+	 - Status: SUCCESS
+	 - Description: "dereference failure: pointer outside object bounds"
+	 - Location: ../../../../runner/.rustup/toolchains/nightly-2026-08-21-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/cmp.rs:2192:59 in function std::cmp::impls::<impl std::cmp::PartialOrd for u128>::lt
+
+Check 20: std::cmp::impls::<impl std::cmp::PartialOrd for u128>::lt.pointer_dereference.12
+	 - Status: SUCCESS
+	 - Description: "dereference failure: invalid integer address"
+	 - Location: ../../../../runner/.rustup/toolchains/nightly-2026-08-21-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/cmp.rs:2192:59 in function std::cmp::impls::<impl std::cmp::PartialOrd for u128>::lt
+
+
+SUMMARY:
+ ** 0 of 20 failed
+
+VERIFICATION:- SUCCESSFUL
+Verification Time: 0.079003245s
+
+Manual Harness Summary:
+Complete - 6 successfully verified harnesses, 0 failures, 6 total.

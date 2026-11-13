@@ -96,3 +96,25 @@ export function assertFunded(balance, payout, attempt) {
   const needed = BigInt(payout.value_wei) + BigInt(payout.gas_limit) * BigInt(attempt.max_fee_per_gas);
   if (balance < needed) throw new Error(`vault holds ${balance} wei and this transaction needs ${needed}`);
 }
+
+/**
+ * D23: witnesses may sign a revert only when Base reports it final, the rule the MPC inspector
+ * applies to successes. A revert signed earlier can be reorged into a success, and the retry would
+ * then pay the heir twice (docs/evidence/spec/tlc-v2-cex-reorg-revert.log).
+ * Pure: takes the receipt, the `finalized` block and the canonical block at the receipt's height.
+ */
+export function revertIsFinal(receipt, finalized, canonical) {
+  if (!receipt) return { ok: false, reason: 'transaction not found' };
+  if (receipt.status !== 'reverted') return { ok: false, reason: `status is ${receipt.status}, not reverted` };
+  if (!finalized || receipt.blockNumber > finalized.number) return { ok: false, reason: 'block is not finalized yet' };
+  if (!canonical || canonical.hash !== receipt.blockHash) return { ok: false, reason: 'receipt is not on the canonical chain' };
+  return { ok: true };
+}
+
+/** Reads the three facts `revertIsFinal` needs from a viem client. */
+export async function checkRevertFinal(client, hash) {
+  const receipt = await client.getTransactionReceipt({ hash }).catch(() => null);
+  const finalized = await client.getBlock({ blockTag: 'finalized' });
+  const canonical = receipt ? await client.getBlock({ blockNumber: receipt.blockNumber }).catch(() => null) : null;
+  return revertIsFinal(receipt, finalized, canonical);
+}

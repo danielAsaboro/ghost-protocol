@@ -105,7 +105,7 @@ fn apply(v: &mut Vault, now: &mut u64, op: &Op) {
             let attempt = v.payouts[i].attempts.len() - 1;
             let hash = eth::eip1559_hash(&v.transfer(i, attempt));
             let sig = mpc_sign(if *good { VAULT_KEY } else { 77 }, &hash);
-            v.on_signed(*payout, attempt as u32, Ok(sig));
+            v.on_signed(*payout, attempt as u32, v.payouts[*payout as usize].signing_since, Ok(sig));
         }
         Op::Settled { payout, good } => {
             at(*now, "vault.testnet");

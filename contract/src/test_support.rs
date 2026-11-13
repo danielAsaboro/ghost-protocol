@@ -77,6 +77,7 @@ pub fn config() -> VaultConfig {
         contest_secs: 14 * DAY,
         freeze_max_secs: 90 * DAY,
         fallback_secs: 365 * DAY,
+        abandon_secs: None,
         chain_id: BASE_SEPOLIA,
         initial_max_fee_per_gas: U128(INITIAL_FEE),
         max_fee_ceiling: U128(CEILING),
@@ -177,7 +178,7 @@ pub fn good_signature(v: &Vault, payout: usize, attempt: usize) -> Value {
 
 pub fn sign_ok(v: &mut Vault, payout: u32, attempt: u32) {
     let sig = good_signature(v, payout as usize, attempt as usize);
-    assert!(v.on_signed(payout, attempt, Ok(sig)));
+    assert!(v.on_signed(payout, attempt, v.payouts[payout as usize].signing_since, Ok(sig)));
 }
 
 pub fn attestation(v: &Vault, payout: usize, attempt: usize, seed: u8) -> Value {

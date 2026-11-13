@@ -16,6 +16,17 @@ pub fn fits_budget(committed: u128, reserve: u128, budget: u128) -> bool {
     committed + reserve <= budget
 }
 
+/// Committed value after a payout is proven reverted: its value is no longer owed.
+/// Never underflows: an active payout's value is part of `committed` (model `inv_budget`).
+pub fn release(committed: u128, value: u128) -> u128 {
+    committed - value
+}
+
+/// Committed value after a disproved revert: the value left the vault after all.
+pub fn reinstate(committed: u128, value: u128) -> u128 {
+    committed + value
+}
+
 /// The longest a claim can be held back before payout: grace, every contest, one freeze.
 pub fn longest_delay(grace: u64, override_grace: u64, contest: u64, witnesses: usize, freeze_max: u64) -> u64 {
     override_grace.max(grace) + contest * witnesses as u64 + freeze_max
@@ -96,11 +107,15 @@ mod proofs {
     /// so a config whose own sums overflow panics at init and is never deployed), plus a block time
     /// below 2^40 seconds (year 36,812). Kani checks every runtime time expression for overflow.
     #[kani::proof]
-    #[kani::unwind(18)]
+    #[kani::unwind(34)]
     fn time_arithmetic_cannot_overflow_for_any_accepted_config() {
         let (grace, override_grace, contest, freeze_max, fallback): (u64, u64, u64, u64, u64) = kani::any();
         let witnesses: usize = kani::any();
-        kani::assume(witnesses >= 2 && witnesses <= 16);
+        kani::assume(witnesses >= 2 && witnesses <= crate::MAX_WITNESSES);
+        // `new` refuses any duration above MAX_DURATION_SECS.
+        for d in [grace, override_grace, contest, freeze_max, fallback] {
+            kani::assume(d <= crate::MAX_DURATION_SECS);
+        }
         let Some(contests) = contest.checked_mul(witnesses as u64) else { return };
         let Some(delays) = override_grace.max(grace).checked_add(contests).and_then(|d| d.checked_add(freeze_max)) else { return };
         kani::assume(fallback > delays);
@@ -133,5 +148,21 @@ mod proofs {
             let r1 = reserve(v1, gas1, ceiling);
             let _ = fits_budget(r0, r1, budget);
         }
+    }
+
+    /// Reopen and its disproval. Committed never exceeds the budget plus one reinstated payout,
+    /// since a heir reopens at most once (I17); its active payout's value is part of committed.
+    #[kani::proof]
+    fn release_and_reinstate_cannot_overflow() {
+        let (committed, value, budget): (u128, u128, u128) = kani::any();
+        kani::assume(budget <= crate::MAX_BUDGET_WEI);
+        kani::assume(value <= budget && committed <= budget);
+        kani::assume(value <= committed);
+        let released = release(committed, value);
+        assert!(released <= committed);
+        let back = reinstate(released, value);
+        assert!(back == committed);
+        // A disproved revert after the retry was committed: one extra payout on top of a full budget.
+        let _ = reinstate(committed, value);
     }
 }
