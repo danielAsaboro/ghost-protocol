@@ -377,9 +377,11 @@ module ghost {
     a < payouts[p].attempts.length(),
     payouts[p].attempts[a].public,
     not(payouts[p].attempts[a].signed),
-    not(payouts[p].signing and a == payouts[p].attempts.length() - 1),
-    payouts' = payouts.replaceAt(p, payouts[p].with("attempts",
-      payouts[p].attempts.replaceAt(a, payouts[p].attempts[a].with("signed", true)))),
+    // Submitting the in-flight attempt's signature also ends that request.
+    val inFlight = payouts[p].signing and a == payouts[p].attempts.length() - 1
+    payouts' = payouts.replaceAt(p, payouts[p]
+      .with("signing", payouts[p].signing and not(inFlight))
+      .with("attempts", payouts[p].attempts.replaceAt(a, payouts[p].attempts[a].with("signed", true)))),
     lastCheckIn' = lastCheckIn, claim' = claim, epoch' = epoch, heirStatus' = heirStatus,
     reopened' = reopened, reopenedAt' = reopenedAt, adultAt' = adultAt, committed' = committed, nextNonce' = nextNonce,
     falseRevert' = falseRevert, wishesRequested' = wishesRequested, signerRegistered' = signerRegistered,
@@ -696,17 +698,14 @@ module ghost {
   action tickFair = all { claimOpen or now < INACTIVITY, tick }
   action freezeFair = all { now + FREEZE_MAX <= MAX_TIME, freeze }
 
+  // The no-AI path: a normal claim and the fallback. The agent is optional, so liveness must hold
+  // without it; contests, the freeze, signing failures, reverts and settlement timeouts stay in.
   action fairContract = any {
-    nondet k = Set(true, false).oneOf()
     nondet u = Set(true, false).oneOf()
-    openClaim(k, u),
+    openClaim(false, u),
     nondet w = WITNESSES.oneOf()
     contest(w),
     freezeFair,
-    registerSigner,
-    nondet h = HEIRS.oneOf()
-    nondet v = VALUES.oneOf()
-    proposePayout(h, v),
     nondet h = HEIRS.oneOf()
     executeFallback(h),
     nondet p = PAYOUT_IDS.oneOf()
@@ -726,6 +725,9 @@ module ghost {
     nondet p = PAYOUT_IDS.oneOf()
     nondet a = 0.to(3).oneOf()
     reopenReverted(p, a),
+    nondet p = PAYOUT_IDS.oneOf()
+    nondet a = 0.to(3).oneOf()
+    submitSignature(p, a),
   }
 
   action fairBase = any {
@@ -753,11 +755,15 @@ module ghost {
     HEIRS.forall(h => weakFair(executeFallback(h), vars)),
     PAYOUT_IDS.forall(p => strongFair(0.to(MAX_TIME).exists(t => onSigned(p, t, true)), vars)),
     PAYOUT_IDS.forall(p => weakFair(FEES.exists(f => requestSignature(p, f)), vars)),
-    PAYOUT_IDS.forall(p => 0.to(3).forall(a => strongFair(land(p, a, true) or land(p, a, false), vars))),
+    PAYOUT_IDS.forall(p => strongFair(0.to(3).exists(a => land(p, a, true) or land(p, a, false)), vars)),
     weakFair(finalize, vars),
+    // Per attempt: a relayer that keeps settling an attempt that never landed is not fair
+    // (tlc-v3-tiny-liveness-fairness-artifact.log). It must try the one that did.
     PAYOUT_IDS.forall(p => 0.to(3).forall(a => weakFair(settle(p, a), vars))),
     PAYOUT_IDS.forall(p => 0.to(3).forall(a => strongFair(onSettled(p, a, true), vars))),
-    PAYOUT_IDS.forall(p => 0.to(3).forall(a => weakFair(reopenReverted(p, a), vars))),
+    PAYOUT_IDS.forall(p => weakFair(0.to(3).exists(a => reopenReverted(p, a)), vars)),
+    // Someone submits a public signature the vault never stored (tlc-v3-tiny-liveness-cex-public-signature.log).
+    PAYOUT_IDS.forall(p => 0.to(3).forall(a => weakFair(submitSignature(p, a), vars))),
   }
 
   // Each heir is eventually paid, or reopened after a real revert.

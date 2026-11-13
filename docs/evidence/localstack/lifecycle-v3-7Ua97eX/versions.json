@@ -1,0 +1,190 @@
+{
+  "vault_wasm": {
+    "path": "/Users/MAC/development/near-hackathon-research/ghost-v3-7Ua97eX.wasm",
+    "sha256": "6036465a4ce63310f39871a67eab1c9d763af3da952e846cea195013c4fda884",
+    "bytes": 261408
+  },
+  "signer_wasm": {
+    "sha256": "af8c66fd218f88bc6223d9d11eea7b6b1911ffd891d37ae3179f15cdf4a94955",
+    "version": "3.18.0"
+  },
+  "neard": "neard (release 2.14.0) (build bc4e9e8cf) (commit bc4e9e8cfb03d9e82f027883055624e18576993e) (rustc 1.97.1) (min_protocol 84) (protocol 88) (db 51)",
+  "mpc_node": "mpc-node 3.18.0",
+  "anvil": "anvil Version: 1.7.1-Homebrew",
+  "node": "v24.15.0",
+  "mpc_state": {
+    "Running": {
+      "domains": {
+        "domains": [
+          {
+            "id": 0,
+            "protocol": "CaitSith",
+            "reconstruction_threshold": 2,
+            "purpose": "Sign"
+          },
+          {
+            "id": 1,
+            "protocol": "Frost",
+            "reconstruction_threshold": 2,
+            "purpose": "Sign"
+          },
+          {
+            "id": 2,
+            "protocol": "ConfidentialKeyDerivation",
+            "reconstruction_threshold": 2,
+            "purpose": "CKD"
+          },
+          {
+            "id": 3,
+            "protocol": "CaitSith",
+            "reconstruction_threshold": 2,
+            "purpose": "ForeignTx"
+          }
+        ],
+        "next_domain_id": 4
+      },
+      "keyset": {
+        "epoch_id": 2,
+        "domains": [
+          {
+            "domain_id": 0,
+            "key": {
+              "Secp256k1": {
+                "near_public_key": "secp256k1:4V6D6cKbMExLTmA9eAiYQtKnCxZGaUDHw3Ku1y8QYpvU3f8Whus8swVdR5vTsECZsvjpELrjoLtATupbD7ebDewD"
+              }
+            },
+            "attempt": 0
+          },
+          {
+            "domain_id": 1,
+            "key": {
+              "Ed25519": {
+                "near_public_key_compressed": "ed25519:72e3B3p7AjpCukkZL7kynLeHWUgCFDTSAftA9miDmsa2",
+                "edwards_point": [
+                  89,
+                  145,
+                  148,
+                  173,
+                  51,
+                  80,
+                  155,
+                  200,
+                  100,
+                  10,
+                  66,
+                  218,
+                  247,
+                  246,
+                  147,
+                  0,
+                  92,
+                  97,
+                  38,
+                  226,
+                  21,
+                  91,
+                  196,
+                  143,
+                  43,
+                  137,
+                  7,
+                  89,
+                  119,
+                  161,
+                  184,
+                  195
+                ]
+              }
+            },
+            "attempt": 0
+          },
+          {
+            "domain_id": 2,
+            "key": {
+              "Bls12381": {
+                "public_key": "bls12381g2:t675jEZrfrdh9K74KReoXtXJMxak5LXhZhpRQNyD3AMXv5EWcxStELaYsbNHz9yRZpZ7bttg7QtPcG53uJ989AqQ7HhHQm2X1zwmSP6Aa5jLvwMVU1Ex7zF1Zns2eHTxYyn"
+              }
+            },
+            "attempt": 0
+          },
+          {
+            "domain_id": 3,
+            "key": {
+              "Secp256k1": {
+                "near_public_key": "secp256k1:4uiSfNsUaZfNt9AYNSigND3FZVfeWrgF2x3gjQh4Dc9hh8UZodT9Y5v3LsQtxEoDbVWYH97a8QE5R8fk2vV8tYY9"
+              }
+            },
+            "attempt": 0
+          }
+        ]
+      },
+      "parameters": {
+        "participants": {
+          "next_id": 3,
+          "participants": [
+            [
+              "mpc-node-1.test.near",
+              0,
+              {
+                "url": "https://localhost:3000",
+                "tls_public_key": "ed25519:6s7paiUTrmZQuoPdRZMMiQ8xEoTCLtuddbG6VZAtWR7s"
+              }
+            ],
+            [
+              "mpc-node-2.test.near",
+              1,
+              {
+                "url": "https://localhost:3001",
+                "tls_public_key": "ed25519:7NJ7ZCe8cTbbX5exATt3iHbyo3pB5iJ7yjv4M8VoUZpg"
+              }
+            ]
+          ]
+        },
+        "threshold": 2
+      },
+      "parameters_votes": {
+        "proposal_by_account": {}
+      },
+      "add_domains_votes": {
+        "proposal_by_account": {}
+      },
+      "previously_cancelled_resharing_epoch_id": null
+    }
+  },
+  "mpc_config": {
+    "key_event_timeout_blocks": 150,
+    "tee_upgrade_deadline_duration_seconds": 604800,
+    "apply_contract_update_tera_gas": 50,
+    "sign_call_gas_attachment_requirement_tera_gas": 15,
+    "ckd_call_gas_attachment_requirement_tera_gas": 15,
+    "return_signature_and_clean_state_on_success_call_tera_gas": 7,
+    "return_ck_and_clean_state_on_success_call_tera_gas": 7,
+    "fail_on_timeout_tera_gas": 2,
+    "fail_attestation_submission_tera_gas": 2,
+    "clean_tee_status_tera_gas": 10,
+    "clean_invalid_attestations_tera_gas": 15,
+    "cleanup_orphaned_node_migrations_tera_gas": 7,
+    "remove_non_participant_update_votes_tera_gas": 5,
+    "clean_foreign_chain_data_tera_gas": 8,
+    "remove_non_participant_tee_verifier_votes_tera_gas": 5,
+    "verifier_tera_gas": 200,
+    "resolve_verification_tera_gas": 60,
+    "launcher_hash_unused_ttl_seconds": 1209600,
+    "attestation_storage_fee_millinear": 20
+  },
+  "available_foreign_chains": [
+    "Base"
+  ],
+  "allowed_foreign_chain_providers": {
+    "Base": {
+      "providers": {
+        "anvil": {
+          "base_url": "http://127.0.0.1:8545",
+          "auth_scheme": "None",
+          "chain_routing": "Embedded"
+        }
+      },
+      "quorum": 1
+    }
+  }
+}

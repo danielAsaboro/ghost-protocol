@@ -1,0 +1,147 @@
+{
+  "Running": {
+    "domains": {
+      "domains": [
+        {
+          "id": 0,
+          "protocol": "CaitSith",
+          "reconstruction_threshold": 2,
+          "purpose": "Sign"
+        },
+        {
+          "id": 1,
+          "protocol": "Frost",
+          "reconstruction_threshold": 2,
+          "purpose": "Sign"
+        },
+        {
+          "id": 2,
+          "protocol": "ConfidentialKeyDerivation",
+          "reconstruction_threshold": 2,
+          "purpose": "CKD"
+        },
+        {
+          "id": 3,
+          "protocol": "CaitSith",
+          "reconstruction_threshold": 2,
+          "purpose": "ForeignTx"
+        }
+      ],
+      "next_domain_id": 4
+    },
+    "keyset": {
+      "epoch_id": 1,
+      "domains": [
+        {
+          "domain_id": 0,
+          "key": {
+            "Secp256k1": {
+              "near_public_key": "secp256k1:4V6D6cKbMExLTmA9eAiYQtKnCxZGaUDHw3Ku1y8QYpvU3f8Whus8swVdR5vTsECZsvjpELrjoLtATupbD7ebDewD"
+            }
+          },
+          "attempt": 0
+        },
+        {
+          "domain_id": 1,
+          "key": {
+            "Ed25519": {
+              "near_public_key_compressed": "ed25519:72e3B3p7AjpCukkZL7kynLeHWUgCFDTSAftA9miDmsa2",
+              "edwards_point": [
+                89,
+                145,
+                148,
+                173,
+                51,
+                80,
+                155,
+                200,
+                100,
+                10,
+                66,
+                218,
+                247,
+                246,
+                147,
+                0,
+                92,
+                97,
+                38,
+                226,
+                21,
+                91,
+                196,
+                143,
+                43,
+                137,
+                7,
+                89,
+                119,
+                161,
+                184,
+                195
+              ]
+            }
+          },
+          "attempt": 0
+        },
+        {
+          "domain_id": 2,
+          "key": {
+            "Bls12381": {
+              "public_key": "bls12381g2:t675jEZrfrdh9K74KReoXtXJMxak5LXhZhpRQNyD3AMXv5EWcxStELaYsbNHz9yRZpZ7bttg7QtPcG53uJ989AqQ7HhHQm2X1zwmSP6Aa5jLvwMVU1Ex7zF1Zns2eHTxYyn"
+            }
+          },
+          "attempt": 0
+        },
+        {
+          "domain_id": 3,
+          "key": {
+            "Secp256k1": {
+              "near_public_key": "secp256k1:4uiSfNsUaZfNt9AYNSigND3FZVfeWrgF2x3gjQh4Dc9hh8UZodT9Y5v3LsQtxEoDbVWYH97a8QE5R8fk2vV8tYY9"
+            }
+          },
+          "attempt": 0
+        }
+      ]
+    },
+    "parameters": {
+      "participants": {
+        "next_id": 3,
+        "participants": [
+          [
+            "mpc-node-1.test.near",
+            0,
+            {
+              "url": "https://localhost:3000",
+              "tls_public_key": "ed25519:6s7paiUTrmZQuoPdRZMMiQ8xEoTCLtuddbG6VZAtWR7s"
+            }
+          ],
+          [
+            "mpc-node-2.test.near",
+            1,
+            {
+              "url": "https://localhost:3001",
+              "tls_public_key": "ed25519:7NJ7ZCe8cTbbX5exATt3iHbyo3pB5iJ7yjv4M8VoUZpg"
+            }
+          ],
+          [
+            "mpc-node-3.test.near",
+            2,
+            {
+              "url": "https://localhost:3002",
+              "tls_public_key": "ed25519:7q892r6Ac4tMpHhShTEd2fRkZX8x9aULbzrpyF3vriz6"
+            }
+          ]
+        ]
+      },
+      "threshold": 2
+    },
+    "parameters_votes": {
+      "proposal_by_account": {}
+    },
+    "add_domains_votes": {
+      "proposal_by_account": {}
+    },
+    "previously_cancelled_resharing_epoch_id": null
+  }
+}

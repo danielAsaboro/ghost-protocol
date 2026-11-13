@@ -27,6 +27,12 @@ pub fn reinstate(committed: u128, value: u128) -> u128 {
     committed + value
 }
 
+/// Tip for an attempt with fee cap `fee`: the configured tip scaled by `fee / initial`, never above
+/// the fee cap. `new` guarantees `priority <= initial` and `fee <= 2^63`.
+pub fn tip(fee: u128, initial: u128, priority: u128) -> u128 {
+    (fee * priority / initial).min(fee)
+}
+
 /// Grace for an override claim opened by a quorum short of every witness: twice the unanimous one.
 pub fn reduced_override_grace(override_grace: u64) -> u64 {
     2 * override_grace
@@ -174,5 +180,20 @@ mod proofs {
         assert!(back == committed);
         // A disproved revert after the retry was committed: one extra payout on top of a full budget.
         let _ = reinstate(committed, value);
+    }
+
+    /// The tip never overflows, never exceeds the fee cap, starts at the configured tip, and rises
+    /// whenever the fee cap at least doubles (so a re-priced attempt replaces in a mempool).
+    #[kani::proof]
+    fn tip_scales_with_the_fee_and_never_overflows() {
+        let (fee, initial, priority, next): (u128, u128, u128, u128) = kani::any();
+        kani::assume(initial > 0 && initial <= fee && fee <= crate::MAX_FEE_CEILING && priority <= initial);
+        let t = tip(fee, initial, priority);
+        assert!(t <= fee);
+        assert!(tip(initial, initial, priority) == priority);
+        kani::assume(next >= fee.saturating_mul(2) && next <= crate::MAX_FEE_CEILING);
+        if priority > 0 {
+            assert!(tip(next, initial, priority) > t);
+        }
     }
 }

@@ -118,3 +118,21 @@ export async function checkRevertFinal(client, hash) {
   const canonical = receipt ? await client.getBlock({ blockNumber: receipt.blockNumber }).catch(() => null) : null;
   return revertIsFinal(receipt, finalized, canonical);
 }
+
+/**
+ * The attempt to settle: the one whose transaction is on Base, successful and final. The MPC
+ * network drops a settle sent before finality (docs/evidence/localstack), and settling an attempt
+ * that never landed can never succeed (docs/evidence/spec, fairness artifact).
+ */
+export async function landedFinalAttempt(client, payout) {
+  const finalized = await client.getBlock({ blockTag: 'finalized' });
+  for (const [index, a] of payout.attempts.entries()) {
+    if (!a.tx_hash_hex) continue;
+    const receipt = await client.getTransactionReceipt({ hash: `0x${a.tx_hash_hex}` }).catch(() => null);
+    if (!receipt) continue;
+    if (receipt.status !== 'success') return { index, ready: false, reason: `attempt ${index} reverted` };
+    if (receipt.blockNumber > finalized.number) return { index, ready: false, reason: `attempt ${index} landed in block ${receipt.blockNumber}, finalized is ${finalized.number}` };
+    return { index, ready: true };
+  }
+  return { index: null, ready: false, reason: 'no attempt of this payout is on Base' };
+}

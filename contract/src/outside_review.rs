@@ -114,8 +114,6 @@ fn f4_a_lost_callback_signature_can_be_submitted_and_settled() {
     at(PAY_AT, "agent.testnet");
     pay(&mut v, 0, CAP);
     let leaked = good_signature(&v, 0, 0);
-    let early = try_it(|| v.submit_signature(0, 0, leaked.clone()));
-    assert!(panic_text(early).contains("still awaits its callback"));
     at(PAY_AT + SIGN_LEASE_SECS, "anyone.testnet");
     v.request_signature(0, U128(2 * INITIAL_FEE));
     assert_eq!(v.payouts[0].attempts.len(), 2, "the lost attempt is kept");
@@ -188,4 +186,42 @@ fn f10_a_decision_quoted_inside_a_refusal_is_refused() {
     let body = json!({ "id": "c", "choices": [{ "message": { "role": "assistant", "content": content } }] }).to_string();
     let r = try_it(|| v.propose_payout(0, U128(CAP), sign_decision(ENCLAVE_KEY, &body)));
     assert!(panic_text(r).contains("decision is not a JSON object"));
+}
+
+/// Local stack, fault iv: on_signed ran out of storage after the MPC network signed. The signature
+/// is public, so anyone submits it at once instead of waiting a day for the lease.
+#[test]
+fn f4_an_in_flight_attempt_takes_a_submitted_signature_and_ignores_the_late_callback() {
+    let mut v = proven();
+    at(PAY_AT, "agent.testnet");
+    pay(&mut v, 0, CAP);
+    let since = v.payouts[0].signing_since;
+    let sig = good_signature(&v, 0, 0);
+    at(PAY_AT + 60, "anyone.testnet");
+    assert!(v.submit_signature(0, 0, sig.clone()));
+    assert!(!v.payouts[0].signing);
+    assert!(!v.on_signed(0, 0, since, Ok(sig)), "the callback for a request already answered is ignored");
+    at(PAY_AT + 120, "anyone.testnet");
+    v.request_signature(0, U128(2 * INITIAL_FEE));
+}
+
+/// Local stack, finding 4: a re-priced attempt raises the tip too, so a mempool accepts it as a
+/// replacement of the stuck one.
+#[test]
+fn local_stack_a_reprice_raises_the_tip_with_the_fee() {
+    let mut c = config();
+    c.max_priority_fee_per_gas = U128(INITIAL_FEE / 2);
+    at(START, "owner.testnet");
+    let mut v = Vault::new(c);
+    at(CLAIM_AT, "anyone.testnet");
+    v.open_claim(DEATH, quorum(&death_message(0, DEATH)), false);
+    v.prove_adult(0, START, adult(0, START));
+    at(PAY_AT + 400 * DAY, "anyone.testnet");
+    v.execute_fallback(0);
+    sign_ok(&mut v, 0, 0);
+    at(PAY_AT + 401 * DAY, "anyone.testnet");
+    v.request_signature(0, U128(2 * INITIAL_FEE));
+    let a = &v.payouts[0].attempts;
+    assert_eq!(a[0].max_priority_fee_per_gas.0, INITIAL_FEE / 2);
+    assert_eq!(a[1].max_priority_fee_per_gas.0, INITIAL_FEE);
 }

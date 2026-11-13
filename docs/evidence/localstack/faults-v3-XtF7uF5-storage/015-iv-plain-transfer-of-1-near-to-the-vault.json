@@ -1,0 +1,123 @@
+{
+  "label": "iv plain transfer of 1 NEAR to the vault",
+  "signer": "test.near",
+  "receiver": "ghost-s-6effc3.test.near",
+  "hash": "3oMDb1RXpChKd7hXuNQmC9vhF2PsxR5N2VCcch2JhrTu",
+  "ok": true,
+  "value": null,
+  "innerErrors": [],
+  "gasBurnt": "669547687500",
+  "receipts": [
+    {
+      "id": "MNk7se2ksh6znqLaRNoncKHyZFbrpJJgbRXaf1VufDX",
+      "executor": "ghost-s-6effc3.test.near",
+      "method": "other",
+      "gas_burnt": 223182562500,
+      "tgas": 0.2231825625,
+      "status": "SuccessValue",
+      "logs": []
+    },
+    {
+      "id": "EsKbtiQ8VtaXEJPj6ZdBiYsN68LyLq21sWu7yv47y4nG",
+      "executor": "test.near",
+      "method": "refund",
+      "gas_burnt": 223182562500,
+      "tgas": 0.2231825625,
+      "status": "SuccessValue",
+      "logs": []
+    }
+  ],
+  "rpc": {
+    "final_execution_status": "FINAL",
+    "receipts_outcome": [
+      {
+        "block_hash": "37gPVrDRCy6mwgPSHrAEidipV8udCHdRBV15maHHPFcx",
+        "id": "MNk7se2ksh6znqLaRNoncKHyZFbrpJJgbRXaf1VufDX",
+        "outcome": {
+          "executor_id": "ghost-s-6effc3.test.near",
+          "gas_burnt": 223182562500,
+          "logs": [],
+          "metadata": {
+            "contracts": [
+              {
+                "local": "XtF7uF5MEDL3uMEMzzJzH6E6ddjJPjupgu3deFvvoJ6"
+              }
+            ],
+            "gas_profile": [],
+            "version": 4
+          },
+          "receipt_ids": [
+            "EsKbtiQ8VtaXEJPj6ZdBiYsN68LyLq21sWu7yv47y4nG"
+          ],
+          "status": {
+            "SuccessValue": ""
+          },
+          "tokens_burnt": "22318256250000000000"
+        },
+        "proof": []
+      },
+      {
+        "block_hash": "C6mLfhU8tP1z6p6enoB5FWaNELdPk4eBTbrGxje8grhf",
+        "id": "EsKbtiQ8VtaXEJPj6ZdBiYsN68LyLq21sWu7yv47y4nG",
+        "outcome": {
+          "executor_id": "test.near",
+          "gas_burnt": 223182562500,
+          "logs": [],
+          "metadata": {
+            "contracts": [
+              null
+            ],
+            "gas_profile": [],
+            "version": 4
+          },
+          "receipt_ids": [],
+          "status": {
+            "SuccessValue": ""
+          },
+          "tokens_burnt": "0"
+        },
+        "proof": []
+      }
+    ],
+    "status": {
+      "SuccessValue": ""
+    },
+    "transaction": {
+      "actions": [
+        {
+          "Transfer": {
+            "deposit": "1000000000000000000000000"
+          }
+        }
+      ],
+      "hash": "3oMDb1RXpChKd7hXuNQmC9vhF2PsxR5N2VCcch2JhrTu",
+      "nonce": 27,
+      "priority_fee": 0,
+      "public_key": "ed25519:7E9jtdHWcn4eVZQPiHMCUMVVnMEvGeSG3HPVasisWooU",
+      "receiver_id": "ghost-s-6effc3.test.near",
+      "signature": "ed25519:3D4PVgb3XSBFqNYYzjqEpWBVpDiWkbLW8hA79vaSDUemZzP7xuST4DG2cPLX7TFxv3kW9qZmhwSyR5o46SY5PQkz",
+      "signer_id": "test.near"
+    },
+    "transaction_outcome": {
+      "block_hash": "2Z3bNBimvz8VM17Ecp9nJMHvCYEgQk3F2hNMPpjW7MH5",
+      "id": "3oMDb1RXpChKd7hXuNQmC9vhF2PsxR5N2VCcch2JhrTu",
+      "outcome": {
+        "executor_id": "test.near",
+        "gas_burnt": 223182562500,
+        "logs": [],
+        "metadata": {
+          "gas_profile": null,
+          "version": 1
+        },
+        "receipt_ids": [
+          "MNk7se2ksh6znqLaRNoncKHyZFbrpJJgbRXaf1VufDX"
+        ],
+        "status": {
+          "SuccessReceiptId": "MNk7se2ksh6znqLaRNoncKHyZFbrpJJgbRXaf1VufDX"
+        },
+        "tokens_burnt": "22318256250000000000"
+      },
+      "proof": []
+    }
+  }
+}

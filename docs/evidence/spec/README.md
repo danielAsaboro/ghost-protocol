@@ -22,10 +22,25 @@ All four tests fail on the deployed code: [counterexamples-v2-failing.txt](count
 
 Run: `spec/gen-traces.sh && (cd contract && cargo test --lib itf_replay -- --nocapture)`.
 
+## Against v3
+
+The model was updated with each fix (v3 at `cb86882`, v3.1 after the outside review at `e73a181`): the claim is permanent once the wishes key is requested; a lost sign request is replaced after a one-day lease and its signature, if public, can be submitted by anyone; a disproved revert counts its value again; a retry waits a day after a reopen; a quorum override waits twice as long; contests only during grace; a no-witness claim after `ABANDON` of silence.
+
+| Run | Result |
+|---|---|
+| `quint run`, 5 seeds (including the two that broke v2) x 20,000 traces x 40 steps | No violation of `safety` |
+| TLC, `TINY=1`, v3 | One more counterexample, [log](tlc-v3-cex-budget-after-false-revert.log): with the restore, committed exceeds the budget by the overpaid value after a disproved revert. That is the stated limit of I17 made visible, so I7 now states it exactly: committed stays within the budget unless a revert was disproved, and then within one cap of it |
+| TLC, `TINY=1`, v3 after the I7 fix | No violation in every behaviour of up to 17 steps (79 million distinct states; TLC ran out of memory at depth 18), [log](tlc-v3-tiny-live-safety.log) |
+| Trace replay, v3.1 | 600 traces, 24,000 steps, identical state after every step |
+| Liveness, `TINY=1`, no-AI fair world | LIVENESS_RESULT |
+
+Two liveness counterexamples were in the model, not the contract, and are kept: a time horizon too short for the fallback ([log](tlc-v3-tiny-liveness-horizon-artifact.log)), and a fairness assumption that let a relayer keep settling an attempt that never landed ([log](tlc-v3-tiny-liveness-fairness-artifact.log)). The second is also a rule for relayers: settle the attempt whose transaction is on Base.
+
 ## Bounds
 
 | Run | Bound |
 |---|---|
 | Simulation, `quint run` | 20,000 to 30,000 random traces of 40 to 50 steps per seed, full constants |
 | TLC, full constants (2 heirs, 3 witnesses, time to 12) | Exceeds this machine: about 50 million distinct states at depth 17 with the queue still growing. Used to find counterexamples 3 to 5, not to show their absence |
-| TLC, `TINY=1` (1 heir, 1 claim, time to 9) | See below once the run completes |
+| TLC, `TINY=1` (1 heir, 1 claim, inactivity 1, time to 12) | All behaviours up to 17 steps (v3) |
+| Apalache | Not used: its translation of this spec fails with `undeclared operator OVERRIDE_GRACE` in Apalache 0.62.4, which the TLC route through the same translator does not hit |

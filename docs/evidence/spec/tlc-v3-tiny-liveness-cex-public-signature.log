@@ -1,0 +1,1087 @@
+[TLC] Compiling to TLA+ (via Apalache)...
+# Usage statistics is OFF. We care about your privacy.
+# If you want to help our project, consider enabling statistics with config --enable-stats=true.
+
+Output directory: /Users/MAC/development/afterlife-clause/spec/_check/_apalache-out/server/2026-11-13T02-58-01_12447426043215791089
+# APALACHE version: 0.62.4 | build: 7954daf                       I@02:58:01.363
+Starting checker server on port 8822...                           I@02:58:01.364
+The Apalache server is running on port 8822. Press Ctrl-C to stop.
+Nov 13, 2026 2:58:03 AM com.google.protobuf.GeneratedMessage warnPre22Gencode
+WARNING: Vulnerable protobuf generated type in use: io.grpc.reflection.v1alpha.ServerReflectionRequest
+As of 2022/09/29 (release 21.7) makeExtensionsImmutable should not be called from protobuf gencode. If you are seeing this message, your gencode is vulnerable to a denial of service attack. You should regenerate your code using protobuf 25.6 or later. Use the latest version that meets your needs. However, if you understand the risks and wish to continue with vulnerable gencode, you can set the system property `-Dcom.google.protobuf.use_unsafe_pre22_gencode` on the command line to silence this warning. You also can set `-Dcom.google.protobuf.error_on_unsafe_pre22_gencode` to throw an error instead. See security vulnerability: https://github.com/protocolbuffers/protobuf/security/advisories/GHSA-h4h5-3hr4-j3g2
+PASS #0: SanyParser                                               I@02:58:03.391
+[TLC] Running TLC model checker...
+
+TLC2 Version 2026.11.13.015803
+Warning: Please run the Java VM, which executes TLC with a throughput optimized garbage collector, by passing the "-XX:+UseParallelGC" property.
+(Use the -nowarning option to disable this warning.)
+Running breadth-first search Model-Checking with fp 27 and seed 4034455727636908797 with 12 workers on 12 cores with 8192MB heap and 64MB offheap memory [pid: 11966] (Mac OS X 27.2.1 aarch64, Homebrew 21.0.13.0.3 64bit, MSBDiskFPSet, DiskStateQueue).
+Parsing file /Users/MAC/development/afterlife-clause/spec/_check/tmp/quint-tlc-Ako8ye/ghost.tla
+Parsing file /Users/MAC/development/afterlife-clause/spec/_check/tmp/quint-tlc-Ako8ye/tlc-6167961235088589723/Integers.tla (jar:file:/Users/MAC/.quint/apalache-dist-0.62.4/apalache/lib/apalache.jar!/tla2sany/StandardModules/Integers.tla)
+Parsing file /Users/MAC/development/afterlife-clause/spec/_check/tmp/quint-tlc-Ako8ye/tlc-6167961235088589723/Sequences.tla (jar:file:/Users/MAC/.quint/apalache-dist-0.62.4/apalache/lib/apalache.jar!/tla2sany/StandardModules/Sequences.tla)
+Parsing file /Users/MAC/development/afterlife-clause/spec/_check/tmp/quint-tlc-Ako8ye/tlc-6167961235088589723/FiniteSets.tla (jar:file:/Users/MAC/.quint/apalache-dist-0.62.4/apalache/lib/apalache.jar!/tla2sany/StandardModules/FiniteSets.tla)
+Parsing file /Users/MAC/development/afterlife-clause/spec/_check/tmp/quint-tlc-Ako8ye/tlc-6167961235088589723/TLC.tla (jar:file:/Users/MAC/.quint/apalache-dist-0.62.4/apalache/lib/apalache.jar!/tla2sany/StandardModules/TLC.tla)
+Parsing file /Users/MAC/development/afterlife-clause/spec/_check/tmp/quint-tlc-Ako8ye/tlc-6167961235088589723/Apalache.tla (jar:file:/Users/MAC/.quint/apalache-dist-0.62.4/apalache/lib/apalache.jar!/tla2sany/StandardModules/Apalache.tla)
+Parsing file /Users/MAC/development/afterlife-clause/spec/_check/tmp/quint-tlc-Ako8ye/tlc-6167961235088589723/Variants.tla (jar:file:/Users/MAC/.quint/apalache-dist-0.62.4/apalache/lib/apalache.jar!/tla2sany/StandardModules/Variants.tla)
+Parsing file /Users/MAC/development/afterlife-clause/spec/_check/tmp/quint-tlc-Ako8ye/tlc-6167961235088589723/_TLCTrace.tla (jar:file:/Users/MAC/.quint/apalache-dist-0.62.4/apalache/lib/apalache.jar!/tla2sany/StandardModules/_TLCTrace.tla)
+Parsing file /Users/MAC/development/afterlife-clause/spec/_check/tmp/quint-tlc-Ako8ye/tlc-6167961235088589723/Naturals.tla (jar:file:/Users/MAC/.quint/apalache-dist-0.62.4/apalache/lib/apalache.jar!/tla2sany/StandardModules/Naturals.tla)
+Parsing file /Users/MAC/development/afterlife-clause/spec/_check/tmp/quint-tlc-Ako8ye/tlc-6167961235088589723/TLCExt.tla (jar:file:/Users/MAC/.quint/apalache-dist-0.62.4/apalache/lib/apalache.jar!/tla2sany/StandardModules/TLCExt.tla)
+Semantic processing of module Naturals
+Semantic processing of module Integers
+Semantic processing of module Sequences
+Semantic processing of module FiniteSets
+Semantic processing of module TLC
+Semantic processing of module Apalache
+Semantic processing of module Variants
+Semantic processing of module TLCExt
+Semantic processing of module _TLCTrace
+Semantic processing of module ghost
+Linting of module Apalache
+Linting of module Variants
+Linting of module TLCExt
+Linting of module _TLCTrace
+Linting of module ghost
+Starting... (2026-11-13 02:58:04)
+Implied-temporal checking--satisfiability problem has 1 branches.
+Computing initial states...
+Finished computing initial states: 1 distinct state generated at 2026-11-13 02:58:04.
+Checking temporal properties for the current state space with 58973 total distinct states at (2026-11-13 02:58:07)
+Finished checking temporal properties in 02min 15s at 2026-11-13 03:00:23
+Progress(22) at 2026-11-13 03:00:23: 117,996 states generated (117,996 s/min), 59,584 distinct states found (59,584 ds/min), 37,683 states left on queue.
+Progress(26) at 2026-11-13 03:01:23: 3,017,513 states generated (2,899,517 s/min), 1,008,379 distinct states found (948,795 ds/min), 369,527 states left on queue.
+Progress(28) at 2026-11-13 03:02:23: 5,853,369 states generated (2,835,856 s/min), 1,791,192 distinct states found (782,813 ds/min), 473,914 states left on queue.
+Progress(29) at 2026-11-13 03:03:23: 8,615,217 states generated (2,761,848 s/min), 2,641,782 distinct states found (850,590 ds/min), 781,512 states left on queue.
+Progress(30) at 2026-11-13 03:04:23: 11,281,318 states generated (2,666,101 s/min), 3,484,294 distinct states found (842,512 ds/min), 1,185,376 states left on queue.
+Progress(30) at 2026-11-13 03:05:23: 13,898,928 states generated (2,617,610 s/min), 4,285,281 distinct states found (800,987 ds/min), 1,588,819 states left on queue.
+Progress(31) at 2026-11-13 03:06:23: 16,475,784 states generated (2,576,856 s/min), 5,060,799 distinct states found (775,518 ds/min), 1,976,621 states left on queue.
+Progress(31) at 2026-11-13 03:07:23: 19,028,692 states generated (2,552,908 s/min), 5,795,726 distinct states found (734,927 ds/min), 2,337,683 states left on queue.
+Progress(31) at 2026-11-13 03:08:23: 21,601,841 states generated (2,573,149 s/min), 6,512,919 distinct states found (717,193 ds/min), 2,680,119 states left on queue.
+Progress(31) at 2026-11-13 03:09:23: 24,197,548 states generated (2,595,707 s/min), 7,246,374 distinct states found (733,455 ds/min), 3,034,499 states left on queue.
+Progress(32) at 2026-11-13 03:10:23: 26,785,720 states generated (2,588,172 s/min), 7,955,331 distinct states found (708,957 ds/min), 3,366,965 states left on queue.
+Checking temporal properties for the current state space with 4965740 total distinct states at (2026-11-13 03:11:23)
+Error: Temporal property q_temporalProps was violated.
+
+Error: The following behavior constitutes a counter-example:
+
+State 1: <Initial predicate>
+/\ epoch = 0
+/\ lastCheckIn = 0
+/\ funded = TRUE
+/\ honestWitnesses = TRUE
+/\ ownerAlive = TRUE
+/\ now = 0
+/\ ckdOk = TRUE
+/\ signOk = TRUE
+/\ lastArgs = <<>>
+/\ chainNonce = 0
+/\ lastAction = ""
+/\ landings = <<>>
+/\ reopened = (0 :> FALSE)
+/\ inflight = {}
+/\ reopenedAt = (0 :> -1)
+/\ calleeGasOk = TRUE
+/\ adultAt = (0 :> -1)
+/\ wishesRequested = FALSE
+/\ claim = [ kind |-> "None",
+  openedAt |-> 0,
+  payAfter |-> 0,
+  contested |-> {},
+  frozenUntil |-> 0,
+  freezeUsed |-> FALSE,
+  delay |-> 0 ]
+/\ committed = 0
+/\ falseRevert = FALSE
+/\ signerRegistered = FALSE
+/\ baseFee = 1
+/\ nextNonce = 0
+/\ heirStatus = (0 :> "Open")
+/\ payouts = <<>>
+/\ attestOk = TRUE
+
+State 2: <ownerDies line 1355, col 3 to line 1367, col 34 of module ghost>
+/\ epoch = 0
+/\ lastCheckIn = 0
+/\ funded = TRUE
+/\ honestWitnesses = TRUE
+/\ ownerAlive = FALSE
+/\ now = 0
+/\ ckdOk = TRUE
+/\ signOk = TRUE
+/\ lastArgs = <<>>
+/\ chainNonce = 0
+/\ lastAction = ""
+/\ landings = <<>>
+/\ reopened = (0 :> FALSE)
+/\ inflight = {}
+/\ reopenedAt = (0 :> -1)
+/\ calleeGasOk = TRUE
+/\ adultAt = (0 :> -1)
+/\ wishesRequested = FALSE
+/\ claim = [ kind |-> "None",
+  openedAt |-> 0,
+  payAfter |-> 0,
+  contested |-> {},
+  frozenUntil |-> 0,
+  freezeUsed |-> FALSE,
+  delay |-> 0 ]
+/\ committed = 0
+/\ falseRevert = FALSE
+/\ signerRegistered = FALSE
+/\ baseFee = 1
+/\ nextNonce = 0
+/\ heirStatus = (0 :> "Open")
+/\ payouts = <<>>
+/\ attestOk = TRUE
+
+State 3: <tickFair line 1454, col 13 to line 1454, col 51 of module ghost>
+/\ epoch = 0
+/\ lastCheckIn = 0
+/\ funded = TRUE
+/\ honestWitnesses = TRUE
+/\ ownerAlive = FALSE
+/\ now = 1
+/\ ckdOk = TRUE
+/\ signOk = TRUE
+/\ lastArgs = <<>>
+/\ chainNonce = 0
+/\ lastAction = ""
+/\ landings = <<>>
+/\ reopened = (0 :> FALSE)
+/\ inflight = {}
+/\ reopenedAt = (0 :> -1)
+/\ calleeGasOk = TRUE
+/\ adultAt = (0 :> -1)
+/\ wishesRequested = FALSE
+/\ claim = [ kind |-> "None",
+  openedAt |-> 0,
+  payAfter |-> 0,
+  contested |-> {},
+  frozenUntil |-> 0,
+  freezeUsed |-> FALSE,
+  delay |-> 0 ]
+/\ committed = 0
+/\ falseRevert = FALSE
+/\ signerRegistered = FALSE
+/\ baseFee = 1
+/\ nextNonce = 0
+/\ heirStatus = (0 :> "Open")
+/\ payouts = <<>>
+/\ attestOk = TRUE
+
+State 4: <openClaim(FALSE,FALSE) line 843, col 3 to line 880, col 7 of module ghost>
+/\ epoch = 0
+/\ lastCheckIn = 0
+/\ funded = TRUE
+/\ honestWitnesses = TRUE
+/\ ownerAlive = FALSE
+/\ now = 1
+/\ ckdOk = TRUE
+/\ signOk = TRUE
+/\ lastArgs = <<>>
+/\ chainNonce = 0
+/\ lastAction = ""
+/\ landings = <<>>
+/\ reopened = (0 :> FALSE)
+/\ inflight = {}
+/\ reopenedAt = (0 :> -1)
+/\ calleeGasOk = TRUE
+/\ adultAt = (0 :> -1)
+/\ wishesRequested = FALSE
+/\ claim = [ kind |-> "Normal",
+  openedAt |-> 1,
+  payAfter |-> 2,
+  contested |-> {},
+  frozenUntil |-> 0,
+  freezeUsed |-> FALSE,
+  delay |-> 1 ]
+/\ committed = 0
+/\ falseRevert = FALSE
+/\ signerRegistered = FALSE
+/\ baseFee = 1
+/\ nextNonce = 0
+/\ heirStatus = (0 :> "Open")
+/\ payouts = <<>>
+/\ attestOk = TRUE
+
+State 5: <contest(1) line 563, col 3 to line 586, col 42 of module ghost>
+/\ epoch = 0
+/\ lastCheckIn = 0
+/\ funded = TRUE
+/\ honestWitnesses = TRUE
+/\ ownerAlive = FALSE
+/\ now = 1
+/\ ckdOk = TRUE
+/\ signOk = TRUE
+/\ lastArgs = <<>>
+/\ chainNonce = 0
+/\ lastAction = ""
+/\ landings = <<>>
+/\ reopened = (0 :> FALSE)
+/\ inflight = {}
+/\ reopenedAt = (0 :> -1)
+/\ calleeGasOk = TRUE
+/\ adultAt = (0 :> -1)
+/\ wishesRequested = FALSE
+/\ claim = [ kind |-> "Normal",
+  openedAt |-> 1,
+  payAfter |-> 3,
+  contested |-> {1},
+  frozenUntil |-> 0,
+  freezeUsed |-> FALSE,
+  delay |-> 1 ]
+/\ committed = 0
+/\ falseRevert = FALSE
+/\ signerRegistered = FALSE
+/\ baseFee = 1
+/\ nextNonce = 0
+/\ heirStatus = (0 :> "Open")
+/\ payouts = <<>>
+/\ attestOk = TRUE
+
+State 6: <tickFair line 1454, col 13 to line 1454, col 51 of module ghost>
+/\ epoch = 0
+/\ lastCheckIn = 0
+/\ funded = TRUE
+/\ honestWitnesses = TRUE
+/\ ownerAlive = FALSE
+/\ now = 2
+/\ ckdOk = TRUE
+/\ signOk = TRUE
+/\ lastArgs = <<>>
+/\ chainNonce = 0
+/\ lastAction = ""
+/\ landings = <<>>
+/\ reopened = (0 :> FALSE)
+/\ inflight = {}
+/\ reopenedAt = (0 :> -1)
+/\ calleeGasOk = TRUE
+/\ adultAt = (0 :> -1)
+/\ wishesRequested = FALSE
+/\ claim = [ kind |-> "Normal",
+  openedAt |-> 1,
+  payAfter |-> 3,
+  contested |-> {1},
+  frozenUntil |-> 0,
+  freezeUsed |-> FALSE,
+  delay |-> 1 ]
+/\ committed = 0
+/\ falseRevert = FALSE
+/\ signerRegistered = FALSE
+/\ baseFee = 1
+/\ nextNonce = 0
+/\ heirStatus = (0 :> "Open")
+/\ payouts = <<>>
+/\ attestOk = TRUE
+
+State 7: <contest(2) line 563, col 3 to line 586, col 42 of module ghost>
+/\ epoch = 0
+/\ lastCheckIn = 0
+/\ funded = TRUE
+/\ honestWitnesses = TRUE
+/\ ownerAlive = FALSE
+/\ now = 2
+/\ ckdOk = TRUE
+/\ signOk = TRUE
+/\ lastArgs = <<>>
+/\ chainNonce = 0
+/\ lastAction = ""
+/\ landings = <<>>
+/\ reopened = (0 :> FALSE)
+/\ inflight = {}
+/\ reopenedAt = (0 :> -1)
+/\ calleeGasOk = TRUE
+/\ adultAt = (0 :> -1)
+/\ wishesRequested = FALSE
+/\ claim = [ kind |-> "Normal",
+  openedAt |-> 1,
+  payAfter |-> 4,
+  contested |-> {1, 2},
+  frozenUntil |-> 0,
+  freezeUsed |-> FALSE,
+  delay |-> 1 ]
+/\ committed = 0
+/\ falseRevert = FALSE
+/\ signerRegistered = FALSE
+/\ baseFee = 1
+/\ nextNonce = 0
+/\ heirStatus = (0 :> "Open")
+/\ payouts = <<>>
+/\ attestOk = TRUE
+
+State 8: <freezeFair line 1185, col 15 to line 1185, col 52 of module ghost>
+/\ epoch = 0
+/\ lastCheckIn = 0
+/\ funded = TRUE
+/\ honestWitnesses = TRUE
+/\ ownerAlive = FALSE
+/\ now = 2
+/\ ckdOk = TRUE
+/\ signOk = TRUE
+/\ lastArgs = <<>>
+/\ chainNonce = 0
+/\ lastAction = ""
+/\ landings = <<>>
+/\ reopened = (0 :> FALSE)
+/\ inflight = {}
+/\ reopenedAt = (0 :> -1)
+/\ calleeGasOk = TRUE
+/\ adultAt = (0 :> -1)
+/\ wishesRequested = FALSE
+/\ claim = [ kind |-> "Normal",
+  openedAt |-> 1,
+  payAfter |-> 4,
+  contested |-> {1, 2},
+  frozenUntil |-> 3,
+  freezeUsed |-> TRUE,
+  delay |-> 1 ]
+/\ committed = 0
+/\ falseRevert = FALSE
+/\ signerRegistered = FALSE
+/\ baseFee = 1
+/\ nextNonce = 0
+/\ heirStatus = (0 :> "Open")
+/\ payouts = <<>>
+/\ attestOk = TRUE
+
+State 9: <contest(0) line 563, col 3 to line 586, col 42 of module ghost>
+/\ epoch = 0
+/\ lastCheckIn = 0
+/\ funded = TRUE
+/\ honestWitnesses = TRUE
+/\ ownerAlive = FALSE
+/\ now = 2
+/\ ckdOk = TRUE
+/\ signOk = TRUE
+/\ lastArgs = <<>>
+/\ chainNonce = 0
+/\ lastAction = ""
+/\ landings = <<>>
+/\ reopened = (0 :> FALSE)
+/\ inflight = {}
+/\ reopenedAt = (0 :> -1)
+/\ calleeGasOk = TRUE
+/\ adultAt = (0 :> -1)
+/\ wishesRequested = FALSE
+/\ claim = [ kind |-> "Normal",
+  openedAt |-> 1,
+  payAfter |-> 5,
+  contested |-> {0, 1, 2},
+  frozenUntil |-> 3,
+  freezeUsed |-> TRUE,
+  delay |-> 1 ]
+/\ committed = 0
+/\ falseRevert = FALSE
+/\ signerRegistered = FALSE
+/\ baseFee = 1
+/\ nextNonce = 0
+/\ heirStatus = (0 :> "Open")
+/\ payouts = <<>>
+/\ attestOk = TRUE
+
+State 10: <tickFair line 1454, col 13 to line 1454, col 51 of module ghost>
+/\ epoch = 0
+/\ lastCheckIn = 0
+/\ funded = TRUE
+/\ honestWitnesses = TRUE
+/\ ownerAlive = FALSE
+/\ now = 3
+/\ ckdOk = TRUE
+/\ signOk = TRUE
+/\ lastArgs = <<>>
+/\ chainNonce = 0
+/\ lastAction = ""
+/\ landings = <<>>
+/\ reopened = (0 :> FALSE)
+/\ inflight = {}
+/\ reopenedAt = (0 :> -1)
+/\ calleeGasOk = TRUE
+/\ adultAt = (0 :> -1)
+/\ wishesRequested = FALSE
+/\ claim = [ kind |-> "Normal",
+  openedAt |-> 1,
+  payAfter |-> 5,
+  contested |-> {0, 1, 2},
+  frozenUntil |-> 3,
+  freezeUsed |-> TRUE,
+  delay |-> 1 ]
+/\ committed = 0
+/\ falseRevert = FALSE
+/\ signerRegistered = FALSE
+/\ baseFee = 1
+/\ nextNonce = 0
+/\ heirStatus = (0 :> "Open")
+/\ payouts = <<>>
+/\ attestOk = TRUE
+
+State 11: <tickFair line 1454, col 13 to line 1454, col 51 of module ghost>
+/\ epoch = 0
+/\ lastCheckIn = 0
+/\ funded = TRUE
+/\ honestWitnesses = TRUE
+/\ ownerAlive = FALSE
+/\ now = 4
+/\ ckdOk = TRUE
+/\ signOk = TRUE
+/\ lastArgs = <<>>
+/\ chainNonce = 0
+/\ lastAction = ""
+/\ landings = <<>>
+/\ reopened = (0 :> FALSE)
+/\ inflight = {}
+/\ reopenedAt = (0 :> -1)
+/\ calleeGasOk = TRUE
+/\ adultAt = (0 :> -1)
+/\ wishesRequested = FALSE
+/\ claim = [ kind |-> "Normal",
+  openedAt |-> 1,
+  payAfter |-> 5,
+  contested |-> {0, 1, 2},
+  frozenUntil |-> 3,
+  freezeUsed |-> TRUE,
+  delay |-> 1 ]
+/\ committed = 0
+/\ falseRevert = FALSE
+/\ signerRegistered = FALSE
+/\ baseFee = 1
+/\ nextNonce = 0
+/\ heirStatus = (0 :> "Open")
+/\ payouts = <<>>
+/\ attestOk = TRUE
+
+State 12: <tickFair line 1454, col 13 to line 1454, col 51 of module ghost>
+/\ epoch = 0
+/\ lastCheckIn = 0
+/\ funded = TRUE
+/\ honestWitnesses = TRUE
+/\ ownerAlive = FALSE
+/\ now = 5
+/\ ckdOk = TRUE
+/\ signOk = TRUE
+/\ lastArgs = <<>>
+/\ chainNonce = 0
+/\ lastAction = ""
+/\ landings = <<>>
+/\ reopened = (0 :> FALSE)
+/\ inflight = {}
+/\ reopenedAt = (0 :> -1)
+/\ calleeGasOk = TRUE
+/\ adultAt = (0 :> -1)
+/\ wishesRequested = FALSE
+/\ claim = [ kind |-> "Normal",
+  openedAt |-> 1,
+  payAfter |-> 5,
+  contested |-> {0, 1, 2},
+  frozenUntil |-> 3,
+  freezeUsed |-> TRUE,
+  delay |-> 1 ]
+/\ committed = 0
+/\ falseRevert = FALSE
+/\ signerRegistered = FALSE
+/\ baseFee = 1
+/\ nextNonce = 0
+/\ heirStatus = (0 :> "Open")
+/\ payouts = <<>>
+/\ attestOk = TRUE
+
+State 13: <tickFair line 1454, col 13 to line 1454, col 51 of module ghost>
+/\ epoch = 0
+/\ lastCheckIn = 0
+/\ funded = TRUE
+/\ honestWitnesses = TRUE
+/\ ownerAlive = FALSE
+/\ now = 6
+/\ ckdOk = TRUE
+/\ signOk = TRUE
+/\ lastArgs = <<>>
+/\ chainNonce = 0
+/\ lastAction = ""
+/\ landings = <<>>
+/\ reopened = (0 :> FALSE)
+/\ inflight = {}
+/\ reopenedAt = (0 :> -1)
+/\ calleeGasOk = TRUE
+/\ adultAt = (0 :> -1)
+/\ wishesRequested = FALSE
+/\ claim = [ kind |-> "Normal",
+  openedAt |-> 1,
+  payAfter |-> 5,
+  contested |-> {0, 1, 2},
+  frozenUntil |-> 3,
+  freezeUsed |-> TRUE,
+  delay |-> 1 ]
+/\ committed = 0
+/\ falseRevert = FALSE
+/\ signerRegistered = FALSE
+/\ baseFee = 1
+/\ nextNonce = 0
+/\ heirStatus = (0 :> "Open")
+/\ payouts = <<>>
+/\ attestOk = TRUE
+
+State 14: <tickFair line 1454, col 13 to line 1454, col 51 of module ghost>
+/\ epoch = 0
+/\ lastCheckIn = 0
+/\ funded = TRUE
+/\ honestWitnesses = TRUE
+/\ ownerAlive = FALSE
+/\ now = 7
+/\ ckdOk = TRUE
+/\ signOk = TRUE
+/\ lastArgs = <<>>
+/\ chainNonce = 0
+/\ lastAction = ""
+/\ landings = <<>>
+/\ reopened = (0 :> FALSE)
+/\ inflight = {}
+/\ reopenedAt = (0 :> -1)
+/\ calleeGasOk = TRUE
+/\ adultAt = (0 :> -1)
+/\ wishesRequested = FALSE
+/\ claim = [ kind |-> "Normal",
+  openedAt |-> 1,
+  payAfter |-> 5,
+  contested |-> {0, 1, 2},
+  frozenUntil |-> 3,
+  freezeUsed |-> TRUE,
+  delay |-> 1 ]
+/\ committed = 0
+/\ falseRevert = FALSE
+/\ signerRegistered = FALSE
+/\ baseFee = 1
+/\ nextNonce = 0
+/\ heirStatus = (0 :> "Open")
+/\ payouts = <<>>
+/\ attestOk = TRUE
+
+State 15: <tickFair line 1454, col 13 to line 1454, col 51 of module ghost>
+/\ epoch = 0
+/\ lastCheckIn = 0
+/\ funded = TRUE
+/\ honestWitnesses = TRUE
+/\ ownerAlive = FALSE
+/\ now = 8
+/\ ckdOk = TRUE
+/\ signOk = TRUE
+/\ lastArgs = <<>>
+/\ chainNonce = 0
+/\ lastAction = ""
+/\ landings = <<>>
+/\ reopened = (0 :> FALSE)
+/\ inflight = {}
+/\ reopenedAt = (0 :> -1)
+/\ calleeGasOk = TRUE
+/\ adultAt = (0 :> -1)
+/\ wishesRequested = FALSE
+/\ claim = [ kind |-> "Normal",
+  openedAt |-> 1,
+  payAfter |-> 5,
+  contested |-> {0, 1, 2},
+  frozenUntil |-> 3,
+  freezeUsed |-> TRUE,
+  delay |-> 1 ]
+/\ committed = 0
+/\ falseRevert = FALSE
+/\ signerRegistered = FALSE
+/\ baseFee = 1
+/\ nextNonce = 0
+/\ heirStatus = (0 :> "Open")
+/\ payouts = <<>>
+/\ attestOk = TRUE
+
+State 16: <tickFair line 1454, col 13 to line 1454, col 51 of module ghost>
+/\ epoch = 0
+/\ lastCheckIn = 0
+/\ funded = TRUE
+/\ honestWitnesses = TRUE
+/\ ownerAlive = FALSE
+/\ now = 9
+/\ ckdOk = TRUE
+/\ signOk = TRUE
+/\ lastArgs = <<>>
+/\ chainNonce = 0
+/\ lastAction = ""
+/\ landings = <<>>
+/\ reopened = (0 :> FALSE)
+/\ inflight = {}
+/\ reopenedAt = (0 :> -1)
+/\ calleeGasOk = TRUE
+/\ adultAt = (0 :> -1)
+/\ wishesRequested = FALSE
+/\ claim = [ kind |-> "Normal",
+  openedAt |-> 1,
+  payAfter |-> 5,
+  contested |-> {0, 1, 2},
+  frozenUntil |-> 3,
+  freezeUsed |-> TRUE,
+  delay |-> 1 ]
+/\ committed = 0
+/\ falseRevert = FALSE
+/\ signerRegistered = FALSE
+/\ baseFee = 1
+/\ nextNonce = 0
+/\ heirStatus = (0 :> "Open")
+/\ payouts = <<>>
+/\ attestOk = TRUE
+
+State 17: <tickFair line 1454, col 13 to line 1454, col 51 of module ghost>
+/\ epoch = 0
+/\ lastCheckIn = 0
+/\ funded = TRUE
+/\ honestWitnesses = TRUE
+/\ ownerAlive = FALSE
+/\ now = 10
+/\ ckdOk = TRUE
+/\ signOk = TRUE
+/\ lastArgs = <<>>
+/\ chainNonce = 0
+/\ lastAction = ""
+/\ landings = <<>>
+/\ reopened = (0 :> FALSE)
+/\ inflight = {}
+/\ reopenedAt = (0 :> -1)
+/\ calleeGasOk = TRUE
+/\ adultAt = (0 :> -1)
+/\ wishesRequested = FALSE
+/\ claim = [ kind |-> "Normal",
+  openedAt |-> 1,
+  payAfter |-> 5,
+  contested |-> {0, 1, 2},
+  frozenUntil |-> 3,
+  freezeUsed |-> TRUE,
+  delay |-> 1 ]
+/\ committed = 0
+/\ falseRevert = FALSE
+/\ signerRegistered = FALSE
+/\ baseFee = 1
+/\ nextNonce = 0
+/\ heirStatus = (0 :> "Open")
+/\ payouts = <<>>
+/\ attestOk = TRUE
+
+State 18: <tickFair line 1454, col 13 to line 1454, col 51 of module ghost>
+/\ epoch = 0
+/\ lastCheckIn = 0
+/\ funded = TRUE
+/\ honestWitnesses = TRUE
+/\ ownerAlive = FALSE
+/\ now = 11
+/\ ckdOk = TRUE
+/\ signOk = TRUE
+/\ lastArgs = <<>>
+/\ chainNonce = 0
+/\ lastAction = ""
+/\ landings = <<>>
+/\ reopened = (0 :> FALSE)
+/\ inflight = {}
+/\ reopenedAt = (0 :> -1)
+/\ calleeGasOk = TRUE
+/\ adultAt = (0 :> -1)
+/\ wishesRequested = FALSE
+/\ claim = [ kind |-> "Normal",
+  openedAt |-> 1,
+  payAfter |-> 5,
+  contested |-> {0, 1, 2},
+  frozenUntil |-> 3,
+  freezeUsed |-> TRUE,
+  delay |-> 1 ]
+/\ committed = 0
+/\ falseRevert = FALSE
+/\ signerRegistered = FALSE
+/\ baseFee = 1
+/\ nextNonce = 0
+/\ heirStatus = (0 :> "Open")
+/\ payouts = <<>>
+/\ attestOk = TRUE
+
+State 19: <executeFallback(0) line 1583, col 3 to line 1586, col 45 of module ghost>
+/\ epoch = 0
+/\ lastCheckIn = 0
+/\ funded = TRUE
+/\ honestWitnesses = TRUE
+/\ ownerAlive = FALSE
+/\ now = 11
+/\ ckdOk = TRUE
+/\ signOk = TRUE
+/\ lastArgs = <<>>
+/\ chainNonce = 0
+/\ lastAction = ""
+/\ landings = <<>>
+/\ reopened = (0 :> FALSE)
+/\ inflight = {<<"sign", 0, 11>>}
+/\ reopenedAt = (0 :> -1)
+/\ calleeGasOk = TRUE
+/\ adultAt = (0 :> -1)
+/\ wishesRequested = FALSE
+/\ claim = [ kind |-> "Normal",
+  openedAt |-> 1,
+  payAfter |-> 5,
+  contested |-> {0, 1, 2},
+  frozenUntil |-> 3,
+  freezeUsed |-> TRUE,
+  delay |-> 1 ]
+/\ committed = 7
+/\ falseRevert = FALSE
+/\ signerRegistered = FALSE
+/\ baseFee = 1
+/\ nextNonce = 1
+/\ heirStatus = (0 :> "Pending")
+/\ payouts = << [ heir |-> 0,
+     value |-> 3,
+     nonce |-> 0,
+     status |-> "Active",
+     signing |-> TRUE,
+     signingSince |-> 11,
+     attempts |->
+         << [ fee |-> 1,
+              signed |-> FALSE,
+              requestedAt |-> 11,
+              public |-> FALSE ] >>,
+     settledAttempt |-> -1,
+     source |-> "fallback" ] >>
+/\ attestOk = TRUE
+
+State 20: <tickFair line 1454, col 13 to line 1454, col 51 of module ghost>
+/\ epoch = 0
+/\ lastCheckIn = 0
+/\ funded = TRUE
+/\ honestWitnesses = TRUE
+/\ ownerAlive = FALSE
+/\ now = 12
+/\ ckdOk = TRUE
+/\ signOk = TRUE
+/\ lastArgs = <<>>
+/\ chainNonce = 0
+/\ lastAction = ""
+/\ landings = <<>>
+/\ reopened = (0 :> FALSE)
+/\ inflight = {<<"sign", 0, 11>>}
+/\ reopenedAt = (0 :> -1)
+/\ calleeGasOk = TRUE
+/\ adultAt = (0 :> -1)
+/\ wishesRequested = FALSE
+/\ claim = [ kind |-> "Normal",
+  openedAt |-> 1,
+  payAfter |-> 5,
+  contested |-> {0, 1, 2},
+  frozenUntil |-> 3,
+  freezeUsed |-> TRUE,
+  delay |-> 1 ]
+/\ committed = 7
+/\ falseRevert = FALSE
+/\ signerRegistered = FALSE
+/\ baseFee = 1
+/\ nextNonce = 1
+/\ heirStatus = (0 :> "Pending")
+/\ payouts = << [ heir |-> 0,
+     value |-> 3,
+     nonce |-> 0,
+     status |-> "Active",
+     signing |-> TRUE,
+     signingSince |-> 11,
+     attempts |->
+         << [ fee |-> 1,
+              signed |-> FALSE,
+              requestedAt |-> 11,
+              public |-> FALSE ] >>,
+     settledAttempt |-> -1,
+     source |-> "fallback" ] >>
+/\ attestOk = TRUE
+
+State 21: <requestSignature(0,4) line 1191, col 3 to line 1238, col 56 of module ghost>
+/\ epoch = 0
+/\ lastCheckIn = 0
+/\ funded = TRUE
+/\ honestWitnesses = TRUE
+/\ ownerAlive = FALSE
+/\ now = 12
+/\ ckdOk = TRUE
+/\ signOk = TRUE
+/\ lastArgs = <<>>
+/\ chainNonce = 0
+/\ lastAction = ""
+/\ landings = <<>>
+/\ reopened = (0 :> FALSE)
+/\ inflight = {<<"sign", 0, 11>>, <<"sign", 0, 12>>}
+/\ reopenedAt = (0 :> -1)
+/\ calleeGasOk = TRUE
+/\ adultAt = (0 :> -1)
+/\ wishesRequested = FALSE
+/\ claim = [ kind |-> "Normal",
+  openedAt |-> 1,
+  payAfter |-> 5,
+  contested |-> {0, 1, 2},
+  frozenUntil |-> 3,
+  freezeUsed |-> TRUE,
+  delay |-> 1 ]
+/\ committed = 7
+/\ falseRevert = FALSE
+/\ signerRegistered = FALSE
+/\ baseFee = 1
+/\ nextNonce = 1
+/\ heirStatus = (0 :> "Pending")
+/\ payouts = << [ heir |-> 0,
+     value |-> 3,
+     nonce |-> 0,
+     status |-> "Active",
+     signing |-> TRUE,
+     signingSince |-> 12,
+     attempts |->
+         << [fee |-> 1, signed |-> FALSE, requestedAt |-> 11, public |-> FALSE],
+            [ fee |-> 4,
+              signed |-> FALSE,
+              requestedAt |-> 12,
+              public |-> FALSE ] >>,
+     settledAttempt |-> -1,
+     source |-> "fallback" ] >>
+/\ attestOk = TRUE
+
+State 22: <onSigned(0,12,TRUE) line 1119, col 3 to line 1175, col 74 of module ghost>
+/\ epoch = 0
+/\ lastCheckIn = 0
+/\ funded = TRUE
+/\ honestWitnesses = TRUE
+/\ ownerAlive = FALSE
+/\ now = 12
+/\ ckdOk = TRUE
+/\ signOk = TRUE
+/\ lastArgs = <<>>
+/\ chainNonce = 0
+/\ lastAction = ""
+/\ landings = <<>>
+/\ reopened = (0 :> FALSE)
+/\ inflight = {<<"sign", 0, 11>>}
+/\ reopenedAt = (0 :> -1)
+/\ calleeGasOk = TRUE
+/\ adultAt = (0 :> -1)
+/\ wishesRequested = FALSE
+/\ claim = [ kind |-> "Normal",
+  openedAt |-> 1,
+  payAfter |-> 5,
+  contested |-> {0, 1, 2},
+  frozenUntil |-> 3,
+  freezeUsed |-> TRUE,
+  delay |-> 1 ]
+/\ committed = 7
+/\ falseRevert = FALSE
+/\ signerRegistered = FALSE
+/\ baseFee = 1
+/\ nextNonce = 1
+/\ heirStatus = (0 :> "Pending")
+/\ payouts = << [ heir |-> 0,
+     value |-> 3,
+     nonce |-> 0,
+     status |-> "Active",
+     signing |-> FALSE,
+     signingSince |-> 12,
+     attempts |->
+         << [fee |-> 1, signed |-> FALSE, requestedAt |-> 11, public |-> FALSE],
+            [ fee |-> 4,
+              signed |-> TRUE,
+              requestedAt |-> 12,
+              public |-> FALSE ] >>,
+     settledAttempt |-> -1,
+     source |-> "fallback" ] >>
+/\ attestOk = TRUE
+
+State 23: <settle(0,1) line 973, col 3 to line 981, col 43 of module ghost>
+/\ epoch = 0
+/\ lastCheckIn = 0
+/\ funded = TRUE
+/\ honestWitnesses = TRUE
+/\ ownerAlive = FALSE
+/\ now = 12
+/\ ckdOk = TRUE
+/\ signOk = TRUE
+/\ lastArgs = <<>>
+/\ chainNonce = 0
+/\ lastAction = ""
+/\ landings = <<>>
+/\ reopened = (0 :> FALSE)
+/\ inflight = {<<"settle", 0, 1>>, <<"sign", 0, 11>>}
+/\ reopenedAt = (0 :> -1)
+/\ calleeGasOk = TRUE
+/\ adultAt = (0 :> -1)
+/\ wishesRequested = FALSE
+/\ claim = [ kind |-> "Normal",
+  openedAt |-> 1,
+  payAfter |-> 5,
+  contested |-> {0, 1, 2},
+  frozenUntil |-> 3,
+  freezeUsed |-> TRUE,
+  delay |-> 1 ]
+/\ committed = 7
+/\ falseRevert = FALSE
+/\ signerRegistered = FALSE
+/\ baseFee = 1
+/\ nextNonce = 1
+/\ heirStatus = (0 :> "Pending")
+/\ payouts = << [ heir |-> 0,
+     value |-> 3,
+     nonce |-> 0,
+     status |-> "Active",
+     signing |-> FALSE,
+     signingSince |-> 12,
+     attempts |->
+         << [fee |-> 1, signed |-> FALSE, requestedAt |-> 11, public |-> FALSE],
+            [ fee |-> 4,
+              signed |-> TRUE,
+              requestedAt |-> 12,
+              public |-> FALSE ] >>,
+     settledAttempt |-> -1,
+     source |-> "fallback" ] >>
+/\ attestOk = TRUE
+
+State 24: <onSigned(0,11,TRUE) line 1119, col 3 to line 1175, col 74 of module ghost>
+/\ epoch = 0
+/\ lastCheckIn = 0
+/\ funded = TRUE
+/\ honestWitnesses = TRUE
+/\ ownerAlive = FALSE
+/\ now = 12
+/\ ckdOk = TRUE
+/\ signOk = TRUE
+/\ lastArgs = <<>>
+/\ chainNonce = 0
+/\ lastAction = ""
+/\ landings = <<>>
+/\ reopened = (0 :> FALSE)
+/\ inflight = {<<"settle", 0, 1>>}
+/\ reopenedAt = (0 :> -1)
+/\ calleeGasOk = TRUE
+/\ adultAt = (0 :> -1)
+/\ wishesRequested = FALSE
+/\ claim = [ kind |-> "Normal",
+  openedAt |-> 1,
+  payAfter |-> 5,
+  contested |-> {0, 1, 2},
+  frozenUntil |-> 3,
+  freezeUsed |-> TRUE,
+  delay |-> 1 ]
+/\ committed = 7
+/\ falseRevert = FALSE
+/\ signerRegistered = FALSE
+/\ baseFee = 1
+/\ nextNonce = 1
+/\ heirStatus = (0 :> "Pending")
+/\ payouts = << [ heir |-> 0,
+     value |-> 3,
+     nonce |-> 0,
+     status |-> "Active",
+     signing |-> FALSE,
+     signingSince |-> 12,
+     attempts |->
+         << [fee |-> 1, signed |-> FALSE, requestedAt |-> 11, public |-> TRUE],
+            [ fee |-> 4,
+              signed |-> TRUE,
+              requestedAt |-> 12,
+              public |-> FALSE ] >>,
+     settledAttempt |-> -1,
+     source |-> "fallback" ] >>
+/\ attestOk = TRUE
+
+State 25: <land(0,0,TRUE) line 1244, col 3 to line 1266, col 75 of module ghost>
+/\ epoch = 0
+/\ lastCheckIn = 0
+/\ funded = TRUE
+/\ honestWitnesses = TRUE
+/\ ownerAlive = FALSE
+/\ now = 12
+/\ ckdOk = TRUE
+/\ signOk = TRUE
+/\ lastArgs = <<>>
+/\ chainNonce = 1
+/\ lastAction = ""
+/\ landings = <<[payout |-> 0, attempt |-> 0, ok |-> TRUE, finalized |-> FALSE]>>
+/\ reopened = (0 :> FALSE)
+/\ inflight = {<<"settle", 0, 1>>}
+/\ reopenedAt = (0 :> -1)
+/\ calleeGasOk = TRUE
+/\ adultAt = (0 :> -1)
+/\ wishesRequested = FALSE
+/\ claim = [ kind |-> "Normal",
+  openedAt |-> 1,
+  payAfter |-> 5,
+  contested |-> {0, 1, 2},
+  frozenUntil |-> 3,
+  freezeUsed |-> TRUE,
+  delay |-> 1 ]
+/\ committed = 7
+/\ falseRevert = FALSE
+/\ signerRegistered = FALSE
+/\ baseFee = 1
+/\ nextNonce = 1
+/\ heirStatus = (0 :> "Pending")
+/\ payouts = << [ heir |-> 0,
+     value |-> 3,
+     nonce |-> 0,
+     status |-> "Active",
+     signing |-> FALSE,
+     signingSince |-> 12,
+     attempts |->
+         << [fee |-> 1, signed |-> FALSE, requestedAt |-> 11, public |-> TRUE],
+            [ fee |-> 4,
+              signed |-> TRUE,
+              requestedAt |-> 12,
+              public |-> FALSE ] >>,
+     settledAttempt |-> -1,
+     source |-> "fallback" ] >>
+/\ attestOk = TRUE
+
+State 26: <finalize line 1291, col 3 to line 1332, col 37 of module ghost>
+/\ epoch = 0
+/\ lastCheckIn = 0
+/\ funded = TRUE
+/\ honestWitnesses = TRUE
+/\ ownerAlive = FALSE
+/\ now = 12
+/\ ckdOk = TRUE
+/\ signOk = TRUE
+/\ lastArgs = <<>>
+/\ chainNonce = 1
+/\ lastAction = ""
+/\ landings = <<[payout |-> 0, attempt |-> 0, ok |-> TRUE, finalized |-> TRUE]>>
+/\ reopened = (0 :> FALSE)
+/\ inflight = {<<"settle", 0, 1>>}
+/\ reopenedAt = (0 :> -1)
+/\ calleeGasOk = TRUE
+/\ adultAt = (0 :> -1)
+/\ wishesRequested = FALSE
+/\ claim = [ kind |-> "Normal",
+  openedAt |-> 1,
+  payAfter |-> 5,
+  contested |-> {0, 1, 2},
+  frozenUntil |-> 3,
+  freezeUsed |-> TRUE,
+  delay |-> 1 ]
+/\ committed = 7
+/\ falseRevert = FALSE
+/\ signerRegistered = FALSE
+/\ baseFee = 1
+/\ nextNonce = 1
+/\ heirStatus = (0 :> "Pending")
+/\ payouts = << [ heir |-> 0,
+     value |-> 3,
+     nonce |-> 0,
+     status |-> "Active",
+     signing |-> FALSE,
+     signingSince |-> 12,
+     attempts |->
+         << [fee |-> 1, signed |-> FALSE, requestedAt |-> 11, public |-> TRUE],
+            [ fee |-> 4,
+              signed |-> TRUE,
+              requestedAt |-> 12,
+              public |-> FALSE ] >>,
+     settledAttempt |-> -1,
+     source |-> "fallback" ] >>
+/\ attestOk = TRUE
+
+State 27: Stuttering
+Warning: The stuttering counterexample above may be caused by the absence of a behavior specification (SPECIFICATION). Only INIT and NEXT have been provided, so TLC permits infinite stuttering. To rule out such counterexamples, use SPECIFICATION Spec, with Spec asserting a suitable fairness constraint (compare Chapter 8, page 87ff of Specifying Systems at https://lamport.azurewebsites.net/tla/book.html).
+Finished checking temporal properties in 03s at 2026-11-13 03:11:27
+29363130 states generated, 8654128 distinct states found, 3688388 states left on queue.
+The depth of the complete state graph search is 32.
+Finished in 13min 23s at (2026-11-13 03:11:27)
+Trace exploration spec path: /Users/MAC/development/afterlife-clause/spec/_check/tmp/quint-tlc-Ako8ye/ghost_TTrace_1794535083.tla
+
+[violation] Found an issue (803283ms).
+error: found a counterexample

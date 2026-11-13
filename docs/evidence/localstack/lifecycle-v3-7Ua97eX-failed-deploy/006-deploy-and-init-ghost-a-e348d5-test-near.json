@@ -1,0 +1,249 @@
+{
+  "label": "deploy and init ghost-a-e348d5.test.near",
+  "signer": "ghost-a-e348d5.test.near",
+  "receiver": "ghost-a-e348d5.test.near",
+  "hash": "AdqFNYMd89CRJtN7feyHhVPz3rFFCcH4z4fJbbmz1Vf3",
+  "ok": false,
+  "error": "fallback must outlast every delay",
+  "innerErrors": [
+    "fallback must outlast every delay"
+  ],
+  "gasBurnt": "20961282962707",
+  "receipts": [
+    {
+      "id": "6RkRX2iHWYwZrfmJzYJMUgCePtLXHk37EYsMTWEJsntz",
+      "executor": "ghost-a-e348d5.test.near",
+      "method": "refund",
+      "gas_burnt": 18460991289361,
+      "tgas": 18.460991289361,
+      "status": {
+        "Failure": {
+          "ActionError": {
+            "index": 1,
+            "kind": {
+              "FunctionCallError": {
+                "ExecutionError": "Smart contract panicked: fallback must outlast every delay"
+              }
+            }
+          }
+        }
+      },
+      "logs": []
+    },
+    {
+      "id": "5fQHVbxbHJQB9yeNCi6dbMccCsMSEvRKfecjx6chkaUT",
+      "executor": "ghost-a-e348d5.test.near",
+      "method": "refund",
+      "gas_burnt": 223182562500,
+      "tgas": 0.2231825625,
+      "status": "SuccessValue",
+      "logs": []
+    }
+  ],
+  "rpc": {
+    "final_execution_status": "FINAL",
+    "receipts_outcome": [
+      {
+        "block_hash": "EcHSPSngnDo6hyTQv8ZsCqAZrLjD1mhUr3Kzp8f7ryzY",
+        "id": "6RkRX2iHWYwZrfmJzYJMUgCePtLXHk37EYsMTWEJsntz",
+        "outcome": {
+          "executor_id": "ghost-a-e348d5.test.near",
+          "gas_burnt": 18460991289361,
+          "logs": [],
+          "metadata": {
+            "contracts": [
+              null,
+              {
+                "local": "7Ua97eXHq3VXdwe1m69VYuVqSdRHdLCayaCzbsxS8YRq"
+              }
+            ],
+            "gas_profile": [
+              {
+                "cost": "BASE",
+                "cost_category": "WASM_HOST_COST",
+                "gas_used": "1588608666"
+              },
+              {
+                "cost": "CONTRACT_LOADING_BASE",
+                "cost_category": "WASM_HOST_COST",
+                "gas_used": "35445963"
+              },
+              {
+                "cost": "CONTRACT_LOADING_BYTES",
+                "cost_category": "WASM_HOST_COST",
+                "gas_used": "284750427360"
+              },
+              {
+                "cost": "READ_MEMORY_BASE",
+                "cost_category": "WASM_HOST_COST",
+                "gas_used": "5219726400"
+              },
+              {
+                "cost": "READ_MEMORY_BYTE",
+                "cost_category": "WASM_HOST_COST",
+                "gas_used": "144450654"
+              },
+              {
+                "cost": "READ_REGISTER_BASE",
+                "cost_category": "WASM_HOST_COST",
+                "gas_used": "2517165186"
+              },
+              {
+                "cost": "READ_REGISTER_BYTE",
+                "cost_category": "WASM_HOST_COST",
+                "gas_used": "145674636"
+              },
+              {
+                "cost": "STORAGE_HAS_KEY_BASE",
+                "cost_category": "WASM_HOST_COST",
+                "gas_used": "54039896625"
+              },
+              {
+                "cost": "STORAGE_HAS_KEY_BYTE",
+                "cost_category": "WASM_HOST_COST",
+                "gas_used": "153954225"
+              },
+              {
+                "cost": "UTF8_DECODING_BASE",
+                "cost_category": "WASM_HOST_COST",
+                "gas_used": "3111779061"
+              },
+              {
+                "cost": "UTF8_DECODING_BYTE",
+                "cost_category": "WASM_HOST_COST",
+                "gas_used": "9622155807"
+              },
+              {
+                "cost": "WASM_INSTRUCTION",
+                "cost_category": "WASM_HOST_COST",
+                "gas_used": "131098763796"
+              },
+              {
+                "cost": "WRITE_MEMORY_BASE",
+                "cost_category": "WASM_HOST_COST",
+                "gas_used": "5607589722"
+              },
+              {
+                "cost": "WRITE_MEMORY_BYTE",
+                "cost_category": "WASM_HOST_COST",
+                "gas_used": "4069315368"
+              },
+              {
+                "cost": "WRITE_REGISTER_BASE",
+                "cost_category": "WASM_HOST_COST",
+                "gas_used": "2865522486"
+              }
+            ],
+            "version": 4
+          },
+          "receipt_ids": [
+            "5fQHVbxbHJQB9yeNCi6dbMccCsMSEvRKfecjx6chkaUT"
+          ],
+          "status": {
+            "Failure": {
+              "ActionError": {
+                "index": 1,
+                "kind": {
+                  "FunctionCallError": {
+                    "ExecutionError": "Smart contract panicked: fallback must outlast every delay"
+                  }
+                }
+              }
+            }
+          },
+          "tokens_burnt": "1846099128936100000000"
+        },
+        "proof": [
+          {
+            "direction": "Left",
+            "hash": "HjX9afRGhP493gJNEugh5NE2eMG6QHHXSNBHT43pnrhu"
+          }
+        ]
+      },
+      {
+        "block_hash": "CZ8RBR8XDRddK6EkdFHsMt7zNXquUFubApbbuXvX4FHW",
+        "id": "5fQHVbxbHJQB9yeNCi6dbMccCsMSEvRKfecjx6chkaUT",
+        "outcome": {
+          "executor_id": "ghost-a-e348d5.test.near",
+          "gas_burnt": 223182562500,
+          "logs": [],
+          "metadata": {
+            "contracts": [
+              null
+            ],
+            "gas_profile": [],
+            "version": 4
+          },
+          "receipt_ids": [],
+          "status": {
+            "SuccessValue": ""
+          },
+          "tokens_burnt": "0"
+        },
+        "proof": []
+      }
+    ],
+    "status": {
+      "Failure": {
+        "ActionError": {
+          "index": 1,
+          "kind": {
+            "FunctionCallError": {
+              "ExecutionError": "Smart contract panicked: fallback must outlast every delay"
+            }
+          }
+        }
+      }
+    },
+    "transaction": {
+      "actions": [
+        {
+          "DeployContract": {
+            "code": "<code sha256 6036465a4ce63310f39871a67eab1c9d763af3da952e846cea195013c4fda884>"
+          }
+        },
+        {
+          "FunctionCall": {
+            "args": "eyJjb25maWciOnsib3duZXIiOiJvd25lci5naG9zdC1hLWUzNDhkNS50ZXN0Lm5lYXIiLCJyZWNvdmVyeV9rZXkiOiJUdGRYaUVHQ1hYQ0JDN1VKa2N2ZU5ibmZManFXUXB0NmtMTWNEZFNyemJVPSIsImFnZW50IjoiYWdlbnQuZ2hvc3QtYS1lMzQ4ZDUudGVzdC5uZWFyIiwibGVnYWxfYXV0aG9yaXR5IjoiY291cnQuZ2hvc3QtYS1lMzQ4ZDUudGVzdC5uZWFyIiwic2lnbmVyX2NvbnRyYWN0IjoibXBjLWNvbnRyYWN0LnRlc3QubmVhciIsInZhdWx0X3B1YmxpY19rZXkiOiJwSWpLZXMxc3NHSG01clNXNXFIdGRIWVNISnp3N08zVFdEWEZNczhKUFM2cTh2V3hWR1RNMFZpeEFWLy83ejV5d1RnQ2NScXc4M2tVcnB3Vmh0RWNnQT09IiwiZm9yZWlnbl90eF9wdWJsaWNfa2V5IjoidzRLUFl5VDROODl6RlEwbmNVaWJmbjBOVENkaDM4NWxRUW56MjdZUFpEN0JLWnRqblU4Q3ZxWFhndVdsdVBkd0RxM2NqYktWRUVIUjA5NjJiQmFtRWc9PSIsIndpdG5lc3NlcyI6WyIrOFlZM2hJQUsxQzR0YUhiSDZsRWVYVnpSOFRlK3Rqb1VqSEwzL3ViSFFVPSIsIjhsS0xab0lxU2I2VG8xMUY3VzF2UzFBVUFxNmU5N2VyT3RDUXJ5MVE0U009IiwiNUIvK1Brc3FROFR6WXZMVkoxWXBHWUJlbDhxdmE5MnFEOTB2ME8yMS9XQT0iXSwid2l0bmVzc190aHJlc2hvbGQiOjIsInJlZ2lzdHJhciI6Ilc1ZHkwT0IyM0lWWm1XSWh4d1RHSVZ3OVk1YU5vRDZxM002MmxWQWE1VFU9IiwiaW5hY3Rpdml0eV9zZWNzIjoxNSwiZ3JhY2Vfc2VjcyI6MTAsIm92ZXJyaWRlX2dyYWNlX3NlY3MiOjIwLCJjb250ZXN0X3NlY3MiOjIsImZyZWV6ZV9tYXhfc2VjcyI6MiwiZmFsbGJhY2tfc2VjcyI6MzAsImNoYWluX2lkIjo4NDUzMiwiaW5pdGlhbF9tYXhfZmVlX3Blcl9nYXMiOiIxMDAwMDAwMDAwIiwibWF4X2ZlZV9jZWlsaW5nIjoiMTYwMDAwMDAwMDAiLCJtYXhfcHJpb3JpdHlfZmVlX3Blcl9nYXMiOiIxMDAwMDAwMDAwIiwiYnVkZ2V0X3dlaSI6IjQyNzIwMDAwMDAwMDAwMDAiLCJzZWFsZWRfd2lzaGVzX2hhc2giOiI0Yjk1N2JhYTQzNjZhYmMxNTU0YTVlYzNjNTc0ZjZjMDZhMDZmOTBlNjc1YzgwYTI0OTU5ZGI0OWFhMTVlMGUzIiwid2lzaGVzX2FwcF9rZXkiOiJibHMxMjM4MWcxOjZiYnhnM1BUaTlrRXFYYlczejlCN0ZpQ2FzNkhmWG5zcVpnZThlcnJWMjl0NDFnY3E0SlJoQTlrRFIzOUIxd0tVeSIsImhlaXJzIjpbeyJhZGRyZXNzIjoiMHhlOGFiOGI3ODViN2M4MjgyODJlNTJlOEMwMDY1ZmJkY0NGMTE5YmZGIiwiZmxvb3Jfd2VpIjoiNTAwMDAwMDAwMDAwMDAwIiwiY2FwX3dlaSI6IjEwMDAwMDAwMDAwMDAwMDAiLCJnYXNfbGltaXQiOjIxMDAwLCJhZHVsdF9ieSI6MH0seyJhZGRyZXNzIjoiMHg5QTY3NmU3ODFBNTIzYjVkMEMwZTQzNzMxMzEzQTcwOENCNjA3NTA4IiwiZmxvb3Jfd2VpIjoiNTAwMDAwMDAwMDAwMDAwIiwiY2FwX3dlaSI6IjEwMDAwMDAwMDAwMDAwMDAiLCJnYXNfbGltaXQiOjUwMDAwLCJhZHVsdF9ieSI6MH1dfX0=",
+            "deposit": "0",
+            "gas": 100000000000000,
+            "method_name": "new"
+          }
+        }
+      ],
+      "hash": "AdqFNYMd89CRJtN7feyHhVPz3rFFCcH4z4fJbbmz1Vf3",
+      "nonce": 7518000004,
+      "priority_fee": 0,
+      "public_key": "ed25519:6ES4DMbGsEQqqRfw2moZKKDAQBmCCBr5g3f6GKUAGmgv",
+      "receiver_id": "ghost-a-e348d5.test.near",
+      "signature": "ed25519:4Wh3mUK3PneqHjvTcyYCCywmv3nr7N5eZgK24AAjB9tBAxzbNfQ25jbGucmc9vZZaTX8nYcPQHuMxcnj3AYw5d6x",
+      "signer_id": "ghost-a-e348d5.test.near"
+    },
+    "transaction_outcome": {
+      "block_hash": "EcHSPSngnDo6hyTQv8ZsCqAZrLjD1mhUr3Kzp8f7ryzY",
+      "id": "AdqFNYMd89CRJtN7feyHhVPz3rFFCcH4z4fJbbmz1Vf3",
+      "outcome": {
+        "executor_id": "ghost-a-e348d5.test.near",
+        "gas_burnt": 2277109110846,
+        "logs": [],
+        "metadata": {
+          "gas_profile": null,
+          "version": 1
+        },
+        "receipt_ids": [
+          "6RkRX2iHWYwZrfmJzYJMUgCePtLXHk37EYsMTWEJsntz"
+        ],
+        "status": {
+          "SuccessReceiptId": "6RkRX2iHWYwZrfmJzYJMUgCePtLXHk37EYsMTWEJsntz"
+        },
+        "tokens_burnt": "227710911084600000000"
+      },
+      "proof": [
+        {
+          "direction": "Right",
+          "hash": "C3f5r1K3eC2Qbiwg69oPQZM5h7MYf6dvZrNKU9YQFe4A"
+        }
+      ]
+    }
+  }
+}

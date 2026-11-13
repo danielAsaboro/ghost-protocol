@@ -7,7 +7,7 @@ import { baseSepolia } from 'viem/chains';
 import { attestation, reason, sha256 } from '../agent/reason.mjs';
 import { newAppKey, openWithIdentityKey, sealToIdentity, unwrapCkd } from '../agent/seal.mjs';
 import {
-  accessKeys, assembleSignedTx, assertFunded, base58Decode, base58Encode, checkRevertFinal, ckdMasterKey, derivedKey, deriveVaultAddress,
+  accessKeys, assembleSignedTx, assertFunded, base58Decode, base58Encode, checkRevertFinal, ckdMasterKey, landedFinalAttempt, derivedKey, deriveVaultAddress,
   foreignTxKey, fullAccessKeys, nearKeyBytes, SIGNER, viewCall, WISHES_PATH,
 } from '../relay/base.mjs';
 import { callContract } from '../relay/near.mjs';
@@ -242,7 +242,12 @@ const commands = {
   /** Asks the MPC network to attest the landed transaction. Run after Base Sepolia finalizes it. */
   async settle([index = '0']) {
     const s = load();
-    const { attemptIndex } = latestSigned(await chain(), Number(index));
+    const landed = await landedFinalAttempt(client(), (await chain()).payouts[Number(index)]);
+    if (!landed.ready) {
+      console.log(`NOT SETTLED  ${landed.reason}`);
+      return;
+    }
+    const attemptIndex = landed.index;
     const r = await act(`MPC network asked to attest payout ${index}`, 'settle', { payout_index: Number(index), attempt_index: attemptIndex }, s.owner);
     if (r.ok && r.value === true) {
       const e = evidence();

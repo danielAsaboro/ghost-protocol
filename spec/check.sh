@@ -17,7 +17,6 @@ if [ -n "$TINY" ]; then
 fi
 if [ -n "$SMALL" ]; then
   sed -i '' -e 's/pure val INACTIVITY = 2/pure val INACTIVITY = 1/' \
-    -e 's/pure val MAX_TIME = 12/pure val MAX_TIME = 9/' \
     -e 's/pure val ADULT_BY: int -> int = Map(0 -> 0, 1 -> 4)/pure val ADULT_BY: int -> int = Map(0 -> 0, 1 -> 2)/' _check/ghost.qnt
 fi
 cd _check

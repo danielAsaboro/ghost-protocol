@@ -1,0 +1,286 @@
+{
+  "label": "e6 immediate retry payout for heir 1",
+  "signer": "owner.ghost-a-22d572.test.near",
+  "receiver": "ghost-a-22d572.test.near",
+  "hash": "FafLjoDCEay8C9DkygnwdjcFiFsMnt5qQswxEaCdEQEx",
+  "ok": false,
+  "error": "retry waits for the revert to be disputed",
+  "innerErrors": [
+    "retry waits for the revert to be disputed"
+  ],
+  "gasBurnt": "2116663289085",
+  "receipts": [
+    {
+      "id": "73ra6WbrjpcCewxKaFVyhZKdUiJCvBro9KLzVCM6p8Fv",
+      "executor": "ghost-a-22d572.test.near",
+      "method": "execute_fallback",
+      "prepaid_gas": 300000000000000,
+      "gas_burnt": 1360712785205,
+      "tgas": 1.360712785205,
+      "status": {
+        "Failure": {
+          "ActionError": {
+            "index": 0,
+            "kind": {
+              "FunctionCallError": {
+                "ExecutionError": "Smart contract panicked: retry waits for the revert to be disputed"
+              }
+            }
+          }
+        }
+      },
+      "logs": []
+    },
+    {
+      "id": "58ZMW2huRr8JSBS3A125TGyaQiTcrouek1eDbbsASEgu",
+      "executor": "owner.ghost-a-22d572.test.near",
+      "method": "refund",
+      "gas_burnt": 223182562500,
+      "tgas": 0.2231825625,
+      "status": "SuccessValue",
+      "logs": []
+    },
+    {
+      "id": "9GMYUxoP8NEa8Hx3Vv4REP4Nr2ACtMwpbi2hSniG18ek",
+      "executor": "owner.ghost-a-22d572.test.near",
+      "method": "refund",
+      "gas_burnt": 223182562500,
+      "tgas": 0.2231825625,
+      "status": "SuccessValue",
+      "logs": []
+    }
+  ],
+  "rpc": {
+    "final_execution_status": "FINAL",
+    "receipts_outcome": [
+      {
+        "block_hash": "8QCpwAsYAt8YpSLmpniaRLzKVq494m7CkjkgnaEANodk",
+        "id": "73ra6WbrjpcCewxKaFVyhZKdUiJCvBro9KLzVCM6p8Fv",
+        "outcome": {
+          "executor_id": "ghost-a-22d572.test.near",
+          "gas_burnt": 1360712785205,
+          "logs": [],
+          "metadata": {
+            "contracts": [
+              {
+                "local": "7Ua97eXHq3VXdwe1m69VYuVqSdRHdLCayaCzbsxS8YRq"
+              }
+            ],
+            "gas_profile": [
+              {
+                "cost": "BASE",
+                "cost_category": "WASM_HOST_COST",
+                "gas_used": "2118144888"
+              },
+              {
+                "cost": "CONTRACT_LOADING_BASE",
+                "cost_category": "WASM_HOST_COST",
+                "gas_used": "35445963"
+              },
+              {
+                "cost": "CONTRACT_LOADING_BYTES",
+                "cost_category": "WASM_HOST_COST",
+                "gas_used": "284750427360"
+              },
+              {
+                "cost": "READ_MEMORY_BASE",
+                "cost_category": "WASM_HOST_COST",
+                "gas_used": "5219726400"
+              },
+              {
+                "cost": "READ_MEMORY_BYTE",
+                "cost_category": "WASM_HOST_COST",
+                "gas_used": "174861318"
+              },
+              {
+                "cost": "READ_REGISTER_BASE",
+                "cost_category": "WASM_HOST_COST",
+                "gas_used": "5034330372"
+              },
+              {
+                "cost": "READ_REGISTER_BYTE",
+                "cost_category": "WASM_HOST_COST",
+                "gas_used": "218019144"
+              },
+              {
+                "cost": "STORAGE_READ_BASE",
+                "cost_category": "WASM_HOST_COST",
+                "gas_used": "56356845749"
+              },
+              {
+                "cost": "STORAGE_READ_KEY_BYTE",
+                "cost_category": "WASM_HOST_COST",
+                "gas_used": "154762665"
+              },
+              {
+                "cost": "STORAGE_READ_VALUE_BYTE",
+                "cost_category": "WASM_HOST_COST",
+                "gas_used": "12321764784"
+              },
+              {
+                "cost": "UTF8_DECODING_BASE",
+                "cost_category": "WASM_HOST_COST",
+                "gas_used": "3111779061"
+              },
+              {
+                "cost": "UTF8_DECODING_BYTE",
+                "cost_category": "WASM_HOST_COST",
+                "gas_used": "11954799639"
+              },
+              {
+                "cost": "WASM_INSTRUCTION",
+                "cost_category": "WASM_HOST_COST",
+                "gas_used": "65418975072"
+              },
+              {
+                "cost": "WRITE_MEMORY_BASE",
+                "cost_category": "WASM_HOST_COST",
+                "gas_used": "5607589722"
+              },
+              {
+                "cost": "WRITE_MEMORY_BYTE",
+                "cost_category": "WASM_HOST_COST",
+                "gas_used": "6024983664"
+              },
+              {
+                "cost": "WRITE_REGISTER_BASE",
+                "cost_category": "WASM_HOST_COST",
+                "gas_used": "5731044972"
+              },
+              {
+                "cost": "WRITE_REGISTER_BYTE",
+                "cost_category": "WASM_HOST_COST",
+                "gas_used": "8348234544"
+              }
+            ],
+            "version": 4
+          },
+          "receipt_ids": [
+            "58ZMW2huRr8JSBS3A125TGyaQiTcrouek1eDbbsASEgu",
+            "9GMYUxoP8NEa8Hx3Vv4REP4Nr2ACtMwpbi2hSniG18ek"
+          ],
+          "status": {
+            "Failure": {
+              "ActionError": {
+                "index": 0,
+                "kind": {
+                  "FunctionCallError": {
+                    "ExecutionError": "Smart contract panicked: retry waits for the revert to be disputed"
+                  }
+                }
+              }
+            }
+          },
+          "tokens_burnt": "136071278520500000000"
+        },
+        "proof": []
+      },
+      {
+        "block_hash": "Am1q7gCu9EK1p11ebRwCPSd956y6VMA1WjewpK76C6dM",
+        "id": "58ZMW2huRr8JSBS3A125TGyaQiTcrouek1eDbbsASEgu",
+        "outcome": {
+          "executor_id": "owner.ghost-a-22d572.test.near",
+          "gas_burnt": 223182562500,
+          "logs": [],
+          "metadata": {
+            "contracts": [
+              null
+            ],
+            "gas_profile": [],
+            "version": 4
+          },
+          "receipt_ids": [],
+          "status": {
+            "SuccessValue": ""
+          },
+          "tokens_burnt": "0"
+        },
+        "proof": [
+          {
+            "direction": "Right",
+            "hash": "GTGEw5wkCkGP2QD9d6XazqAJuXgHxuaefTU4D4xiYHUV"
+          }
+        ]
+      },
+      {
+        "block_hash": "Am1q7gCu9EK1p11ebRwCPSd956y6VMA1WjewpK76C6dM",
+        "id": "9GMYUxoP8NEa8Hx3Vv4REP4Nr2ACtMwpbi2hSniG18ek",
+        "outcome": {
+          "executor_id": "owner.ghost-a-22d572.test.near",
+          "gas_burnt": 223182562500,
+          "logs": [],
+          "metadata": {
+            "contracts": [
+              null
+            ],
+            "gas_profile": [],
+            "version": 4
+          },
+          "receipt_ids": [],
+          "status": {
+            "SuccessValue": ""
+          },
+          "tokens_burnt": "0"
+        },
+        "proof": [
+          {
+            "direction": "Left",
+            "hash": "6JuWjBeaSzwMfci84RZtDffdDErC51Nys7CZMnxsxNDj"
+          }
+        ]
+      }
+    ],
+    "status": {
+      "Failure": {
+        "ActionError": {
+          "index": 0,
+          "kind": {
+            "FunctionCallError": {
+              "ExecutionError": "Smart contract panicked: retry waits for the revert to be disputed"
+            }
+          }
+        }
+      }
+    },
+    "transaction": {
+      "actions": [
+        {
+          "FunctionCall": {
+            "args": "eyJoZWlyX2luZGV4IjoxfQ==",
+            "deposit": "1",
+            "gas": 300000000000000,
+            "method_name": "execute_fallback"
+          }
+        }
+      ],
+      "hash": "FafLjoDCEay8C9DkygnwdjcFiFsMnt5qQswxEaCdEQEx",
+      "nonce": 7600000012,
+      "priority_fee": 0,
+      "public_key": "ed25519:C7Fmeh9jn37yy1u39tB4MTibgqfmcBjQ2tonTBvuKDbK",
+      "receiver_id": "ghost-a-22d572.test.near",
+      "signature": "ed25519:f1wyKhm7G9ife9YDdQDRR5HgZ1ceNzRCE8pKCnuqa2p11MsgPDnXDAJGzsVaGnfDxmXtda9iFuBZnp7UaQtuqfz",
+      "signer_id": "owner.ghost-a-22d572.test.near"
+    },
+    "transaction_outcome": {
+      "block_hash": "GWsi5x3n5UkZabx1PKTqdJkgUwpmqRs9baHXaqNXwf9W",
+      "id": "FafLjoDCEay8C9DkygnwdjcFiFsMnt5qQswxEaCdEQEx",
+      "outcome": {
+        "executor_id": "owner.ghost-a-22d572.test.near",
+        "gas_burnt": 309585378880,
+        "logs": [],
+        "metadata": {
+          "gas_profile": null,
+          "version": 1
+        },
+        "receipt_ids": [
+          "73ra6WbrjpcCewxKaFVyhZKdUiJCvBro9KLzVCM6p8Fv"
+        ],
+        "status": {
+          "SuccessReceiptId": "73ra6WbrjpcCewxKaFVyhZKdUiJCvBro9KLzVCM6p8Fv"
+        },
+        "tokens_burnt": "30958537888000000000"
+      },
+      "proof": []
+    }
+  }
+}

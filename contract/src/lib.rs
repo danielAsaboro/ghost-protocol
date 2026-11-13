@@ -39,6 +39,8 @@ pub const OWNER_SIGNER_MAX_SECS: u64 = 365 * 86_400;
 /// 2^126 wei, about 8.5e19 ETH: far above any estate, and low enough that committed value plus one
 /// reinstated payout cannot overflow.
 pub const MAX_BUDGET_WEI: u128 = 1 << 126;
+/// 2^63 wei per gas: far above any real fee, and low enough that the tip arithmetic cannot overflow.
+pub const MAX_FEE_CEILING: u128 = 1 << 63;
 
 #[near(serializers = [json, borsh])]
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
@@ -376,6 +378,7 @@ impl Vault {
         require!(required <= config.budget_wei.0, "caps and gas exceed the budget");
         // Leaves headroom for one reinstated payout on top of a full budget (Kani, math.rs).
         require!(config.budget_wei.0 <= MAX_BUDGET_WEI, "budget too large");
+        require!(config.max_fee_ceiling.0 <= MAX_FEE_CEILING, "fee ceiling too large");
 
         Self {
             owner: config.owner,
@@ -664,15 +667,16 @@ impl Vault {
         require!(i < self.payouts.len(), "unknown payout");
         require!(a < self.payouts[i].attempts.len(), "unknown attempt");
         require!(self.payouts[i].attempts[a].tx_hash_hex.is_none(), "attempt already signed");
-        require!(
-            !(self.payouts[i].signing && a + 1 == self.payouts[i].attempts.len()),
-            "attempt still awaits its callback"
-        );
         let (r, s, y_parity) = parse_mpc_signature(&signature).unwrap_or_else(|| env::panic_str("malformed signature"));
         let tx = self.transfer(i, a);
         let hash = eth::eip1559_hash(&tx);
         require!(recovers_to(&hash, &r, &s, y_parity, &self.vault_public_key), "signature does not recover to the vault key");
         self.store_signature(i, a, &tx, r, s, y_parity);
+        // The in-flight request is done: a late callback is ignored, and a payout whose callback ran
+        // out of storage need not wait for the lease (local stack, fault iv).
+        if self.payouts[i].signing && a + 1 == self.payouts[i].attempts.len() {
+            self.payouts[i].signing = false;
+        }
         true
     }
 
@@ -960,7 +964,9 @@ impl Vault {
     }
 
     fn begin_attempt(&mut self, payout: usize, max_fee: u128) -> Promise {
-        let priority = self.max_priority_fee_per_gas.min(max_fee);
+        // The tip rises with the fee cap, so a re-priced attempt is a valid mempool replacement
+        // (geth and reth require both to rise; local stack, finding 4).
+        let priority = math::tip(max_fee, self.initial_max_fee_per_gas, self.max_priority_fee_per_gas);
         self.payouts[payout].attempts.push(Attempt {
             max_fee_per_gas: U128(max_fee),
             max_priority_fee_per_gas: U128(priority),
