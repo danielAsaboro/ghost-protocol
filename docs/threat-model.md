@@ -32,7 +32,7 @@ Casa inheritance documents, Bitcoin miniscript timelocks and published loss post
 ## Trust boundaries
 
 1. NEAR contract state and receipts are trusted to the NEAR validator set.
-2. Signatures and foreign-chain attestations are trusted to an 11-of-N MPC threshold.
+2. Signatures and foreign-chain attestations are trusted to an 11-of-N MPC threshold. On testnet, also to each of the 4 full-access keys on `v1.signer-prod.testnet` (D24).
 3. Everything off-chain (relayer, agent host, RPC, browser) is untrusted and must be checkable.
 4. The contract cannot read a TDX quote or a Base balance. Those are rechecked off-chain and labeled as such.
 
@@ -76,6 +76,41 @@ Casa inheritance documents, Bitcoin miniscript timelocks and published loss post
 - **I17** A reverted payout can be reopened once per heir, needs a witness quorum over its exact transaction hash, and is flagged if later proven to have succeeded.
 - **I19** Every payout's nonce stays signable until settled or reverted, so no later payout can be stranded by an earlier one.
 - **I18** Failed signing changes no nonce and no heir state beyond releasing the attempt.
+
+## Dependencies over 20 years
+
+Read from primary sources only: `near/mpc` at tag `3.18.0`, nearcore runtime source and parameter files, the archival history of `v1.signer-prod.testnet`, the OP Stack specs and Base's own changelogs. Raw reads, with file and line citations: [docs/evidence/deps/](evidence/deps/README.md).
+
+The vault has no key, so nothing below can be fixed after deployment. Each row says what the deployed code does when the dependency changes. **D** rows that hold are invariants; the rest are stated limits.
+
+| # | Dependency | How it changes, and who | How often, on-chain | What the deployed vault does |
+|---|---|---|---|---|
+| D1 | Signer contract code: method names, request JSON, response JSON | `vote_contract_update`, k of n participants, k ≥ max(2, 60% of n). Replaces all code and runs `migrate` | 48 code changes from 2024-07-25 to 2026-10-30, about 1.8 a month: 24 deployed by a full-access key, 24 by participant vote ([table](evidence/deps/signer-history/code-changes-table.json)) | Any break makes `sign`, `verify_foreign_transaction` or CKD fail forever. Precedents: 3.18.0 removed `latest_key_version`; 3.7.0 changed the verify request shape. **Limit** |
+| D2 | Signer's minimum attached gas for `sign` and `verify_foreign_transaction` (default 15 Tgas) | Config vote, k of n | Config and code updates share one vote: 172 successful `vote_update` calls, 2025-02 to 2026-10 ([counts](evidence/deps/signer-history/governance-by-month.json)) | The vault attaches a fixed 150 Tgas. Above that, both calls fail forever. **Limit** |
+| D3 | Required deposit, 1 yoctoNEAR | Code update only | Constant since the request API began | Above 1, every call fails with `InsufficientDeposit` forever. **Limit** |
+| D4 | Domains 0, 2, 3 and their public keys | Resharing copies every key unchanged. No vote removes a domain. A code update can | 97 resharings started and 856 `vote_reshared` calls, 2025-01 to 2026-10 ([counts](evidence/deps/signer-history/governance-by-month.json)); key checks in [signer-history.md](evidence/deps/signer-history.md) | Holds while the keys exist: signatures are checked against stored keys, so a changed key is refused, never trusted. If the key is lost, nothing recovers it. **Invariant D4** with **limit** on key loss |
+| D5 | Protocol state (key generation for a new domain, TEE re-checks) | `vote_add_domains` (all participants), `verify_tee` | 48 successful `vote_add_domains` calls and 10 key generations, 2025-04 to 2026-11 ([counts](evidence/deps/signer-history/governance-by-month.json)) | New requests panic, pending ones time out. The vault's failed attempt is released (I18) and anyone retries later. **Invariant D5** |
+| D6 | Base in the signer's foreign-chain whitelist, and enough nodes serving it | `vote_update_foreign_chain_providers` (k of n), each node's config, or a code update (precedent: Bitcoin deleted by the 3.18.0 migration) | 9 `vote_foreign_chain_policy` (2026-02 to 2026-03) and 53 `vote_update_foreign_chain_providers` (2026-06 to 2026-09) ([counts](evidence/deps/signer-history/governance-by-month.json)) | `settle` fails. The transfer itself still lands on Base, later heirs are unaffected (I19), but the heir stays `Pending` on NEAR. **Limit** |
+| D7 | Inspector rule for "Finalized": receipt at or below the RPC's `finalized` block, re-read by number, status 1, all providers agree | Node release, image-hash vote | Unchanged in 3.18.0 | Only a finalized success is attested. Revert, not found, reorged, not final or disagreement: no answer, the callback gets a timeout error. **Invariant I4** |
+| D8 | Payload layout: `Base` at enum index 6, `Finalized` at 2, `payload_version` 1 | Code update | Pinned by a source comment, not by a test vector | A reorder makes every `settle` fail. **Limit** |
+| D9 | NEAR host functions `ecrecover`, `ed25519_verify`, `sha256`, `keccak256` | Protocol upgrade | About 60 protocol versions from v29 to v89; no semantic change to these | Stable. `ecrecover` with the malleability flag refuses high-s, so the MPC network and the enclave must sign low-s. **Invariant I5** |
+| D10 | Wasm preparation limits | Protocol upgrade, applied to deployed code when the VM changes | Limits added at v84 and v87; VM swapped at v62 and v84 | A future limit this wasm breaks would make every method fail to load. **Limit** |
+| D11 | Gas a callback needs, against the fixed 60 Tgas | Runtime cost changes (contract loading cost rose 5x at v66); state size | Caps only rose; some costs rose | If `on_signed` runs out of gas or storage, its changes roll back and `signing` stays true forever: that nonce and every later one are dead. Model counterexample, test `cex2`. **Broken in the deployed vault** |
+| D12 | Storage staking (1e19 yoctoNEAR per byte) | Protocol parameter | One change ever, a decrease, at v42 | A shortfall fails the receipt with `LackBalanceForState`. Anyone can top up with a plain transfer. A shortfall during `on_signed` is D11. **Limit**, recoverable |
+| D13 | Keyless accounts | No rule deletes or freezes an account with no keys | None found | Holds. **Invariant I1** |
+| D14 | Base's chain software and "finalized" | Base left the OP Stack (announced 2026-02-18; removed from the Superchain Registry 2026-04-27). One operator sets the rules | 4 mainnet upgrades May to Nov 2026 | Settlement trusts whatever the MPC nodes' Base RPCs call finalized (about 16 to 20 minutes today). **Limit** |
+| D15 | Base's minimum base fee and EIP-1559 parameters | `SystemConfig`, changed by the operator without a hard fork | Mainnet minimum went 25x in 11 weeks | The fee ceiling is immutable (5 gwei on the live vault, about 1,000x today's Base Sepolia fee). Above it, a payout waits. **Limit** |
+| D16 | Intrinsic gas for a value transfer | EIP-2780 (Last Call) would add 183,600 gas for a fresh recipient | Not scheduled | Each heir's `gas_limit` is immutable. A 21,000 limit to a fresh address would revert, and so would the retry. Set limits with headroom at deployment. **Limit** |
+| D17 | Base Sepolia (84532) itself | Testnet shutdown | Base Goerli: about 11 days' notice (2024) | `chain_id` is fixed. After a shutdown nothing can settle. Testnet only. **Limit** |
+| D18 | Signer account `v1.signer-prod.testnet` | Its operators | One account so far | Stored at init; a move to a new account strands the vault. **Limit** |
+| D19 | Actor accounts: owner, agent, court | Sub-accounts of the vault | n/a | Only the parent creates sub-accounts, and the vault has no key, so a deleted actor can never be re-registered by someone else. **Invariant D19** |
+| D20 | Witness and registrar keys | Their holders | n/a | If more than `n - threshold` witnesses lose their keys, no claim can ever open. Funds are stranded. **Limit** |
+| D21 | Heir keys | Their holders | n/a | Addresses are immutable. A heir who loses its key loses its share. **Limit** |
+| D22 | NEAR AI attested signer | Expiry, provider | n/a | Agent payouts stop; the fallback pays each heir its cap with no AI (I13). **Invariant I13** |
+| D24 | Who can replace the signer contract | On testnet: any one of 4 full-access keys on `v1.signer-prod.testnet`, with no vote. On mainnet `v1.signer` has no keys, so only a participant vote | Testnet: 24 of 48 code changes were key deploys, the last on 2025-04-07 (version 1.0.1); every change since has been a vote, but the keys remain ([table](evidence/deps/signer-history/code-changes-table.json), [keys](evidence/deps/signer-history/access-keys-current.json), [mainnet keys](evidence/deps/signer-history/access-keys-mainnet-v1.signer.json)) | The contract decides which account a signature request comes from. Code deployed by one key could ask the nodes to sign as this vault, and the vault's Base funds would follow. The vault cannot detect it. **Limit: on testnet the custody claim holds only if none of those 4 keys acts alone** |
+| D23 | Witnesses signing a revert | Their own procedure | n/a | A revert signed before Base finality can be reorged into a success, and the retry pays the heir twice (model counterexample, `tlc-v2-cex-reorg-revert.log`). Witnesses must wait for finality, as the MPC inspector does for successes. **Procedure invariant D23** |
+
+What this means: the deployed vault survives key rotation of MPC participants (D4, D5), host-function churn (D9) and every temporary outage, because failure releases the attempt and anyone can retry. It does not survive an incompatible signer upgrade, a gas or deposit rule above its constants, the loss of Base from the signer, or the loss of too many witness keys. None of those can be fixed after lock, by design: any key that could fix them could also redirect the money.
 
 ## Stated limits
 
