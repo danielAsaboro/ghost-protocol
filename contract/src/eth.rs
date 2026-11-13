@@ -225,9 +225,13 @@ mod proofs {
             0xb8..=0xbf | 0xf8..=0xff => {
                 let n = (b - if b >= 0xf8 { 0xf7 } else { 0xb7 }) as usize;
                 assert!(buf[pos + 1] != 0, "length of length has a leading zero");
+                assert!(n <= 8);
                 let mut len = 0usize;
-                for k in 0..n {
-                    len = (len << 8) | buf[pos + 1 + k] as usize;
+                // Constant bound keeps the unrolled program small; k < n does the work.
+                for k in 0..8 {
+                    if k < n {
+                        len = (len << 8) | buf[pos + 1 + k] as usize;
+                    }
                 }
                 assert!(len >= 56, "long form used for a short payload");
                 (pos + 1 + n, len, b >= 0xf8)
@@ -244,8 +248,10 @@ mod proofs {
             assert!(buf[start] != 0, "integer has a leading zero");
         }
         let mut v = 0u128;
-        for k in 0..len {
-            v = (v << 8) | buf[start + k] as u128;
+        for k in 0..16 {
+            if k < len {
+                v = (v << 8) | buf[start + k] as u128;
+            }
         }
         (v, start + len)
     }
