@@ -1,0 +1,286 @@
+{
+  "label": "v3 re-price past the ceiling (refused)",
+  "signer": "owner.ghost-b-0c1eaa.test.near",
+  "receiver": "ghost-b-0c1eaa.test.near",
+  "hash": "HXw13eYWxdWzvFdn6CmyFA2jH6fN8B5uQVyNJkbGHoD6",
+  "ok": false,
+  "error": "fee above ceiling",
+  "innerErrors": [
+    "fee above ceiling"
+  ],
+  "gasBurnt": "2145497890819",
+  "receipts": [
+    {
+      "id": "FJB5qVR8o4rP9EHdBYEKAqRMAkA1ZE8nRgEgUvWeehSy",
+      "executor": "ghost-b-0c1eaa.test.near",
+      "method": "request_signature",
+      "prepaid_gas": 300000000000000,
+      "gas_burnt": 1387878456914,
+      "tgas": 1.387878456914,
+      "status": {
+        "Failure": {
+          "ActionError": {
+            "index": 0,
+            "kind": {
+              "FunctionCallError": {
+                "ExecutionError": "Smart contract panicked: fee above ceiling"
+              }
+            }
+          }
+        }
+      },
+      "logs": []
+    },
+    {
+      "id": "Bwvk5bBvVy4uMVbfWgV632JeY4wtBpxq1GSk16mZUsKN",
+      "executor": "owner.ghost-b-0c1eaa.test.near",
+      "method": "refund",
+      "gas_burnt": 223182562500,
+      "tgas": 0.2231825625,
+      "status": "SuccessValue",
+      "logs": []
+    },
+    {
+      "id": "99GPBQu1g4vRGBCjN5uMoRSrUcpJ44pmPt185NFfatFf",
+      "executor": "owner.ghost-b-0c1eaa.test.near",
+      "method": "refund",
+      "gas_burnt": 223182562500,
+      "tgas": 0.2231825625,
+      "status": "SuccessValue",
+      "logs": []
+    }
+  ],
+  "rpc": {
+    "final_execution_status": "FINAL",
+    "receipts_outcome": [
+      {
+        "block_hash": "399NbdN2YP9Ra6q7hT3QraixPTXMQt5CSU68BHxkFyiX",
+        "id": "FJB5qVR8o4rP9EHdBYEKAqRMAkA1ZE8nRgEgUvWeehSy",
+        "outcome": {
+          "executor_id": "ghost-b-0c1eaa.test.near",
+          "gas_burnt": 1387878456914,
+          "logs": [],
+          "metadata": {
+            "contracts": [
+              {
+                "local": "Gakhf4AxBppPcnXEjpuBgKNPqWojwM4gabLeGrVuGWNm"
+              }
+            ],
+            "gas_profile": [
+              {
+                "cost": "BASE",
+                "cost_category": "WASM_HOST_COST",
+                "gas_used": "2118144888"
+              },
+              {
+                "cost": "CONTRACT_LOADING_BASE",
+                "cost_category": "WASM_HOST_COST",
+                "gas_used": "35445963"
+              },
+              {
+                "cost": "CONTRACT_LOADING_BYTES",
+                "cost_category": "WASM_HOST_COST",
+                "gas_used": "286313565685"
+              },
+              {
+                "cost": "READ_MEMORY_BASE",
+                "cost_category": "WASM_HOST_COST",
+                "gas_used": "5219726400"
+              },
+              {
+                "cost": "READ_MEMORY_BYTE",
+                "cost_category": "WASM_HOST_COST",
+                "gas_used": "83629326"
+              },
+              {
+                "cost": "READ_REGISTER_BASE",
+                "cost_category": "WASM_HOST_COST",
+                "gas_used": "5034330372"
+              },
+              {
+                "cost": "READ_REGISTER_BYTE",
+                "cost_category": "WASM_HOST_COST",
+                "gas_used": "311554482"
+              },
+              {
+                "cost": "STORAGE_READ_BASE",
+                "cost_category": "WASM_HOST_COST",
+                "gas_used": "56356845749"
+              },
+              {
+                "cost": "STORAGE_READ_KEY_BYTE",
+                "cost_category": "WASM_HOST_COST",
+                "gas_used": "154762665"
+              },
+              {
+                "cost": "STORAGE_READ_VALUE_BYTE",
+                "cost_category": "WASM_HOST_COST",
+                "gas_used": "17455833444"
+              },
+              {
+                "cost": "UTF8_DECODING_BASE",
+                "cost_category": "WASM_HOST_COST",
+                "gas_used": "3111779061"
+              },
+              {
+                "cost": "UTF8_DECODING_BYTE",
+                "cost_category": "WASM_HOST_COST",
+                "gas_used": "4956868143"
+              },
+              {
+                "cost": "WASM_INSTRUCTION",
+                "cost_category": "WASM_HOST_COST",
+                "gas_used": "86741519568"
+              },
+              {
+                "cost": "WRITE_MEMORY_BASE",
+                "cost_category": "WASM_HOST_COST",
+                "gas_used": "5607589722"
+              },
+              {
+                "cost": "WRITE_MEMORY_BYTE",
+                "cost_category": "WASM_HOST_COST",
+                "gas_used": "8609843292"
+              },
+              {
+                "cost": "WRITE_REGISTER_BASE",
+                "cost_category": "WASM_HOST_COST",
+                "gas_used": "5731044972"
+              },
+              {
+                "cost": "WRITE_REGISTER_BYTE",
+                "cost_category": "WASM_HOST_COST",
+                "gas_used": "11826665604"
+              }
+            ],
+            "version": 4
+          },
+          "receipt_ids": [
+            "Bwvk5bBvVy4uMVbfWgV632JeY4wtBpxq1GSk16mZUsKN",
+            "99GPBQu1g4vRGBCjN5uMoRSrUcpJ44pmPt185NFfatFf"
+          ],
+          "status": {
+            "Failure": {
+              "ActionError": {
+                "index": 0,
+                "kind": {
+                  "FunctionCallError": {
+                    "ExecutionError": "Smart contract panicked: fee above ceiling"
+                  }
+                }
+              }
+            }
+          },
+          "tokens_burnt": "138787845691400000000"
+        },
+        "proof": []
+      },
+      {
+        "block_hash": "5f6Cv4jXqzeHz8nUgNgACStERmPhhkYLfn7m9z7pzdGe",
+        "id": "Bwvk5bBvVy4uMVbfWgV632JeY4wtBpxq1GSk16mZUsKN",
+        "outcome": {
+          "executor_id": "owner.ghost-b-0c1eaa.test.near",
+          "gas_burnt": 223182562500,
+          "logs": [],
+          "metadata": {
+            "contracts": [
+              null
+            ],
+            "gas_profile": [],
+            "version": 4
+          },
+          "receipt_ids": [],
+          "status": {
+            "SuccessValue": ""
+          },
+          "tokens_burnt": "0"
+        },
+        "proof": [
+          {
+            "direction": "Right",
+            "hash": "5odCRBXSNDTDXgW8XbWcvABhRku8Azj3QjNBeeTKd3aX"
+          }
+        ]
+      },
+      {
+        "block_hash": "5f6Cv4jXqzeHz8nUgNgACStERmPhhkYLfn7m9z7pzdGe",
+        "id": "99GPBQu1g4vRGBCjN5uMoRSrUcpJ44pmPt185NFfatFf",
+        "outcome": {
+          "executor_id": "owner.ghost-b-0c1eaa.test.near",
+          "gas_burnt": 223182562500,
+          "logs": [],
+          "metadata": {
+            "contracts": [
+              null
+            ],
+            "gas_profile": [],
+            "version": 4
+          },
+          "receipt_ids": [],
+          "status": {
+            "SuccessValue": ""
+          },
+          "tokens_burnt": "0"
+        },
+        "proof": [
+          {
+            "direction": "Left",
+            "hash": "65iZPQuP9faiff2xiDejYkNq5iEiPx6FFtzj5RnqQPfy"
+          }
+        ]
+      }
+    ],
+    "status": {
+      "Failure": {
+        "ActionError": {
+          "index": 0,
+          "kind": {
+            "FunctionCallError": {
+              "ExecutionError": "Smart contract panicked: fee above ceiling"
+            }
+          }
+        }
+      }
+    },
+    "transaction": {
+      "actions": [
+        {
+          "FunctionCall": {
+            "args": "eyJwYXlvdXRfaW5kZXgiOjEsIm1heF9mZWVfcGVyX2dhcyI6IjMyMDAwMDAwMDAwIn0=",
+            "deposit": "1",
+            "gas": 300000000000000,
+            "method_name": "request_signature"
+          }
+        }
+      ],
+      "hash": "HXw13eYWxdWzvFdn6CmyFA2jH6fN8B5uQVyNJkbGHoD6",
+      "nonce": 810000011,
+      "priority_fee": 0,
+      "public_key": "ed25519:2M4GxaAYuF51LdS6smxLkL5s1NhMXgbiAruB3HsSMZg2",
+      "receiver_id": "ghost-b-0c1eaa.test.near",
+      "signature": "ed25519:4nVuLqiZKqc1EFArMB3TrRceKHGeJW5oQAeajLc8oCBcfEWCqBtDJsVL55bQNeSW3tNjt5fshGC4gyviayZAt4Rc",
+      "signer_id": "owner.ghost-b-0c1eaa.test.near"
+    },
+    "transaction_outcome": {
+      "block_hash": "47NmqewhdmHukzTNhf2qdhTfFASh1Ba5kcbBV4HwigaG",
+      "id": "HXw13eYWxdWzvFdn6CmyFA2jH6fN8B5uQVyNJkbGHoD6",
+      "outcome": {
+        "executor_id": "owner.ghost-b-0c1eaa.test.near",
+        "gas_burnt": 311254308905,
+        "logs": [],
+        "metadata": {
+          "gas_profile": null,
+          "version": 1
+        },
+        "receipt_ids": [
+          "FJB5qVR8o4rP9EHdBYEKAqRMAkA1ZE8nRgEgUvWeehSy"
+        ],
+        "status": {
+          "SuccessReceiptId": "FJB5qVR8o4rP9EHdBYEKAqRMAkA1ZE8nRgEgUvWeehSy"
+        },
+        "tokens_burnt": "31125430890500000000"
+      },
+      "proof": []
+    }
+  }
+}

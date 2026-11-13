@@ -1,0 +1,244 @@
+{
+  "label": "a1 claim while owner is active (refused)",
+  "signer": "owner.ghost-a-0c1eaa.test.near",
+  "receiver": "ghost-a-0c1eaa.test.near",
+  "hash": "BAhuJ55tBGKGNUZo9GHyLV1yaSwKkixcseKHsn5k5YKc",
+  "ok": false,
+  "error": "owner is not inactive",
+  "innerErrors": [
+    "owner is not inactive"
+  ],
+  "gasBurnt": "1883862764153",
+  "receipts": [
+    {
+      "id": "GS2rHbaENf6Bqjkyh7BoaF72MLrt1pNghT7RkvBwhZnW",
+      "executor": "ghost-a-0c1eaa.test.near",
+      "method": "open_claim",
+      "prepaid_gas": 300000000000000,
+      "gas_burnt": 1337695698858,
+      "tgas": 1.337695698858,
+      "status": {
+        "Failure": {
+          "ActionError": {
+            "index": 0,
+            "kind": {
+              "FunctionCallError": {
+                "ExecutionError": "Smart contract panicked: owner is not inactive"
+              }
+            }
+          }
+        }
+      },
+      "logs": []
+    },
+    {
+      "id": "HWdYw7Gafn1Pcnfay6xJB3RmfbGx29K2hV191e9P81NT",
+      "executor": "owner.ghost-a-0c1eaa.test.near",
+      "method": "refund",
+      "gas_burnt": 223182562500,
+      "tgas": 0.2231825625,
+      "status": "SuccessValue",
+      "logs": []
+    }
+  ],
+  "rpc": {
+    "final_execution_status": "FINAL",
+    "receipts_outcome": [
+      {
+        "block_hash": "DchYJBgG1UKoanrWvrATvkeFPDnCui3XkueVURdwxPQ8",
+        "id": "GS2rHbaENf6Bqjkyh7BoaF72MLrt1pNghT7RkvBwhZnW",
+        "outcome": {
+          "executor_id": "ghost-a-0c1eaa.test.near",
+          "gas_burnt": 1337695698858,
+          "logs": [],
+          "metadata": {
+            "contracts": [
+              {
+                "local": "Gakhf4AxBppPcnXEjpuBgKNPqWojwM4gabLeGrVuGWNm"
+              }
+            ],
+            "gas_profile": [
+              {
+                "cost": "BASE",
+                "cost_category": "WASM_HOST_COST",
+                "gas_used": "2382912999"
+              },
+              {
+                "cost": "CONTRACT_LOADING_BASE",
+                "cost_category": "WASM_HOST_COST",
+                "gas_used": "35445963"
+              },
+              {
+                "cost": "CONTRACT_LOADING_BYTES",
+                "cost_category": "WASM_HOST_COST",
+                "gas_used": "286313565685"
+              },
+              {
+                "cost": "READ_MEMORY_BASE",
+                "cost_category": "WASM_HOST_COST",
+                "gas_used": "5219726400"
+              },
+              {
+                "cost": "READ_MEMORY_BYTE",
+                "cost_category": "WASM_HOST_COST",
+                "gas_used": "98834658"
+              },
+              {
+                "cost": "READ_REGISTER_BASE",
+                "cost_category": "WASM_HOST_COST",
+                "gas_used": "5034330372"
+              },
+              {
+                "cost": "READ_REGISTER_BYTE",
+                "cost_category": "WASM_HOST_COST",
+                "gas_used": "125863674"
+              },
+              {
+                "cost": "STORAGE_READ_BASE",
+                "cost_category": "WASM_HOST_COST",
+                "gas_used": "56356845749"
+              },
+              {
+                "cost": "STORAGE_READ_KEY_BYTE",
+                "cost_category": "WASM_HOST_COST",
+                "gas_used": "154762665"
+              },
+              {
+                "cost": "STORAGE_READ_VALUE_BYTE",
+                "cost_category": "WASM_HOST_COST",
+                "gas_used": "5465117896"
+              },
+              {
+                "cost": "UTF8_DECODING_BASE",
+                "cost_category": "WASM_HOST_COST",
+                "gas_used": "3111779061"
+              },
+              {
+                "cost": "UTF8_DECODING_BYTE",
+                "cost_category": "WASM_HOST_COST",
+                "gas_used": "6123190059"
+              },
+              {
+                "cost": "WASM_INSTRUCTION",
+                "cost_category": "WASM_HOST_COST",
+                "gas_used": "57146986248"
+              },
+              {
+                "cost": "WRITE_MEMORY_BASE",
+                "cost_category": "WASM_HOST_COST",
+                "gas_used": "8411384583"
+              },
+              {
+                "cost": "WRITE_MEMORY_BYTE",
+                "cost_category": "WASM_HOST_COST",
+                "gas_used": "3521837196"
+              },
+              {
+                "cost": "WRITE_REGISTER_BASE",
+                "cost_category": "WASM_HOST_COST",
+                "gas_used": "5731044972"
+              },
+              {
+                "cost": "WRITE_REGISTER_BYTE",
+                "cost_category": "WASM_HOST_COST",
+                "gas_used": "3702723336"
+              }
+            ],
+            "version": 4
+          },
+          "receipt_ids": [
+            "HWdYw7Gafn1Pcnfay6xJB3RmfbGx29K2hV191e9P81NT"
+          ],
+          "status": {
+            "Failure": {
+              "ActionError": {
+                "index": 0,
+                "kind": {
+                  "FunctionCallError": {
+                    "ExecutionError": "Smart contract panicked: owner is not inactive"
+                  }
+                }
+              }
+            }
+          },
+          "tokens_burnt": "133769569885800000000"
+        },
+        "proof": []
+      },
+      {
+        "block_hash": "4xQCGk9TuLW1GiCWPF5jYnBunCcjD83T7noPV7S2aFcf",
+        "id": "HWdYw7Gafn1Pcnfay6xJB3RmfbGx29K2hV191e9P81NT",
+        "outcome": {
+          "executor_id": "owner.ghost-a-0c1eaa.test.near",
+          "gas_burnt": 223182562500,
+          "logs": [],
+          "metadata": {
+            "contracts": [
+              null
+            ],
+            "gas_profile": [],
+            "version": 4
+          },
+          "receipt_ids": [],
+          "status": {
+            "SuccessValue": ""
+          },
+          "tokens_burnt": "0"
+        },
+        "proof": []
+      }
+    ],
+    "status": {
+      "Failure": {
+        "ActionError": {
+          "index": 0,
+          "kind": {
+            "FunctionCallError": {
+              "ExecutionError": "Smart contract panicked: owner is not inactive"
+            }
+          }
+        }
+      }
+    },
+    "transaction": {
+      "actions": [
+        {
+          "FunctionCall": {
+            "args": "eyJkZWF0aF9hdCI6MTc5NDU2MTk5NCwicHJvb2ZzIjpbeyJ3aXRuZXNzX2luZGV4IjowLCJzaWduYXR1cmUiOiJuQm8vTFRXclhpb2psaWU3TWJ6QVVWNksremFpZlhsc3grSXBnbUJ0SU1ONWFScWx0MjVnRnY5L0hhanF5elI0eTdrcFdtRFBxV2ZZc1M1VkU1aTdDQT09In0seyJ3aXRuZXNzX2luZGV4IjoxLCJzaWduYXR1cmUiOiJ3cjNIeWFPRHZoL2VPVU04ZTJWY2Y2cXpraVBneGtrNXFGeWZHbk5Gb1h0Vm9QTkl0KzVlR1QwWU1UVlE4QVB4QmlsK2hzK3FNSC9NbjllTTcreEJBZz09In1dLCJvdmVycmlkZV9jbGFpbSI6ZmFsc2V9",
+            "deposit": "0",
+            "gas": 300000000000000,
+            "method_name": "open_claim"
+          }
+        }
+      ],
+      "hash": "BAhuJ55tBGKGNUZo9GHyLV1yaSwKkixcseKHsn5k5YKc",
+      "nonce": 153000001,
+      "priority_fee": 0,
+      "public_key": "ed25519:FJUA6XPFTYU5j2AAnjwWoMgjnMmWSymX3jtEn6WRHnzv",
+      "receiver_id": "ghost-a-0c1eaa.test.near",
+      "signature": "ed25519:3rcgFBjTmAzLSQ2CvTWYz9hNGhJC2xJsyZ9CTnEDaLzRjVm6MBN1xADcbpPm2Q67k7BbPkZGyFnGyDgT8dV1V8fC",
+      "signer_id": "owner.ghost-a-0c1eaa.test.near"
+    },
+    "transaction_outcome": {
+      "block_hash": "BdcBoEocxWe4qm3r9B3URx7ma9z1fTssgvQ6XhS6q1bX",
+      "id": "BAhuJ55tBGKGNUZo9GHyLV1yaSwKkixcseKHsn5k5YKc",
+      "outcome": {
+        "executor_id": "owner.ghost-a-0c1eaa.test.near",
+        "gas_burnt": 322984502795,
+        "logs": [],
+        "metadata": {
+          "gas_profile": null,
+          "version": 1
+        },
+        "receipt_ids": [
+          "GS2rHbaENf6Bqjkyh7BoaF72MLrt1pNghT7RkvBwhZnW"
+        ],
+        "status": {
+          "SuccessReceiptId": "GS2rHbaENf6Bqjkyh7BoaF72MLrt1pNghT7RkvBwhZnW"
+        },
+        "tokens_burnt": "32298450279500000000"
+      },
+      "proof": []
+    }
+  }
+}

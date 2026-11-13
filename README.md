@@ -16,6 +16,14 @@ npm install && npm run test:live
 
 Rechecks the deployed vault against the live chains. Or run the site with `npm run web` and open http://localhost:4173: the pages read NEAR testnet and Base Sepolia from your browser and replay every recorded transaction from its receipt. A failing claim shows as failed. A node that does not answer shows as waiting, never as passed. Every script, stylesheet and evidence file the pages load is pinned by hash ([sri.mjs](scripts/sri.mjs)).
 
+## Run the whole payout yourself, locally
+
+```bash
+npm run local
+```
+
+Brings up a NEAR localnet with the signer's deployed 3.18.0 code and two real `mpc-node` participants that generate their own keys, plus anvil as Base. It deploys the v3 vault and runs claim, cancel, payout with real MPC signatures, re-price, a revert and its reopen, a reorg, real foreign-transaction settlement until the heir is `Paid`, and the CKD wishes key, then prints a PASS/FAIL table and tears everything down. Nothing is mocked and nothing touches a public network. Needs the `neard` 2.14.0 and `mpc-node` 3.18.0 binaries ([how](docs/evidence/localstack/README.md#reproduce)). Last run: [SUMMARY.md](docs/evidence/localstack/lifecycle-20261113-102449/SUMMARY.md).
+
 ## Two vaults
 
 | | Deployed vault (v2) | v3 |
@@ -42,7 +50,7 @@ Base Sepolia address of the deployed vault: [`0xAf8105c7e876f38Bf0A9f09e4c97029B
 | A stuck transaction is replaced, not abandoned | [Re-price tx](https://testnet.nearblocks.io/txns/niToN6tTZiQ7VcAG53xxCUggQ8gNHerUHPWQU8E12R1): same nonce, recipient and amount |
 | A signature is not a payment | [Settle tx](https://testnet.nearblocks.io/txns/9EivMJaKZbAjB6yih8CA8YVsx6FENebo9Fu9vQ1o9wmh) on an unbroadcast transaction: no attestation, heir stays `Pending` |
 | The real MPC code and a real chain run the whole lifecycle | `neard` 2.14.0, the signer's deployed 3.18.0 code and two real `mpc-node` 3.18.0 participants with their own key generation, plus anvil as Base: claim, cancel, real signatures, re-price, revert and reopen, reorg, real foreign-transaction settlement and CKD, then six dependency failures injected ([results](docs/evidence/localstack/README.md)) |
-| A funded payout settles and the heir shows `Paid` | Not yet on testnet: the vault holds 0 ETH. Proven on the local stack ([d](docs/evidence/localstack/README.md)). A watcher ([finish-payout.sh](scripts/finish-payout.sh)) broadcasts and settles it when funded |
+| A funded payout settles and the heir shows `Paid` | On the local stack with the real MPC nodes: `npm run local`, checks d2 and f10 ([summary](docs/evidence/localstack/lifecycle-20261113-102449/SUMMARY.md)). On testnet the vault is 0.000004 ETH short of its fee; a watcher ([finish-payout.sh](scripts/finish-payout.sh)) broadcasts and settles it once topped up |
 | The wishes were sealed before any key existed | Encrypted to the vault's CKD identity from public values; the key came from the [vault's own request](https://testnet.nearblocks.io/txns/8Uw6tGnSf6G49MavWf3LZHKbZ128cVhGzCqSp3XKbuwx) after the trigger |
 | No unaddressed advisory reaches the wasm | `cargo deny check` and `cargo audit` clean; two advisories reach only test builds and are named in [deny.toml](contract/deny.toml) ([logs](docs/evidence/supply-chain/)) |
 

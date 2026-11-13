@@ -1,0 +1,106 @@
+vault wasm: /Users/MAC/development/near-hackathon-research/ghost-v3-final.wasm (Gakhf4AxBppPcnXEjpuBgKNPqWojwM4gabLeGrVuGWNm)
+== anvil (chain id 84532, finalized = latest - 4, mining on demand)
+started anvil pid 346
+== neard localnet
+started neard pid 371
+== accounts and signer contract
+ok create mpc-contract.test.near jLUfyiXoMhuXThcw9oQHL3AHkFnYMJBfwwVxHpcB14p
+ok create mpc-node-1.test.near GeYSbHsKR3bCHfGETrMtyEpFDHFyADZfz9ut2yhU2HnB
+ok create mpc-node-2.test.near CHjroUqjJGyiPsfDhicSsFZwfoka6zCAdLvVN9S1d4he
+started mpc-node-1 pid 672
+started mpc-node-2 pid 682
+== contract init, domains, Base provider vote
+ok mpc-node-1.test.near node keys D7iRchCPKvrkp4arRUekCXU7PKMZDzhB6mxhXHN5gwu8
+ok mpc-node-2.test.near node keys 28UNSqdRUwfucKzWgvEG8iDDfpbTtHrUAa1ERunVUaBh
+ok init 2kJz5Q8pFRBLJeXdBHkNFg92WECfLAwjnpT2RhEuyLAz
+ok mpc-node-1.test.near vote_add_domains 5d8sE8dkvW6dAcTJPkPJ9d7rHBjZbmgUAcGoK2aWXEoR
+ok mpc-node-2.test.near vote_add_domains FJGQ5ftJjsnxDMkRf8mtXqLTQxps8sWbBrjLqJi4SEFm
+waiting for the nodes to generate keys for 4 domains
+  state: Initializing 0
+ok mpc-node-1.test.near vote Base providers HBdJbN368ToY2hbXV9G7c4geH2GPBRq7PHce7M5E5cVs
+ok mpc-node-2.test.near vote Base providers 51FWMSUCJ5fANyj6SWjS6MtgvsCWdxdGcCkxxnAYYcY
+waiting for Base to become available
+available: ["Base"]
+{
+  "0": "secp256k1:2dGXSfv3ZpMABwLiLvkyKxF7D7GVKM1dykpUf5pXVQ8gT8RKYng3echTquEc8Bqrc7Zcadam6oSqjiAa1K1oAJZz",
+  "1": "ed25519:6DJxihpCY2sDzMKtruX8rsZD1MrBTfmS6hrsF17DGj9e",
+  "2": "bls12381g2:tCvX3C3MFEiqiW3yut8w1yTJeW4doebqNoGe7UHmekeBamJevLtx8e824cjjy9UREHvcXeCqZxTVDyYweYMD1cY9QWLz6x34jfkHZv4WeRuTdJxFYJS9NRMo7JDYcuH13zv",
+  "3": "secp256k1:4o7XzEFt9r7cg5Z2iV6SiXBDGQ1zZc9q75uJPwnjQzX4frL281yQexumQVj8ngKNijdcMAkfExTv37g2CB7raypv"
+}
+== stack is up. State: /Users/MAC/development/near-hackathon-research/localstack-run/state.json  Logs: /Users/MAC/development/near-hackathon-research/localstack-run/logs
+evm  deploy reverting heir contract {"hash":"0x8b07a96b08371e9622fbba55ff595ccced416ca873f8ac82627b56d7344d6e40","receipt":{"type":"0x2","status":"0x1","cumulativeGasUsed":"0xd3ea","logs":[],"logsBloom":"0x000000000000000000000000000000
+as expected ok   create ghost-a-0c1eaa.test.near H5HhJwSfUYRpf7gKGCumzyyEVoaLLheZCciQME1cbJJ3 -> null
+as expected ok   create owner.ghost-a-0c1eaa.test.near SdAa5F1eeCVfPCR2aU5eanwv7aESdqaLHsVYnhtTg4D -> null
+as expected ok   create agent.ghost-a-0c1eaa.test.near 4ebZjCohE9Tc1r6eSRJFnYrPrFECyVDtz4vhWfnTttAM -> null
+as expected ok   create court.ghost-a-0c1eaa.test.near HEfCnUDx9aLmi4TBo2LwF4CJNUVtt4d8GsAHnRuWAk3G -> null
+as expected ok   deploy and init ghost-a-0c1eaa.test.near 9xvR4dzyyopcy418JSx9GyFkfwQdFypb5yBzuNo19sym -> null
+evm  vault A addresses {"vault":"ghost-a-0c1eaa.test.near","evm":"0xcDA2ad4BF107aF26F542A470938032C816325346","heir0":"0x1A6ff32DBb1B2d0704869bEE778bD8798138d802","heir1_reverter":"0x5FbDB2315678afecb367f032d93F642f64180aa3
+as expected fail a1 claim while owner is active (refused) BAhuJ55tBGKGNUZo9GHyLV1yaSwKkixcseKHsn5k5YKc :: owner is not inactive :: inner owner is not inactive -> 
+as expected ok   a2 witness quorum opens claim after silence Cqn3WfbKKh222UXmvrw4V2pLFjLy6EgeUfwCeHj6Vgw1 -> null
+as expected ok   a3 owner check-in cancels the claim 2g53uFYhqJCS5VTHadRnZx1nkTArY6jQo9ZugAZdtypK -> null
+as expected ok   b1 second claim opens A8BqPF3KzRQbWdu4rKSmtwFDfaSpBWkHMLyiMX78utnt -> null
+as expected ok   b2 fallback payout heir 0 (real MPC sign) 3vWe29Vy1jFhprsCdGjirogGEtAx4NE77gavSDzkKBGt -> true
+evm  fund vault address {"hash":"0xe7030a414b4e438411d549de8bff28ee19d89ac3b29508263cca3afa6f5261aa","receipt":{"type":"0x2","status":"0x1","cumulativeGasUsed":"0x5208","logs":[],"logsBloom":"0x000000000000000000000000000000
+evm  c1 attempt 0 (max fee 1 gwei) with base fee 1.5 gwei refused {"error":"eth_sendRawTransaction: max fee per gas less than block base fee","rpc":{"code":-32003,"message":"max fee per gas less than block base fee"}}
+evm  c2 after a block at 1.5 gwei base fee {"heads":{"latest":12,"safe":10,"finalized":8,"latestHash":"0x5cf668d22104e001748c26cdf120c9cfed5dcc8f64921eb26ed83fe0a6ff7b00","baseFeePerGas":"1500000000"},"attempt0Receipt":null,"nonce":0,"pool":{"
+as expected ok   c3 request_signature re-price to 2 gwei (real MPC sign) BtRvieh9cY7ytA4WWhgWJYduEu5bAoDgEumvhoACMhJq -> true
+evm  c4 attempt 1 (max fee 2 gwei) same nonce accepted {"hash":"0x8ae436ca17a276ae5ae647e8b1ed5cfe9c4b49839ece5dc9e31ebf07a987120d","pool":{"pending":{"0xcda2ad4bf107af26f542a470938032c816325346":{"0":{"type":"0x2","chainId":"0x14a34","nonce":"0x0","gas":
+evm  c5 attempt 1 receipt {"receipt":{"type":"0x2","status":"0x1","cumulativeGasUsed":"0x5208","logs":[],"logsBloom":"0x0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+evm  d1 heads before early settle {"latest":13,"safe":11,"finalized":9,"latestHash":"0x19d5ca9fb312a4637ca78161792c2059e44c60bda86f51607501d30231ca245c","baseFeePerGas":"1500000000"}
+as expected ok   d1 settle before finality (real verify_foreign_transaction) 8XwNTeY19WVbQKBaNWmugh9J3aBWQWYvJStZ6K48d59y :: inner Request has timed out. -> false
+evm  d2 finalize the block {"latest":17,"safe":15,"finalized":13,"latestHash":"0x5769a8cd198bec58cc1207faf64b7211a6bae9ff0a194397f2f8edbbbcad754d","baseFeePerGas":"879448317"}
+as expected ok   d2 settle after finality (real verify_foreign_transaction) BHcfdLpHR4jiJke4nP3gRTzAHJVmV5mM6cy6nGt1TXrG -> true
+as expected ok   e1 fallback payout heir 1 (reverting contract) CXfZVubjyjFRpFSMVP9QtRdmHYs9axTaYySLCtasPYzt -> true
+evm  e2 broadcast payout 1 accepted {"hash":"0x12d7d59346a77a015c0d97886efa7b9d3f7b5e05817075c8f02b19766d8cbb1e","pool":{"pending":{"0xcda2ad4bf107af26f542a470938032c816325346":{"1":{"type":"0x2","chainId":"0x14a34","nonce":"0x1","gas":
+evm  e3 payout 1 receipt (status 0 expected) {"receipt":{"type":"0x2","status":"0x0","cumulativeGasUsed":"0x520e","logs":[],"logsBloom":"0x0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+evm  e3 finalize {"latest":22,"safe":20,"finalized":18,"latestHash":"0x7ebee8e00d41d0ac36f9570dbdd6a08945dd4574f3dbfc9a47657a6d372e4b70","baseFeePerGas":"451167143"}
+as expected ok   e4 settle the reverted tx (network must not attest) CjRLfa8YqarRKpK1WqK1YbkcMZ6L4kMQziTCQcXUxPhi :: inner Request has timed out. -> false
+as expected ok   e5 witness quorum reopens the reverted payout 2Mz4cYMZToDR1AJXZcyvafA6mSxnzK1btbR8yjDENfGS -> null
+as expected fail e6 immediate retry payout for heir 1 CMCEV2tY6AZHVxpgFc85krizzhSeSSkNkHahv3eimaEh :: retry waits for the revert to be disputed :: inner retry waits for the revert to be disputed -> 
+as expected ok   g1 request_wishes_key (real CKD) Be5xRX3q2aEmMgxmTYUCCpf3ZjYaDgJS1gBdqQ4Ztg3v -> {"big_y":"bls12381g1:5syzKM4r3QRUxYYhmXwVJNYyGcqgZsWtCHVkGUQCdyd3o8BJn9VVJZMJ3hgTvoHtoE","big_c":"bls12381g1:6AemjrtWRghj9XgiDsbn1hmhvrFP5gncGiXud2XwHzEk87dKT641nM5PChvWtaVery"}
+as expected ok   create ghost-b-0c1eaa.test.near CdBSgwDU9dLnRaYWvQrkA6DgRNMUm9LvVs93CLE5gJVn -> null
+as expected ok   create owner.ghost-b-0c1eaa.test.near E2Ghx9T31sQuh3ypwd4kexjKo1iZU155G5e7o7aezvdy -> null
+as expected ok   create agent.ghost-b-0c1eaa.test.near 7zxVQ9SaqSwrQkft22MH1UKCKiK6kptkBY8TFwiy3dtC -> null
+as expected ok   create court.ghost-b-0c1eaa.test.near FvsPcy4WA5GRzALCAUMWPpMTjRDLttexsFgN4Qc1RfBt -> null
+as expected ok   deploy and init ghost-b-0c1eaa.test.near 92ocDcbsCtEVJBoPt2sXR8VXt8NAaaKH1KFQjx6skc9w -> null
+evm  vault B addresses {"vault":"ghost-b-0c1eaa.test.near","evm":"0x6aF8685171CF5D878D0714542C78E4228fd0FBc1","heirs":["0xEA0289908dFf414e6Af53804E1e52D02700BAcf9","0xf0e2A37A0Bc0686293b47cBc4C6a7D1bfd9D6113"]}
+as expected ok   f0 claim opens on vault B GF4AjYFTnumwKzdDSTQZDa9JaUZAGHLkYxJaBhSWMgF7 -> null
+as expected ok   f1 fallback payout heir 0 5gu68AB1v7Y3LxZbfwup5omtsuyqmDw4DZMugN7DvthS -> true
+evm  fund vault B address {"hash":"0xf06d58cd2352d0d2dc40e1fd64372f1460f83877a599b36984ac57b9e5302ca0","receipt":{"type":"0x2","status":"0x1","cumulativeGasUsed":"0x5208","logs":[],"logsBloom":"0x000000000000000000000000000000
+evm  f2 broadcast payout 0 accepted {"hash":"0x1dd0684b8bc2bfd817bb83855ffbf5a75aebfc877f0da011550bfb47e65b94a5","pool":{"pending":{"0x6af8685171cf5d878d0714542c78e4228fd0fbc1":{"0":{"type":"0x2","chainId":"0x14a34","nonce":"0x0","gas":
+evm  f3 included, not final {"receipt":{"type":"0x2","status":"0x1","cumulativeGasUsed":"0x5208","logs":[],"logsBloom":"0x0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+evm  f4 after anvil_reorg {"depth":1,"receipt":null,"heads":{"latest":24,"safe":22,"finalized":20,"latestHash":"0x8d5daa51661439434470f37d0450eedb398fbd18c7023f1893dc379444da0559","baseFeePerGas":"302367651"},"blockAtIncluded"
+evm  f5 five more blocks: reorged tx {"receipt":null,"heads":{"latest":29,"safe":27,"finalized":25,"latestHash":"0x823cf69b39e91b0063b95f1569b298e5faada098621730c376037999ea8a76a7","baseFeePerGas":"155087072"},"nonce":0}
+as expected ok   f6 settle the reorged-out tx (network must not attest) FzAuawgTSfYpFvdhZyrrDG9YhJ6QfTDXoVx31cm6kkkj :: inner Request has timed out. -> false
+evm  f7 rebroadcast the same signed tx accepted {"hash":"0x1dd0684b8bc2bfd817bb83855ffbf5a75aebfc877f0da011550bfb47e65b94a5","pool":{"pending":{"0x6af8685171cf5d878d0714542c78e4228fd0fbc1":{"0":{"type":"0x2","chainId":"0x14a34","nonce":"0x0","gas":
+evm  f8 same tx lands again {"receipt":{"type":"0x2","status":"0x1","cumulativeGasUsed":"0x5208","logs":[],"logsBloom":"0x0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+as expected ok   f9 settle sent before finality; block finalizes 30 s later EPfBK6ErDiHTY44YCCkBRhcutrLqatQDQNT8agDUG49B :: inner Request has timed out. -> false
+as expected ok   f10 settle after finality 8VwdBhAQxNkVB2X3Jqtpr3fPv4AW622EYACZvijbELW1 -> true
+as expected ok   v1 fallback payout heir 1 attempt 0 63JvW6MhfSWN9ZyjboYoqiVvXz5gLWGexYDnyMV7VTrV -> true
+evm  c6 attempt 0 of payout 1 while base fee is low accepted {"hash":"0xf40ac1fdaee95497179b8b39e023af7ef1942e98e16237dd0eeed80298b2e630","pool":{"pending":{"0x6af8685171cf5d878d0714542c78e4228fd0fbc1":{"1":{"type":"0x2","chainId":"0x14a34","nonce":"0x1","gas":
+evm  c7 base fee 3 gwei: attempt 0 (1 gwei) stays pending {"heads":{"latest":35,"safe":33,"finalized":31,"latestHash":"0x1f4c370e85e77547bb27c1c9a0b79f6d94ee306b11401594f0be654c3ad78456","baseFeePerGas":"3000000000"},"receipt":null,"pool":{"pending":{},"queu
+as expected ok   v2 re-price payout 1 to 2 gwei D2zaTRnscTAXyHKNbVudQRWFXt37D33NnoRYKrLLbGhr -> true
+evm  c8 replacement attempt 1 (2 gwei max fee, same 1 gwei tip) refused {"error":"eth_sendRawTransaction: max fee per gas less than block base fee","rpc":{"code":-32003,"message":"max fee per gas less than block base fee"}}
+evm  c8 pool after replacement offer {"pool":{"pending":{},"queued":{}}}
+as expected ok   v2 re-price payout 1 to 4 gwei 48wcCVnTJrPNHgbDbMiC9bE52SRD1YKH47UwATrLVgpq -> true
+as expected ok   v2 re-price payout 1 to 8 gwei Hd9gu4jL48bdALqyDubztTzrPo9aCXDdLtVk93c9F3Pq -> true
+as expected ok   v2 re-price payout 1 to 16 gwei 7gutZAQjSG5F8EHBzJH5XHqD7qcxcW2awgxDRMy5Ety2 -> true
+as expected fail v3 re-price past the ceiling (refused) HXw13eYWxdWzvFdn6CmyFA2jH6fN8B5uQVyNJkbGHoD6 :: fee above ceiling :: inner fee above ceiling -> 
+evm  v4 broadcast attempt 4 (16 gwei) as a replacement accepted {"hash":"0x4411cbc61d68d1fc1cddc8ec208a13df678bb3893987a9bfd15d2a8fa4feb8e5","pool":{"pending":{"0x6af8685171cf5d878d0714542c78e4228fd0fbc1":{"1":{"type":"0x2","chainId":"0x14a34","nonce":"0x1","gas":
+evm  v4 which attempt of payout 1 landed {"landedAt":4,"receipt":{"type":"0x2","status":"0x1","cumulativeGasUsed":"0x5208","logs":[],"logsBloom":"0x000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+as expected ok   v5 settle payout 1 attempt 4 at max state (finalizes 4 s after the request) 2uUpFhsk5zJXo23MTjGZzjQcLH4dH9wkU59yLFZBq3y5 -> true
+evidence: docs/evidence/localstack/lifecycle-20261113-102449/
+| # | Check | Result |
+|---|---|---|
+| a | A check-in cancels a witnessed claim | PASS |
+| b | The real MPC signature passes on_signed (ecrecover against the vault key) | PASS |
+| d1 | A settle before Base finality is not attested; heir stays Pending | PASS |
+| d2 | After finality the real MPC attestation marks the heir Paid | PASS |
+| e4 | A reverted transfer is not attested | PASS |
+| e6 | A witness quorum reopens the revert; the retry waits | PASS |
+| f6 | A transfer reorged out before finality is not attested | PASS |
+| f10 | The same transfer lands again and settles: heir Paid | PASS |
+| g | The real CKD key opens the sealed wishes after a pairing check | PASS |
+
+ALL PASS
+exit 0
