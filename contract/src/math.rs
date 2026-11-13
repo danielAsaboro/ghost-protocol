@@ -27,6 +27,11 @@ pub fn reinstate(committed: u128, value: u128) -> u128 {
     committed + value
 }
 
+/// Grace for an override claim opened by a quorum short of every witness: twice the unanimous one.
+pub fn reduced_override_grace(override_grace: u64) -> u64 {
+    2 * override_grace
+}
+
 /// The longest a claim can be held back before payout: grace, every contest, one freeze.
 pub fn longest_delay(grace: u64, override_grace: u64, contest: u64, witnesses: usize, freeze_max: u64) -> u64 {
     override_grace.max(grace) + contest * witnesses as u64 + freeze_max
@@ -117,17 +122,22 @@ mod proofs {
             kani::assume(d <= crate::MAX_DURATION_SECS);
         }
         let Some(contests) = contest.checked_mul(witnesses as u64) else { return };
-        let Some(delays) = override_grace.max(grace).checked_add(contests).and_then(|d| d.checked_add(freeze_max)) else { return };
+        let longest = reduced_override_grace(override_grace).max(grace);
+        let Some(delays) = longest.checked_add(contests).and_then(|d| d.checked_add(freeze_max)) else { return };
         kani::assume(fallback > delays);
         let (now, later, opened_at): (u64, u64, u64) = kani::any();
         kani::assume(opened_at <= now && now <= later && later < 1 << 40);
-        // open_claim, contest_claim by every witness, freeze, execute_fallback.
-        let mut pay_after = after(now, override_grace.max(grace));
+        // open_claim (the longest grace: a quorum override), contest_claim by every witness, freeze,
+        // execute_fallback, and a retry's wait after a reopen.
+        let mut pay_after = after(now, longest);
         for _ in 0..witnesses {
             pay_after = after(pay_after, contest);
         }
         let _ = after(later, freeze_max);
         let _ = after(opened_at, fallback);
+        let _ = after(later, crate::REOPEN_DELAY_SECS);
+        let _ = after(later, crate::SIGN_LEASE_SECS);
+        let _ = after(later, crate::OWNER_SIGNER_MAX_SECS);
     }
 
     /// Budget. Same assumption style: whatever `Vault::new` accepted for two heirs.

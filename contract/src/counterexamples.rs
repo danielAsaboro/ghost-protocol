@@ -42,13 +42,13 @@ fn cex2_a_lost_sign_callback_does_not_strand_the_payout() {
     // No on_signed: the callback receipt failed and its changes were rolled back.
     at(PAY_AT + 2 * DAY, "relayer.testnet");
     let retried = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
-        v.request_signature(0, U128(INITIAL_FEE));
+        v.request_signature(0, U128(2 * INITIAL_FEE));
         v
     }));
     let mut v = retried.unwrap_or_else(|_| panic!("payout stranded: no new signature can ever be requested"));
-    assert_eq!(v.payouts[0].attempts.len(), 1, "the dead attempt is replaced, not kept");
-    sign_ok(&mut v, 0, 0);
-    assert!(v.payouts[0].attempts[0].tx_hash_hex.is_some());
+    let last = v.payouts[0].attempts.len() as u32 - 1;
+    sign_ok(&mut v, 0, last);
+    assert!(v.payouts[0].attempts[last as usize].tx_hash_hex.is_some());
 }
 
 /// TLC, `inv_budget` (docs/evidence/spec/tlc-v2-cex-committed.log): a lying quorum reopens a payout

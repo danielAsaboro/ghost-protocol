@@ -7,8 +7,10 @@ use super::test_support::*;
 use super::*;
 use near_sdk::serde_json::Value;
 
-/// One model time unit, in seconds. Equal to SIGN_LEASE_SECS, so the model's LEASE of 1 is the contract's.
+/// One model time unit, in seconds. Equal to SIGN_LEASE_SECS and REOPEN_DELAY_SECS, so the model's
+/// LEASE and REOPEN_DELAY of 1 are the contract's.
 const UNIT: u64 = SIGN_LEASE_SECS;
+const _: () = assert!(SIGN_LEASE_SECS == REOPEN_DELAY_SECS);
 /// One model value unit, in wei: the gas limit, so a reserve is `value + CEILING` units.
 const WEI: u128 = 21_000;
 const M_CEILING: u128 = 4;
@@ -26,7 +28,7 @@ fn model_config() -> VaultConfig {
     c.override_grace_secs = 2 * UNIT;
     c.contest_secs = UNIT;
     c.freeze_max_secs = UNIT;
-    c.fallback_secs = 7 * UNIT;
+    c.fallback_secs = 9 * UNIT;
     c.abandon_secs = Some(4 * UNIT);
     c.initial_max_fee_per_gas = U128(1);
     c.max_fee_ceiling = U128(M_CEILING);
@@ -91,6 +93,7 @@ fn project(v: &Vault) -> Value {
             json!({
                 "status": format!("{:?}", h.status),
                 "reopened": h.reopened,
+                "reopenedAt": h.reopened_at.map_or(-1, |t| ((t - START) / UNIT) as i64),
                 "adultAt": h.adult_at.map_or(-1, |t| ((t - START) / UNIT) as i64),
             })
         })
@@ -147,6 +150,7 @@ fn model(state: &Value) -> Value {
             json!({
                 "status": s(map_get(&state["heirStatus"], h)),
                 "reopened": map_get(&state["reopened"], h).as_bool().unwrap(),
+                "reopenedAt": int(map_get(&state["reopenedAt"], h)),
                 "adultAt": int(map_get(&state["adultAt"], h)),
             })
         })
@@ -199,7 +203,8 @@ fn apply(v: &mut Vault, now: u64, action: &str, args: &[i64]) {
             let epoch = v.claim_epoch;
             if args[0] == 1 {
                 let m = format!("ghost:override:{VAULT}:{epoch}:{t}");
-                v.open_claim(t, quorum_of(&m, &[0, 1, 2]), true);
+                let who: &[u32] = if args[1] == 1 { &[0, 1, 2] } else { &[0, 1] };
+                v.open_claim(t, quorum_of(&m, who), true);
             } else {
                 v.open_claim(t, quorum_of(&death_message(epoch, t), &[0, 1]), false);
             }
@@ -213,7 +218,7 @@ fn apply(v: &mut Vault, now: u64, action: &str, args: &[i64]) {
             at(t, "anyone.testnet");
             let opened = v.claim.as_ref().unwrap().opened_at;
             let w = arg(0);
-            v.contest_claim(w, signed(w as u8 + 1, &format!("ghost:contest:{VAULT}:{w}:{opened}")));
+            v.contest_claim(w, signed(w as u8 + 1, &format!("ghost:contest:{VAULT}:{}:{w}:{opened}", v.claim_epoch)));
         }
         "prove_adult" => {
             at(t, "anyone.testnet");
@@ -257,6 +262,12 @@ fn apply(v: &mut Vault, now: u64, action: &str, args: &[i64]) {
                 Err(PromiseError::Failed)
             };
             v.on_signed(p as u32, attempt as u32, requested_at, result);
+        }
+        "submit_signature" => {
+            at(t, "anyone.testnet");
+            let (p, a) = (arg(0) as usize, arg(1) as usize);
+            let sig = good_signature(v, p, a);
+            v.submit_signature(p as u32, a as u32, sig);
         }
         "open_claim_abandoned" => {
             at(t, "anyone.testnet");

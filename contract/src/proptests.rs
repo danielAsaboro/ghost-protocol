@@ -66,7 +66,7 @@ fn apply(v: &mut Vault, now: &mut u64, op: &Op) {
         Op::Contest(w) => {
             at(*now, "anyone.testnet");
             let opened = v.claim.as_ref().map_or(0, |c| c.opened_at);
-            let sig = signed((*w + 1) as u8, &format!("ghost:contest:{VAULT}:{w}:{opened}"));
+            let sig = signed((*w + 1) as u8, &format!("ghost:contest:{VAULT}:{}:{w}:{opened}", v.claim_epoch));
             v.contest_claim(*w, sig);
         }
         Op::CancelOverride { good } => {

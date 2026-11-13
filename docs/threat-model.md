@@ -41,14 +41,14 @@ Casa inheritance documents, Bitcoin miniscript timelocks and published loss post
 | Actor | Worst alone, after the fixes | Why not worse |
 |---|---|---|
 | Owner | Check in forever, change nothing else | Heirs and limits are immutable. Dying is not required for the owner to keep the money: the owner cannot withdraw through the contract at all |
-| Thief of the owner's check-in key | Delay a normal claim indefinitely | An override claim from all witnesses ignores check-ins, and only the cold recovery key cancels it (I10) |
+| Thief of the owner's check-in key | Delay a normal claim indefinitely | An override claim ignores check-ins: from all witnesses after `override_grace_secs`, from a quorum after twice that (v3), and only the cold recovery key cancels it (I10) |
 | Thief of both owner keys | Keep cancelling claims | Indistinguishable from the owner. Stated limit |
 | Deployer | Nothing after lock | No full-access key remains (I1). Before lock the deployer can drain, so lock is verified before funding |
 | Agent | Pay a listed heir between floor and cap, once. Or do nothing | Fallback removes the need for the agent (I13) |
 | Model provider | Choose within floor and cap | Same bounds. A provider who signs a crafted response stays inside I2 |
 | Relayer | Delay broadcast | Anyone can broadcast the stored signature or request a higher fee (I6) |
 | One witness | Add one bounded contest delay | Quorum needed to claim. Each witness contests once (I16) |
-| Witness quorum | Open a false claim. Declare a payment reverted, once per heir | The owner cancels in grace. A false revert overpays one heir once and is recorded if disproved (I9, I17) |
+| Witness quorum | Open a false claim, or a slow override (v3). Declare a payment reverted, once per heir | The owner cancels a normal claim in grace, and the recovery key cancels an override. v3: a retry after a reopen waits a day, so anyone who proves the original landed stops the overpayment before a second transfer exists (I9, I10, I17) |
 | Registrar | Mark one heir adult early | Can only accelerate, once per heir, and only for that heir (I11) |
 | Court | Delay payout once per claim, up to `freeze_max_secs` | Freeze expires by itself (I12) |
 | MPC network (threshold) | Sign anything, steal everything, falsely attest a payment | Root of trust. Stated limit |
@@ -61,7 +61,7 @@ Casa inheritance documents, Bitcoin miniscript timelocks and published loss post
 - **I2** Every payout goes to a listed heir, with `floor_wei <= value <= cap_wei`.
 - **I3** A heir is `Paid` only once per settled proof, and a `Paid` heir never gets a new payout.
 - **I4** A heir becomes `Paid` only after the MPC ForeignTx key signs the contract-computed payload hash for the contract-computed transaction hash.
-- **I5** A signature is stored only if `ecrecover` with low-s enforcement returns the vault's key.
+- **I5** A signature is stored only if `ecrecover` with low-s enforcement returns the vault's key, whoever submits it: the MPC callback, or anyone through `submit_signature` (v3) for an attempt whose callback was lost.
 - **I6** Each payout owns exactly one nonce. All attempts for a payout share nonce, recipient and value and differ only in fee. So at most one attempt can land, and a stuck attempt is replaced, not abandoned.
 - **I7** The sum of committed value and maximum gas never exceeds `budget_wei`. A disproved revert counts its value as committed again (v3; model counterexample 3), so committed may then exceed the budget by that one payout, which is the overpayment the stated limit of I17 allows.
 - **I8** No payout is created unless the claim is open, the delay has passed, no active freeze applies and the heir's age gate is open.
@@ -72,13 +72,15 @@ Casa inheritance documents, Bitcoin miniscript timelocks and published loss post
 - **I13** After `opened_at + fallback_secs`, anyone can start the cap payout for any open heir, with no agent and no decision proof.
 - **I14** The agent's payout is accepted only with a response signed by a registered, unexpired attested signer, and the heir and amount in that signed body must equal the call's arguments and name this vault.
 - **I15** The vault requests the wishes key only after I8's trigger conditions hold, and only for the registered app key.
-- **I16** A contest extends the delay by `contest_secs`, at most once per witness.
-- **I17** A reverted payout can be reopened once per heir, needs a witness quorum over its exact transaction hash, and is flagged if later proven to have succeeded.
+- **I16** A contest extends the delay by `contest_secs`, at most once per witness, only during grace, and only for the claim it names (v3).
+- **I17** A reverted payout can be reopened once per heir, needs a witness quorum over its exact transaction hash, and is flagged if later proven to have succeeded. v3: the retry waits `REOPEN_DELAY_SECS` (one day) after the reopen, so the original can be settled first.
 - **I19** Every payout's nonce stays signable until settled or reverted, so no later payout can be stranded by an earlier one. A request whose callback never comes is replaced after `SIGN_LEASE_SECS` by anyone, and a late callback for the replaced request is ignored (v3; D11).
 - **I18** Failed signing changes no nonce and no heir state beyond releasing the attempt.
 - **I20** Once the wishes key is requested, the claim can no longer be cancelled, by check-in or by the recovery key (v3; model counterexample 1).
 - **I21** Every config `new` accepts can open a claim and reach every deadline: durations are at most 100 years, witnesses at most 32, heirs at most 16, budget at most 2^126 wei, attested signers at most 8 live at a time (v3; Kani counterexample, `cex4`).
 - **I22** After `abandon_secs` of silence, if the owner set it, a normal claim opens with no witnesses; a check-in still cancels it (v3; D20).
+- **I23** Witness keys are distinct and differ from the registrar and recovery keys; `get_state` shows them and the threshold. A replayed signer registration is refused; the owner registers signers for at most a year, and a quorum always makes room (v3).
+- **I24** An agent decision is the whole message content parsed as one JSON object, not braces found inside prose (v3).
 
 ## Dependencies over 20 years
 
@@ -121,6 +123,8 @@ What this means: the deployed vault survives key rotation of MPC participants (D
 - The binding of signing key to enclave measurement is checked off-chain by the published command, because the contract cannot verify a TDX quote.
 - The contract cannot read the Base balance. An underfunded transaction is invalid, is never mined and consumes no nonce, so it retries once funded. The relayer refuses and says why.
 - The MPC network does not attest failures, so a revert needs the witness path in I17.
-- A witness quorum that lies about a revert, with a retry already issued, can overpay that heir once. It is detected, and further reopens stop, but the transfer cannot be undone.
+- A witness quorum that lies about a revert can overpay that heir once if nobody settles the original within the one-day wait (v3; on the deployed vault, with no wait, it can do so for every heir at once). It is detected, and further reopens stop, also for honest reverts, but the transfer cannot be undone.
+- Value the payouts do not use (between floor and cap, or a share whose second payment also failed) stays on the Base address forever. There is no residuary heir and no owner withdrawal.
+- The budget does not include Base's L1 data fee. A transfer the address cannot fully pay for is invalid and waits for funds.
 - Early signatures already released cannot be revoked by a later freeze.
 - Not a legal will.

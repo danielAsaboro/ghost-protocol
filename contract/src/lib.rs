@@ -24,13 +24,18 @@ const MIN_GAS_LIMIT: u64 = 21_000;
 const MAX_GAS_LIMIT: u64 = 2_000_000;
 /// After this long without its callback, a signature request is presumed lost (D11) and anyone may
 /// replace it. A late callback for the old request is ignored, so the lease is not a safety bound.
-pub const SIGN_LEASE_SECS: u64 = 3_600;
+pub const SIGN_LEASE_SECS: u64 = 86_400;
 /// No duration may exceed 100 years, so every deadline sum fits in u64 (Kani, `math.rs`).
 pub const MAX_DURATION_SECS: u64 = 100 * 365 * 86_400;
 /// Bounds on state, so the gas a callback needs is bounded (D11, D12).
 pub const MAX_WITNESSES: usize = 32;
 pub const MAX_HEIRS: usize = 16;
 pub const MAX_SIGNERS: usize = 8;
+/// A retry after a reopened revert waits this long, so anyone can first prove the original landed
+/// (outside review F1: a lying quorum could otherwise overpay every heir before detection).
+pub const REOPEN_DELAY_SECS: u64 = 86_400;
+/// The owner may register an attested signer for at most this long (outside review F3).
+pub const OWNER_SIGNER_MAX_SECS: u64 = 365 * 86_400;
 /// 2^126 wei, about 8.5e19 ETH: far above any estate, and low enough that committed value plus one
 /// reinstated payout cannot overflow.
 pub const MAX_BUDGET_WEI: u128 = 1 << 126;
@@ -55,6 +60,8 @@ pub struct Heir {
     pub adult_at: Option<u64>,
     pub status: HeirStatus,
     pub reopened: bool,
+    /// When a quorum reopened this heir's payout; its retry waits REOPEN_DELAY_SECS.
+    pub reopened_at: Option<u64>,
 }
 
 #[near(serializers = [json, borsh])]
@@ -298,6 +305,11 @@ impl Vault {
         );
         key32(&config.registrar.0);
         key32(&config.recovery_key.0);
+        // Outside review F5: one person must not count as two witnesses, or double as registrar or recovery.
+        for (i, k) in witnesses.iter().enumerate() {
+            require!(!witnesses[..i].contains(k), "witness keys must be distinct");
+            require!(*k != config.registrar.0 && *k != config.recovery_key.0, "witness keys must differ from registrar and recovery keys");
+        }
         require!(
             config.vault_public_key.0.len() == 64 && config.foreign_tx_public_key.0.len() == 64,
             "MPC keys must be 64 bytes"
@@ -326,7 +338,7 @@ impl Vault {
         }
         let delays = math::longest_delay(
             config.grace_secs,
-            config.override_grace_secs,
+            math::reduced_override_grace(config.override_grace_secs),
             config.contest_secs,
             witnesses.len(),
             config.freeze_max_secs,
@@ -358,6 +370,7 @@ impl Vault {
                 adult_at: None,
                 status: HeirStatus::Open,
                 reopened: false,
+                reopened_at: None,
             });
         }
         require!(required <= config.budget_wei.0, "caps and gas exceed the budget");
@@ -441,16 +454,17 @@ impl Vault {
         // cannot strand the estate. A check-in still cancels it (I9).
         let abandoned = !override_claim
             && self.abandon_secs.is_some_and(|a| math::silence(now, self.last_check_in) >= a);
-        let needed = if override_claim {
-            self.witnesses.len() as u32
-        } else if abandoned {
-            0
-        } else {
-            self.witness_threshold
-        };
+        // Outside review F2: with one witness gone and the check-in key stolen, an override with all
+        // witnesses is impossible and check-ins block every normal claim. A quorum may open an
+        // override, but it waits twice as long; the recovery key still cancels it.
+        let needed = if override_claim || !abandoned { self.witness_threshold } else { 0 };
         require!(valid >= needed, "witness quorum not met");
-
-        let delay = if override_claim { self.override_grace_secs } else { self.grace_secs };
+        let unanimous = valid as usize == self.witnesses.len();
+        let delay = match (override_claim, unanimous) {
+            (true, true) => self.override_grace_secs,
+            (true, false) => math::reduced_override_grace(self.override_grace_secs),
+            (false, _) => self.grace_secs,
+        };
         self.claim = Some(Claim {
             kind: if override_claim { ClaimKind::Override } else { ClaimKind::Normal },
             death_at,
@@ -482,9 +496,13 @@ impl Vault {
         let contest_secs = self.contest_secs;
         let account = env::current_account_id();
         let key = self.witnesses[i].clone();
+        let epoch = self.claim_epoch;
         let claim = self.claim.as_mut().unwrap_or_else(|| env::panic_str("no open claim"));
         require!(!claim.contested[i], "witness already contested");
-        let message = format!("ghost:contest:{}:{}:{}", account, witness_index, claim.opened_at);
+        // Outside review F6: a contest buys time during grace, not after payouts began.
+        require!(now_secs() < claim.pay_after, "grace period is over");
+        // Outside review F9: bound to this claim, not just its opening second.
+        let message = format!("ghost:contest:{}:{}:{}:{}", account, epoch, witness_index, claim.opened_at);
         require!(verify_ed25519(&signature.0, &message, &key), "invalid witness signature");
         claim.contested[i] = true;
         claim.pay_after = math::after(claim.pay_after, contest_secs);
@@ -520,8 +538,10 @@ impl Vault {
     ) {
         ensure(eth::parse_address(&address).is_some(), "invalid signer address");
         require!(expires_at > now_secs(), "signer already expired");
-        if env::predecessor_account_id() == self.owner && self.claim.is_none() {
+        let by_owner = env::predecessor_account_id() == self.owner && self.claim.is_none();
+        if by_owner {
             require!(proofs.is_empty(), "owner registration takes no proofs");
+            require!(expires_at <= math::after(now_secs(), OWNER_SIGNER_MAX_SECS), "owner may register a signer for at most a year");
         } else {
             let message = format!(
                 "ghost:signer:{}:{}:{}:{}",
@@ -542,9 +562,16 @@ impl Vault {
             require!(valid >= self.witness_threshold, "witness quorum not met");
         }
         let now = now_secs();
+        let address = address.to_lowercase();
         self.signers.retain(|s| s.expires_at > now);
-        require!(self.signers.len() < MAX_SIGNERS, "too many attested signers");
-        self.signers.push(AttestedSigner { address: address.to_lowercase(), quote_sha256, expires_at });
+        // Outside review F3: a replayed registration adds nothing, and a quorum can always make room.
+        require!(!self.signers.iter().any(|s| s.address == address), "signer already registered");
+        if self.signers.len() >= MAX_SIGNERS {
+            require!(!by_owner, "too many attested signers");
+            let soonest = (0..self.signers.len()).min_by_key(|&k| self.signers[k].expires_at).unwrap();
+            self.signers.remove(soonest);
+        }
+        self.signers.push(AttestedSigner { address, quote_sha256, expires_at });
     }
 
     /// I2, I14: the agent's only power, bounded by floor and cap and bound to an attested response.
@@ -582,10 +609,10 @@ impl Vault {
         require!(self.payouts[i].status == PayoutStatus::Active, "payout is not active");
         if self.payouts[i].signing {
             // D11: a callback that ran out of gas or storage rolled back and will never come.
+            // The lost attempt stays: if the MPC network did sign it, anyone can submit that signature
+            // (submit_signature), so a broadcast of it can still settle (outside review F4).
             let since = self.payouts[i].signing_since;
             require!(now_secs() >= math::after(since, SIGN_LEASE_SECS), "signature already in flight");
-            let last = self.payouts[i].attempts.pop();
-            ensure(last.is_some_and(|a| a.tx_hash_hex.is_none()), "in-flight attempt is already signed");
             self.payouts[i].signing = false;
         }
         let previous = self.payouts[i].attempts.last().map(|a| a.max_fee_per_gas.0);
@@ -625,11 +652,27 @@ impl Vault {
             self.payouts[i].attempts.truncate(attempt_index as usize);
             return false;
         };
-        let attempt = &mut self.payouts[i].attempts[attempt_index as usize];
-        attempt.r_hex = Some(eth::hex(&r));
-        attempt.s_hex = Some(eth::hex(&s));
-        attempt.y_parity = Some(y_parity);
-        attempt.tx_hash_hex = Some(eth::hex(&eth::signed_tx_hash(&tx, y_parity, &r, &s)));
+        self.store_signature(i, attempt_index as usize, &tx, r, s, y_parity);
+        true
+    }
+
+    /// I5: anyone may store a signature for an attempt whose callback was lost. Accepted exactly when
+    /// `on_signed` would accept it: it must recover to the vault key over this attempt's payload.
+    pub fn submit_signature(&mut self, payout_index: u32, attempt_index: u32, signature: Value) -> bool {
+        let i = payout_index as usize;
+        let a = attempt_index as usize;
+        require!(i < self.payouts.len(), "unknown payout");
+        require!(a < self.payouts[i].attempts.len(), "unknown attempt");
+        require!(self.payouts[i].attempts[a].tx_hash_hex.is_none(), "attempt already signed");
+        require!(
+            !(self.payouts[i].signing && a + 1 == self.payouts[i].attempts.len()),
+            "attempt still awaits its callback"
+        );
+        let (r, s, y_parity) = parse_mpc_signature(&signature).unwrap_or_else(|| env::panic_str("malformed signature"));
+        let tx = self.transfer(i, a);
+        let hash = eth::eip1559_hash(&tx);
+        require!(recovers_to(&hash, &r, &s, y_parity, &self.vault_public_key), "signature does not recover to the vault key");
+        self.store_signature(i, a, &tx, r, s, y_parity);
         true
     }
 
@@ -730,6 +773,7 @@ impl Vault {
         self.committed_wei = math::release(self.committed_wei, self.payouts[i].value_wei.0);
         self.heirs[heir_index].status = HeirStatus::Open;
         self.heirs[heir_index].reopened = true;
+        self.heirs[heir_index].reopened_at = Some(now_secs());
     }
 
     /// I15: only after the trigger, only for the registered key. The reply is encrypted to it.
@@ -784,6 +828,10 @@ impl Vault {
             "signers": self.signers,
             "false_revert_proven": self.false_revert_proven,
             "wishes_released": self.wishes_released,
+            "witnesses": self.witnesses.iter().map(|k| eth::hex(k)).collect::<Vec<_>>(),
+            "witness_threshold": self.witness_threshold,
+            "registrar": eth::hex(&self.registrar),
+            "recovery_key": eth::hex(&self.recovery_key),
             "abandon_secs": self.abandon_secs,
         })
     }
@@ -808,6 +856,9 @@ impl Vault {
         let adult = math::adult_time(self.heirs[heir].adult_at, self.heirs[heir].adult_by);
         require!(now_secs() >= adult, "heir is not yet an adult");
         require!(self.heirs[heir].status == HeirStatus::Open, "heir already paid or pending");
+        if let Some(at) = self.heirs[heir].reopened_at {
+            require!(now_secs() >= math::after(at, REOPEN_DELAY_SECS), "retry waits for the revert to be disputed");
+        }
     }
 
     /// I14. Returns `(request_hash, response_hash)`.
@@ -843,10 +894,8 @@ impl Vault {
         let content = body["choices"][0]["message"]["content"]
             .as_str()
             .unwrap_or_else(|| env::panic_str("response has no message content"));
-        let start = content.find('{').unwrap_or_else(|| env::panic_str("decision is not JSON"));
-        let end = content.rfind('}').unwrap_or_else(|| env::panic_str("decision is not JSON"));
-        ensure(end >= start, "decision is not JSON");
-        let decision: Decision = serde_json::from_str(&content[start..=end]).unwrap_or_else(|_| env::panic_str("invalid decision"));
+        // Outside review F10: the whole message is the decision, not any braces inside prose.
+        let decision: Decision = serde_json::from_str(content.trim()).unwrap_or_else(|_| env::panic_str("decision is not a JSON object"));
         require!(decision.action == "pay", "decision is not a payment");
         require!(decision.vault == env::current_account_id().as_str(), "decision is for another vault");
         require!(decision.heir_index == heir_index, "decision names another heir");
@@ -886,6 +935,14 @@ impl Vault {
         self.heirs[index].status = HeirStatus::Pending;
         self.payouts.push(payout);
         self.begin_attempt(self.payouts.len() - 1, self.initial_max_fee_per_gas)
+    }
+
+    fn store_signature(&mut self, payout: usize, attempt: usize, tx: &eth::Transfer, r: [u8; 32], s: [u8; 32], y_parity: u8) {
+        let a = &mut self.payouts[payout].attempts[attempt];
+        a.r_hex = Some(eth::hex(&r));
+        a.s_hex = Some(eth::hex(&s));
+        a.y_parity = Some(y_parity);
+        a.tx_hash_hex = Some(eth::hex(&eth::signed_tx_hash(tx, y_parity, &r, &s)));
     }
 
     fn transfer(&self, payout: usize, attempt: usize) -> eth::Transfer {
@@ -963,3 +1020,6 @@ mod itf_replay;
 #[cfg(test)]
 #[allow(unused_must_use)]
 mod counterexamples;
+#[cfg(test)]
+#[allow(unused_must_use)]
+mod outside_review;

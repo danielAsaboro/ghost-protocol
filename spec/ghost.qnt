@@ -25,14 +25,16 @@ module ghost {
   pure val OVERRIDE_GRACE = 2
   pure val CONTEST = 1
   pure val FREEZE_MAX = 1
-  // Must outlast every delay: max(GRACE, OVERRIDE_GRACE) + CONTEST * NUM_WITNESSES + FREEZE_MAX.
-  pure val FALLBACK = 7
+  // Must outlast every delay: max(GRACE, 2 * OVERRIDE_GRACE) + CONTEST * NUM_WITNESSES + FREEZE_MAX.
+  pure val FALLBACK = 9
   pure val ADULT_BY: int -> int = Map(0 -> 0, 1 -> 4)
   pure val MAX_TIME = 12
   // A sign request with no callback after this long may be replaced (contract SIGN_LEASE_SECS).
   pure val LEASE = 1
   // Silence after which a normal claim needs no witnesses (D20).
   pure val ABANDON = 4
+  // A retry after a reopened revert waits this long (contract REOPEN_DELAY_SECS).
+  pure val REOPEN_DELAY = 1
   pure val MAX_EPOCH = 1
   pure val FEES = 1.to(CEILING)
   pure val VALUES = FLOOR.to(CAP)
@@ -41,7 +43,8 @@ module ghost {
   pure val TRACE = true
 
   // ---------------------------------------------------------------- types
-  type Attempt = { fee: int, signed: bool }
+  // `public`: the MPC network signed it but the vault never stored it (lost or ignored callback).
+  type Attempt = { fee: int, signed: bool, requestedAt: int, public: bool }
   type Payout = {
     heir: int, value: int, nonce: int, status: str, signing: bool, signingSince: int,
     attempts: List[Attempt], settledAttempt: int, source: str,
@@ -49,10 +52,10 @@ module ghost {
   type Landing = { payout: int, attempt: int, ok: bool, finalized: bool }
   type Claim = {
     kind: str, openedAt: int, payAfter: int, contested: Set[int],
-    frozenUntil: int, freezeUsed: bool,
+    frozenUntil: int, freezeUsed: bool, delay: int,
   }
   pure val NO_CLAIM: Claim = {
-    kind: "None", openedAt: 0, payAfter: 0, contested: Set(), frozenUntil: 0, freezeUsed: false,
+    kind: "None", openedAt: 0, payAfter: 0, contested: Set(), frozenUntil: 0, freezeUsed: false, delay: 0,
   }
 
   // ---------------------------------------------------------------- contract state
@@ -62,6 +65,7 @@ module ghost {
   var epoch: int
   var heirStatus: int -> str
   var reopened: int -> bool
+  var reopenedAt: int -> int
   var adultAt: int -> int
   var payouts: List[Payout]
   var committed: int
@@ -124,7 +128,7 @@ module ghost {
 
   action keepContract: bool = all {
     lastCheckIn' = lastCheckIn, claim' = claim, epoch' = epoch, heirStatus' = heirStatus,
-    reopened' = reopened, adultAt' = adultAt, payouts' = payouts, committed' = committed,
+    reopened' = reopened, reopenedAt' = reopenedAt, adultAt' = adultAt, payouts' = payouts, committed' = committed,
     nextNonce' = nextNonce, falseRevert' = falseRevert, wishesRequested' = wishesRequested,
     signerRegistered' = signerRegistered,
   }
@@ -137,6 +141,7 @@ module ghost {
     epoch' = 0,
     heirStatus' = HEIRS.mapBy(_ => "Open"),
     reopened' = HEIRS.mapBy(_ => false),
+    reopenedAt' = HEIRS.mapBy(_ => -1),
     adultAt' = HEIRS.mapBy(_ => -1),
     payouts' = [],
     committed' = 0,
@@ -168,31 +173,34 @@ module ghost {
     lastCheckIn' = now,
     if (claim.kind == "Normal") all { claim' = NO_CLAIM, epoch' = epoch + 1, epoch < MAX_EPOCH + 1 }
     else all { claim' = claim, epoch' = epoch },
-    heirStatus' = heirStatus, reopened' = reopened, adultAt' = adultAt, payouts' = payouts,
+    heirStatus' = heirStatus, reopened' = reopened, reopenedAt' = reopenedAt, adultAt' = adultAt, payouts' = payouts,
     committed' = committed, nextNonce' = nextNonce, falseRevert' = falseRevert,
     wishesRequested' = wishesRequested, signerRegistered' = signerRegistered,
     now' = now, inflight' = inflight, keepEnv, record("check_in", []),
   }
 
-  action openClaim(overrideClaim: bool): bool = all {
+  // An override opened by a quorum short of every witness waits twice as long (outside review F2).
+  action openClaim(overrideClaim: bool, unanimous: bool): bool = all {
     not(claimOpen),
     epoch <= MAX_EPOCH,
     // An honest quorum only signs once the owner is dead. A lying one signs anything.
     honestWitnesses implies not(ownerAlive),
     if (overrideClaim) true else now - lastCheckIn >= INACTIVITY,
+    val delay = if (not(overrideClaim)) GRACE else if (unanimous) OVERRIDE_GRACE else 2 * OVERRIDE_GRACE
     claim' = {
       kind: if (overrideClaim) "Override" else "Normal",
       openedAt: now,
-      payAfter: now + (if (overrideClaim) OVERRIDE_GRACE else GRACE),
+      payAfter: now + delay,
       contested: Set(),
       frozenUntil: 0,
       freezeUsed: false,
+      delay: delay,
     },
-    lastCheckIn' = lastCheckIn, epoch' = epoch, heirStatus' = heirStatus, reopened' = reopened,
+    lastCheckIn' = lastCheckIn, epoch' = epoch, heirStatus' = heirStatus, reopened' = reopened, reopenedAt' = reopenedAt,
     adultAt' = adultAt, payouts' = payouts, committed' = committed, nextNonce' = nextNonce,
     falseRevert' = falseRevert, wishesRequested' = wishesRequested, signerRegistered' = signerRegistered,
     now' = now, inflight' = inflight, keepEnv,
-    record("open_claim", [if (overrideClaim) 1 else 0]),
+    record("open_claim", [if (overrideClaim) 1 else 0, if (unanimous) 1 else 0]),
   }
 
   // D20: after ABANDON of silence, anyone opens a normal claim with no witnesses.
@@ -200,8 +208,8 @@ module ghost {
     not(claimOpen),
     epoch <= MAX_EPOCH,
     now - lastCheckIn >= ABANDON,
-    claim' = { kind: "Normal", openedAt: now, payAfter: now + GRACE, contested: Set(), frozenUntil: 0, freezeUsed: false },
-    lastCheckIn' = lastCheckIn, epoch' = epoch, heirStatus' = heirStatus, reopened' = reopened,
+    claim' = { kind: "Normal", openedAt: now, payAfter: now + GRACE, contested: Set(), frozenUntil: 0, freezeUsed: false, delay: GRACE },
+    lastCheckIn' = lastCheckIn, epoch' = epoch, heirStatus' = heirStatus, reopened' = reopened, reopenedAt' = reopenedAt,
     adultAt' = adultAt, payouts' = payouts, committed' = committed, nextNonce' = nextNonce,
     falseRevert' = falseRevert, wishesRequested' = wishesRequested, signerRegistered' = signerRegistered,
     now' = now, inflight' = inflight, keepEnv,
@@ -216,7 +224,7 @@ module ghost {
     not(wishesRequested),
     epoch < MAX_EPOCH + 1,
     claim' = NO_CLAIM, epoch' = epoch + 1, lastCheckIn' = now,
-    heirStatus' = heirStatus, reopened' = reopened, adultAt' = adultAt, payouts' = payouts,
+    heirStatus' = heirStatus, reopened' = reopened, reopenedAt' = reopenedAt, adultAt' = adultAt, payouts' = payouts,
     committed' = committed, nextNonce' = nextNonce, falseRevert' = falseRevert,
     wishesRequested' = wishesRequested, signerRegistered' = signerRegistered,
     now' = now, inflight' = inflight, keepEnv, record("cancel_override", []),
@@ -226,8 +234,10 @@ module ghost {
   action contest(w: int): bool = all {
     claimOpen,
     not(claim.contested.contains(w)),
+    // Outside review F6: only during grace.
+    now < claim.payAfter,
     claim' = claim.with("contested", claim.contested.union(Set(w))).with("payAfter", claim.payAfter + CONTEST),
-    lastCheckIn' = lastCheckIn, epoch' = epoch, heirStatus' = heirStatus, reopened' = reopened,
+    lastCheckIn' = lastCheckIn, epoch' = epoch, heirStatus' = heirStatus, reopened' = reopened, reopenedAt' = reopenedAt,
     adultAt' = adultAt, payouts' = payouts, committed' = committed, nextNonce' = nextNonce,
     falseRevert' = falseRevert, wishesRequested' = wishesRequested, signerRegistered' = signerRegistered,
     now' = now, inflight' = inflight, keepEnv, record("contest_claim", [w]),
@@ -238,7 +248,7 @@ module ghost {
     adultAt.get(h) < 0,
     adultAt' = adultAt.set(h, t),
     lastCheckIn' = lastCheckIn, claim' = claim, epoch' = epoch, heirStatus' = heirStatus,
-    reopened' = reopened, payouts' = payouts, committed' = committed, nextNonce' = nextNonce,
+    reopened' = reopened, reopenedAt' = reopenedAt, payouts' = payouts, committed' = committed, nextNonce' = nextNonce,
     falseRevert' = falseRevert, wishesRequested' = wishesRequested, signerRegistered' = signerRegistered,
     now' = now, inflight' = inflight, keepEnv, record("prove_adult", [h, t]),
   }
@@ -248,7 +258,7 @@ module ghost {
     claimOpen,
     not(claim.freezeUsed),
     claim' = claim.with("freezeUsed", true).with("frozenUntil", now + FREEZE_MAX),
-    lastCheckIn' = lastCheckIn, epoch' = epoch, heirStatus' = heirStatus, reopened' = reopened,
+    lastCheckIn' = lastCheckIn, epoch' = epoch, heirStatus' = heirStatus, reopened' = reopened, reopenedAt' = reopenedAt,
     adultAt' = adultAt, payouts' = payouts, committed' = committed, nextNonce' = nextNonce,
     falseRevert' = falseRevert, wishesRequested' = wishesRequested, signerRegistered' = signerRegistered,
     now' = now, inflight' = inflight, keepEnv, record("freeze", []),
@@ -259,7 +269,7 @@ module ghost {
     not(signerRegistered),
     signerRegistered' = true,
     lastCheckIn' = lastCheckIn, claim' = claim, epoch' = epoch, heirStatus' = heirStatus,
-    reopened' = reopened, adultAt' = adultAt, payouts' = payouts, committed' = committed,
+    reopened' = reopened, reopenedAt' = reopenedAt, adultAt' = adultAt, payouts' = payouts, committed' = committed,
     nextNonce' = nextNonce, falseRevert' = falseRevert, wishesRequested' = wishesRequested,
     now' = now, inflight' = inflight, keepEnv, record("register_signer", []),
   }
@@ -267,15 +277,17 @@ module ghost {
   // I2, I7, I8: shared by the agent path and the fallback path. Starts attempt 0 at the initial fee.
   action createPayout(h: int, value: int, source: str): bool = all {
     triggerProven(h),
+    // Outside review F1: a retry waits so anyone can first prove the original landed.
+    reopenedAt.get(h) < 0 or now >= reopenedAt.get(h) + REOPEN_DELAY,
     committed + reserve(value) <= BUDGET,
     payouts' = payouts.append({
       heir: h, value: value, nonce: nextNonce, status: "Active", signing: true, signingSince: now,
-      attempts: [{ fee: INITIAL_FEE, signed: false }], settledAttempt: -1, source: source,
+      attempts: [{ fee: INITIAL_FEE, signed: false, requestedAt: now, public: false }], settledAttempt: -1, source: source,
     }),
     committed' = committed + reserve(value),
     nextNonce' = nextNonce + 1,
     heirStatus' = heirStatus.set(h, "Pending"),
-    lastCheckIn' = lastCheckIn, claim' = claim, epoch' = epoch, reopened' = reopened,
+    lastCheckIn' = lastCheckIn, claim' = claim, epoch' = epoch, reopened' = reopened, reopenedAt' = reopenedAt,
     adultAt' = adultAt, falseRevert' = falseRevert, wishesRequested' = wishesRequested,
     signerRegistered' = signerRegistered,
     now' = now, inflight' = inflight.union(Set(("sign", payouts.length(), now))), keepEnv,
@@ -297,10 +309,9 @@ module ghost {
   }
 
   // I6: anyone re-prices. Same nonce, recipient, value. Fee doubles or reaches the ceiling.
-  // D11: a request still marked in flight after LEASE is presumed lost; its unsigned attempt is
-  // dropped and replaced.
-  def keptAttempts(p) = if (payouts[p].signing) payouts[p].attempts.slice(0, payouts[p].attempts.length() - 1)
-                        else payouts[p].attempts
+  // D11: a request still marked in flight after LEASE is presumed lost and may be replaced. The lost
+  // attempt is kept: if the MPC network did sign it, anyone can submit that signature.
+  def keptAttempts(p) = payouts[p].attempts
   action requestSignature(p: int, fee: int): bool = all {
     p < payouts.length(),
     notFrozen,
@@ -314,16 +325,20 @@ module ghost {
       payouts' = payouts.replaceAt(p, payouts[p]
         .with("signing", true)
         .with("signingSince", now)
-        .with("attempts", kept.append({ fee: fee, signed: false }))),
+        .with("attempts", kept.append({ fee: fee, signed: false, requestedAt: now, public: false }))),
     },
     lastCheckIn' = lastCheckIn, claim' = claim, epoch' = epoch, heirStatus' = heirStatus,
-    reopened' = reopened, adultAt' = adultAt, committed' = committed, nextNonce' = nextNonce,
+    reopened' = reopened, reopenedAt' = reopenedAt, adultAt' = adultAt, committed' = committed, nextNonce' = nextNonce,
     falseRevert' = falseRevert, wishesRequested' = wishesRequested, signerRegistered' = signerRegistered,
     now' = now, inflight' = inflight.union(Set(("sign", p, now))), keepEnv, record("request_signature", [p, fee]),
   }
 
   // I5, I18: the MPC callback. A valid signature is stored; anything else drops the attempt.
   // A callback for a request that was replaced after its lease is ignored.
+  def attemptAt(p, t) = payouts[p].attempts.indices().filter(a => payouts[p].attempts[a].requestedAt == t)
+  def markPublic(p, t) = payouts.replaceAt(p, payouts[p].with("attempts",
+    payouts[p].attempts.foldl([], (acc, x) => acc.append(if (x.requestedAt == t and not(x.signed)) x.with("public", true) else x))))
+
   action onSigned(p: int, t: int, ok: bool): bool = all {
     p < payouts.length(),
     inflight.contains(("sign", p, t)),
@@ -332,20 +347,43 @@ module ghost {
     val last = payouts[p].attempts.length() - 1
     val kept = if (ok) payouts[p].attempts.replaceAt(last, payouts[p].attempts[last].with("signed", true))
                else payouts[p].attempts.slice(0, last)
-    payouts' = if (current) payouts.replaceAt(p, payouts[p].with("signing", false).with("attempts", kept)) else payouts,
+    // A stale callback is ignored by the vault, but a signature it carries is public.
+    payouts' = if (current) payouts.replaceAt(p, payouts[p].with("signing", false).with("attempts", kept))
+               else if (ok) markPublic(p, t) else payouts,
     lastCheckIn' = lastCheckIn, claim' = claim, epoch' = epoch, heirStatus' = heirStatus,
-    reopened' = reopened, adultAt' = adultAt, committed' = committed, nextNonce' = nextNonce,
+    reopened' = reopened, reopenedAt' = reopenedAt, adultAt' = adultAt, committed' = committed, nextNonce' = nextNonce,
     falseRevert' = falseRevert, wishesRequested' = wishesRequested, signerRegistered' = signerRegistered,
     now' = now, inflight' = inflight.exclude(Set(("sign", p, t))), keepEnv,
     record("on_signed", [p, t, if (ok) 1 else 0]),
   }
 
-  // A callback that runs out of gas or storage rolls back: the request is gone, nothing changed.
-  action callbackLost(p: int, t: int): bool = all {
+  // A callback that runs out of gas or storage rolls back: the vault records nothing. If the MPC
+  // network had signed, that signature is public in its response.
+  action callbackLost(p: int, t: int, mpcSigned: bool): bool = all {
     not(calleeGasOk),
     inflight.contains(("sign", p, t)),
+    mpcSigned implies signOk,
     inflight' = inflight.exclude(Set(("sign", p, t))),
-    now' = now, keepContract, keepEnv, record("on_signed_lost", [p, t]),
+    payouts' = if (mpcSigned) markPublic(p, t) else payouts,
+    lastCheckIn' = lastCheckIn, claim' = claim, epoch' = epoch, heirStatus' = heirStatus,
+    reopened' = reopened, reopenedAt' = reopenedAt, adultAt' = adultAt, committed' = committed, nextNonce' = nextNonce,
+    falseRevert' = falseRevert, wishesRequested' = wishesRequested, signerRegistered' = signerRegistered,
+    now' = now, keepEnv, record("on_signed_lost", [p, t, if (mpcSigned) 1 else 0]),
+  }
+
+  // Outside review F4: anyone stores a public signature for an attempt no callback will deliver.
+  action submitSignature(p: int, a: int): bool = all {
+    p < payouts.length(),
+    a < payouts[p].attempts.length(),
+    payouts[p].attempts[a].public,
+    not(payouts[p].attempts[a].signed),
+    not(payouts[p].signing and a == payouts[p].attempts.length() - 1),
+    payouts' = payouts.replaceAt(p, payouts[p].with("attempts",
+      payouts[p].attempts.replaceAt(a, payouts[p].attempts[a].with("signed", true)))),
+    lastCheckIn' = lastCheckIn, claim' = claim, epoch' = epoch, heirStatus' = heirStatus,
+    reopened' = reopened, reopenedAt' = reopenedAt, adultAt' = adultAt, committed' = committed, nextNonce' = nextNonce,
+    falseRevert' = falseRevert, wishesRequested' = wishesRequested, signerRegistered' = signerRegistered,
+    now' = now, inflight' = inflight, keepEnv, record("submit_signature", [p, a]),
   }
 
   // I4: anyone asks the MPC network to attest a signed attempt.
@@ -372,7 +410,7 @@ module ghost {
     } else all {
       payouts' = payouts, heirStatus' = heirStatus, falseRevert' = falseRevert, committed' = committed,
     },
-    lastCheckIn' = lastCheckIn, claim' = claim, epoch' = epoch, reopened' = reopened,
+    lastCheckIn' = lastCheckIn, claim' = claim, epoch' = epoch, reopened' = reopened, reopenedAt' = reopenedAt,
     adultAt' = adultAt, nextNonce' = nextNonce,
     wishesRequested' = wishesRequested, signerRegistered' = signerRegistered,
     now' = now, keepEnv, record("on_settled", [p, a, if (attested) 1 else 0]),
@@ -394,6 +432,7 @@ module ghost {
       committed' = committed - payouts[p].value,
       heirStatus' = heirStatus.set(h, "Open"),
       reopened' = reopened.set(h, true),
+      reopenedAt' = reopenedAt.set(h, now),
     },
     lastCheckIn' = lastCheckIn, claim' = claim, epoch' = epoch, adultAt' = adultAt,
     nextNonce' = nextNonce, falseRevert' = falseRevert, wishesRequested' = wishesRequested,
@@ -407,7 +446,7 @@ module ghost {
     ckdOk,
     wishesRequested' = true,
     lastCheckIn' = lastCheckIn, claim' = claim, epoch' = epoch, heirStatus' = heirStatus,
-    reopened' = reopened, adultAt' = adultAt, payouts' = payouts, committed' = committed,
+    reopened' = reopened, reopenedAt' = reopenedAt, adultAt' = adultAt, payouts' = payouts, committed' = committed,
     nextNonce' = nextNonce, falseRevert' = falseRevert, signerRegistered' = signerRegistered,
     now' = now, inflight' = inflight, keepEnv, record("request_wishes_key", []),
   }
@@ -428,7 +467,7 @@ module ghost {
   action land(p: int, a: int, ok: bool): bool = all {
     p < payouts.length(),
     a < payouts[p].attempts.length(),
-    payouts[p].attempts[a].signed,
+    payouts[p].attempts[a].signed or payouts[p].attempts[a].public,
     payouts[p].nonce == chainNonce,
     payouts[p].attempts[a].fee >= baseFee,
     funded,
@@ -502,7 +541,8 @@ module ghost {
   action contractStep = any {
     checkIn,
     nondet k = Set(true, false).oneOf()
-    openClaim(k),
+    nondet u = Set(true, false).oneOf()
+    openClaim(k, u),
     cancelOverride,
     nondet w = WITNESSES.oneOf()
     contest(w),
@@ -537,8 +577,12 @@ module ghost {
     requestWishesKey,
     nondet p = PAYOUT_IDS.oneOf()
     nondet t = 0.to(MAX_TIME).oneOf()
-    callbackLost(p, t),
+    nondet sg = Set(true, false).oneOf()
+    callbackLost(p, t, sg),
     openClaimAbandoned,
+    nondet p = PAYOUT_IDS.oneOf()
+    nondet a = 0.to(3).oneOf()
+    submitSignature(p, a),
   }
 
   action baseStep = any {
@@ -609,8 +653,10 @@ module ghost {
   val inv_freeze = claimOpen implies (claim.frozenUntil <= now + FREEZE_MAX)
 
   // I16
-  val inv_contest = claimOpen implies
-    claim.payAfter == claim.openedAt + (if (claim.kind == "Override") OVERRIDE_GRACE else GRACE) + CONTEST * claim.contested.size()
+  val inv_contest = claimOpen implies and {
+    claim.payAfter == claim.openedAt + claim.delay + CONTEST * claim.contested.size(),
+    claim.delay == (if (claim.kind == "Normal") GRACE else OVERRIDE_GRACE) or (claim.kind == "Override" and claim.delay == 2 * OVERRIDE_GRACE),
+  }
 
   // I17: once per heir; a lying quorum overpays at most once, and only that heir.
   val inv_reopen = HEIRS.forall(h => and {
@@ -628,7 +674,7 @@ module ghost {
   // I19: the nonce Base waits for always belongs to a payout that can still produce a transaction:
   // either it is active (re-signable) or it has a stored signed attempt.
   val inv_nonce_live = chainNonce < nextNonce implies (
-    payouts[chainNonce].status == "Active" or payouts[chainNonce].attempts.select(x => x.signed).length() > 0
+    payouts[chainNonce].status == "Active" or payouts[chainNonce].attempts.select(x => x.signed or x.public).length() > 0
   )
 
   // Liveness guard as a state predicate: a payout marked as signing always has a callback coming.
@@ -652,7 +698,8 @@ module ghost {
 
   action fairContract = any {
     nondet k = Set(true, false).oneOf()
-    openClaim(k),
+    nondet u = Set(true, false).oneOf()
+    openClaim(k, u),
     nondet w = WITNESSES.oneOf()
     contest(w),
     freezeFair,
@@ -693,7 +740,7 @@ module ghost {
 
   action stepFair = any { fairContract, fairBase }
 
-  def vars = (now, lastCheckIn, claim, epoch, heirStatus, reopened, adultAt, payouts, committed, nextNonce,
+  def vars = (now, lastCheckIn, claim, epoch, heirStatus, reopened, reopenedAt, adultAt, payouts, committed, nextNonce,
     falseRevert, wishesRequested, signerRegistered, chainNonce, landings, baseFee, funded, inflight, signOk,
     attestOk, ckdOk, calleeGasOk, ownerAlive, honestWitnesses, lastAction, lastArgs)
 
@@ -702,7 +749,7 @@ module ghost {
   temporal fairness = and {
     weakFair(tickFair, vars),
     weakFair(ownerDies, vars),
-    weakFair(openClaim(false), vars),
+    weakFair(openClaim(false, false), vars),
     HEIRS.forall(h => weakFair(executeFallback(h), vars)),
     PAYOUT_IDS.forall(p => strongFair(0.to(MAX_TIME).exists(t => onSigned(p, t, true)), vars)),
     PAYOUT_IDS.forall(p => weakFair(FEES.exists(f => requestSignature(p, f)), vars)),

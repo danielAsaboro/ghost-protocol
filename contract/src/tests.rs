@@ -102,10 +102,10 @@ fn i10_override_claim_opens_despite_a_thief_checking_in() {
 
 #[test]
 #[should_panic(expected = "witness quorum not met")]
-fn i10_override_needs_every_witness() {
+fn i10_override_needs_a_quorum() {
     let mut v = vault();
     at(START + DAY, "anyone.testnet");
-    v.open_claim(DEATH, quorum(&override_message(0, DEATH)), true);
+    v.open_claim(DEATH, vec![proof(1, 0, &override_message(0, DEATH))], true);
 }
 
 #[test]
@@ -135,7 +135,7 @@ fn i16_contest_extends_the_delay_for_a_hospitalised_owner() {
     let mut v = proven();
     at(CLAIM_AT + DAY, "anyone.testnet");
     let opened = v.claim.as_ref().unwrap().opened_at;
-    v.contest_claim(0, signed(1, &format!("ghost:contest:{VAULT}:0:{opened}")));
+    v.contest_claim(0, signed(1, &format!("ghost:contest:{VAULT}:0:0:{opened}")));
     at(PAY_AT, "agent.testnet");
     pay(&mut v, 0, CAP);
 }
@@ -146,7 +146,7 @@ fn i16_a_witness_contests_only_once() {
     let mut v = proven();
     at(CLAIM_AT + DAY, "anyone.testnet");
     let opened = v.claim.as_ref().unwrap().opened_at;
-    let sig = signed(1, &format!("ghost:contest:{VAULT}:0:{opened}"));
+    let sig = signed(1, &format!("ghost:contest:{VAULT}:0:0:{opened}"));
     v.contest_claim(0, sig.clone());
     v.contest_claim(0, sig);
 }
@@ -304,7 +304,7 @@ fn i14_expired_signer_is_rejected() {
 fn signer_registration_rules() {
     let mut v = vault();
     at(START, "owner.testnet");
-    v.register_signer(HEIR.into(), "q".into(), u64::MAX, vec![]);
+    v.register_signer(HEIR.into(), "q".into(), START + 300 * DAY, vec![]);
     assert_eq!(v.signers.len(), 1);
 }
 
@@ -588,6 +588,7 @@ fn i17_quorum_reopens_a_reverted_payout_once() {
     v.reopen_reverted(0, 0, quorum(&m));
     assert_eq!(v.heirs[0].status, HeirStatus::Open);
     assert_eq!(v.payouts[0].status, PayoutStatus::Reverted);
+    at(PAY_AT + REOPEN_DELAY_SECS, "agent.testnet");
     pay(&mut v, 0, CAP);
     assert_eq!(v.payouts[1].nonce, 1);
 }
@@ -606,6 +607,7 @@ fn i17_a_heir_reopens_only_once() {
     let mut v = signed_payout();
     let m = revert_message(&v);
     v.reopen_reverted(0, 0, quorum(&m));
+    at(PAY_AT + REOPEN_DELAY_SECS, "agent.testnet");
     pay(&mut v, 0, CAP);
     sign_ok(&mut v, 1, 0);
     let m2 = format!("ghost:reverted:{VAULT}:1:{}", v.payouts[1].attempts[0].tx_hash_hex.clone().unwrap());
@@ -617,6 +619,7 @@ fn i17_disproved_revert_is_flagged_and_the_retry_keeps_its_nonce() {
     let mut v = signed_payout();
     let m = revert_message(&v);
     v.reopen_reverted(0, 0, quorum(&m));
+    at(PAY_AT + REOPEN_DELAY_SECS, "agent.testnet");
     pay(&mut v, 0, CAP);
     assert!(settle_ok(&mut v, 0, 0));
     assert!(v.false_revert_proven);
@@ -727,7 +730,7 @@ fn invalid_signer_address_is_refused() {
 }
 
 #[test]
-#[should_panic(expected = "decision is not JSON")]
+#[should_panic(expected = "decision is not a JSON object")]
 fn decision_without_json_is_refused() {
     let mut v = proven();
     at(PAY_AT, "agent.testnet");
@@ -741,7 +744,7 @@ fn i16_contest_adds_exactly_the_contest_time() {
     let before = v.claim.as_ref().unwrap().pay_after;
     at(CLAIM_AT + DAY, "anyone.testnet");
     let opened = v.claim.as_ref().unwrap().opened_at;
-    v.contest_claim(0, signed(1, &format!("ghost:contest:{VAULT}:0:{opened}")));
+    v.contest_claim(0, signed(1, &format!("ghost:contest:{VAULT}:0:0:{opened}")));
     assert_eq!(v.claim.as_ref().unwrap().pay_after, before + 14 * DAY);
 }
 
@@ -853,14 +856,15 @@ fn d11_a_late_callback_for_a_replaced_request_is_ignored() {
     pay(&mut v, 0, CAP);
     let first = v.payouts[0].signing_since;
     at(PAY_AT + SIGN_LEASE_SECS, "relayer.testnet");
-    v.request_signature(0, U128(INITIAL_FEE));
+    v.request_signature(0, U128(2 * INITIAL_FEE));
     let second = v.payouts[0].signing_since;
     assert!(second > first);
-    // The lost request's callback arrives after all, with a valid signature for the same payload.
-    let sig = good_signature(&v, 0, 0);
-    assert!(!v.on_signed(0, 0, first, Ok(sig.clone())), "a replaced request must not be accepted");
+    // The lost request's callback arrives after all: ignored. Its signature can still be submitted.
+    let late = good_signature(&v, 0, 0);
+    assert!(!v.on_signed(0, 0, first, Ok(late)));
     assert!(v.payouts[0].signing && v.payouts[0].attempts[0].tx_hash_hex.is_none());
-    assert!(v.on_signed(0, 0, second, Ok(sig)));
+    sign_ok(&mut v, 0, 1);
+    assert!(v.payouts[0].attempts[1].tx_hash_hex.is_some());
 }
 
 #[test]
@@ -874,7 +878,7 @@ fn d11_the_lease_must_expire_before_a_request_is_replaced() {
 }
 
 #[test]
-fn d11_a_replaced_request_keeps_the_fee_rule_of_the_last_signed_attempt() {
+fn d11_a_replaced_request_follows_the_fee_rule_from_the_lost_attempt() {
     let mut v = proven();
     at(PAY_AT, "agent.testnet");
     pay(&mut v, 0, CAP);
@@ -882,10 +886,10 @@ fn d11_a_replaced_request_keeps_the_fee_rule_of_the_last_signed_attempt() {
     at(PAY_AT + DAY, "relayer.testnet");
     v.request_signature(0, U128(2 * INITIAL_FEE));
     at(PAY_AT + DAY + SIGN_LEASE_SECS, "relayer.testnet");
-    // The lost attempt is dropped, so the next fee doubles the signed attempt's, not the lost one's.
-    v.request_signature(0, U128(2 * INITIAL_FEE));
-    assert_eq!(v.payouts[0].attempts.len(), 2);
-    assert_eq!(v.payouts[0].attempts[1].max_fee_per_gas.0, 2 * INITIAL_FEE);
+    // The lost attempt stays on the same nonce, so the replacement doubles its fee.
+    v.request_signature(0, U128(4 * INITIAL_FEE));
+    assert_eq!(v.payouts[0].attempts.len(), 3);
+    assert_eq!(v.payouts[0].attempts[2].max_fee_per_gas.0, 4 * INITIAL_FEE);
 }
 
 fn abandoning_vault() -> Vault {
