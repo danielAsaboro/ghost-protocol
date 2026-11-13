@@ -8,7 +8,7 @@
 <!-- pinned -->
 <link rel="stylesheet" href="vendor/fonts.css" integrity="sha384-ESrARDNPRv1sHOwyqg4BXx7tPLwwFwRn+VTjBMRGuo2MWD+gbwQ9hFc7DIygTWlT">
 <link rel="stylesheet" href="styles.css" integrity="sha384-fwhgQS43d9fwyazHAtwXcIgMgdKlROH8pC3lfTHlosDencyNfMNIxs+/+JqEfqVI">
-<script type="importmap">{"imports":{"viem":"./vendor/viem-2.57.17.mjs"},"integrity":{"./vendor/viem-2.57.17.mjs":"sha384-HPm91TDNt/sYQZXMdoAmW6emLGJ4FSS29Y/fS1WLuiznn259/FDbeFM+Lo/7rMQg","./verify.mjs":"sha384-ONQsGLyievRrTldXMku7iX09wk3BY2S2yzOu9CNE2fJqBPnHCiY0zZ6RsuOTfCC8","./ui.mjs":"sha384-F79wfqw5QOUsjARtXfvpJ8tGJjvvDhGAW0bHvhbnrcX7Zg9lH8DAmt3DqX++iSVx"}}</script>
+<script type="importmap">{"imports":{"viem":"./vendor/viem-2.57.17.mjs"},"integrity":{"./vendor/viem-2.57.17.mjs":"sha384-HPm91TDNt/sYQZXMdoAmW6emLGJ4FSS29Y/fS1WLuiznn259/FDbeFM+Lo/7rMQg","./verify.mjs":"sha384-Rn6aSyVkYY0Nw/8PePLnsBlrOVOYiXGNZwFwEN8WDXIyPgBCICEuSrnktpmJ+ZFs","./ui.mjs":"sha384-/+pZe4QaxgS5z8kf3XNq0ItfYDnZiexFoy27XbUC5aJH6C7xEsOBu+PLbX22nYUw"}}</script>
 <!-- /pinned -->
 <style>
 .wrap { max-width: 1160px; margin: 0 auto; padding-left: max(24px, env(safe-area-inset-left, 0px)); padding-right: max(24px, env(safe-area-inset-right, 0px)) }
@@ -254,8 +254,7 @@ try {
   $('v-heirs').innerHTML = s.heirs.map((h, i) => `<div>${avatar(h.address, 24)}<span>Heir ${i + 1} · <span class="mono">${short(h.address)}</span></span><span class="pill ${h.status === 'Paid' ? 'ok' : 'live'}">${h.status === 'Pending' ? 'Being paid' : h.status}</span></div>`).join('');
   const last = [...r.events].filter((e) => e.expect === 'fail').sort((a, b) => b.at.localeCompare(a.at))[0];
   if (last) {
-    $('toast-t').textContent = last.label;
-    $('toast-s').textContent = `refused: ${last.observed}`;
+    $('toast-s').textContent = last.label;
     $('toast').hidden = false;
   }
   const keys = r.checks.find((c) => c.id === 'no-keys');

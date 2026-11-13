@@ -76,15 +76,19 @@ export function stages(r) {
   return { list, current: current < 0 ? list.length - 1 : current };
 }
 
+// Proofs are what the Proofs tab lists; transactions are what Activity lists. Counted apart so each number can be found.
 export const tally = (r) => {
-  const all = [...r.checks, ...r.events];
-  const fail = all.filter((x) => x.verdict === 'FAIL').length, wait = all.filter((x) => x.verdict === 'WAIT').length;
+  const count = (xs, v) => xs.filter((x) => x.verdict === v).length;
   const refused = r.events.filter((e) => e.expect === 'fail');
-  return { total: all.length, pass: all.length - fail - wait, fail, wait, refused: refused.length, refusedOk: refused.filter((e) => e.verdict === 'PASS').length };
+  return {
+    total: r.checks.length, pass: count(r.checks, 'PASS'), fail: count(r.checks, 'FAIL'), wait: count(r.checks, 'WAIT'),
+    txTotal: r.events.length, txPass: count(r.events, 'PASS'), txFail: count(r.events, 'FAIL'), txWait: count(r.events, 'WAIT'),
+    refused: refused.length, refusedOk: count(refused, 'PASS'),
+  };
 };
 
 // Written by scripts/sri.mjs. A mismatch makes the browser refuse the file, and the verifier fails.
-export const EVIDENCE_SRI = 'sha384-XImd6tVQT2jXQ3aCpAui5eeXAF49sNhs+6GwbFQwxCwKaQ4Yh3zYsryHX92xVIUu';
+export const EVIDENCE_SRI = 'sha384-4cEIJdZZeI0ibwUVzq4wIj2LlT9ri8t2wAN5lEKQ+pdSFpzX4Il+HZ97o9avY4R3';
 
 export async function loadEvidence() {
   let res;

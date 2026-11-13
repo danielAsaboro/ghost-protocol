@@ -19,4 +19,7 @@ Vault `ghostprotocol-vault.testnet`. Base Sepolia address `0xAf8105c7e876f38Bf0A
 | Lock | `2AwB18KpkUaPoBAJhJUSVtyHDW5jPGJtZvCDBDn2pUAa`, `view_access_key_list` returns `[]` |
 | 13 attacks after lock, each refused on-chain | `attacks-after-lock.txt`, hashes in `web/evidence.json` |
 
-Open: funded broadcast, MPC settlement of a landed transaction, attested NEAR AI decision.
+| Funded broadcast (2026-11-13), attempt 2 on nonce 0 | Base Sepolia `0xd0478fdd12d0584fd762ac20d09cd119fb3f665c2bde9e52a6ffad859274ef30`, block 58202176, status 1 |
+| MPC settlement after finality, heir `Paid` | `Go8jSnTAEiKuZthAT9BcpcvEVPYJ2UGNzC68HfAFeZTC` |
+
+Open: attested NEAR AI decision.

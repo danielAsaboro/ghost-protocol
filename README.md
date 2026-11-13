@@ -50,7 +50,7 @@ Base Sepolia address of the deployed vault: [`0xAf8105c7e876f38Bf0A9f09e4c97029B
 | A stuck transaction is replaced, not abandoned | [Re-price tx](https://testnet.nearblocks.io/txns/niToN6tTZiQ7VcAG53xxCUggQ8gNHerUHPWQU8E12R1): same nonce, recipient and amount |
 | A signature is not a payment | [Settle tx](https://testnet.nearblocks.io/txns/9EivMJaKZbAjB6yih8CA8YVsx6FENebo9Fu9vQ1o9wmh) on an unbroadcast transaction: no attestation, heir stays `Pending` |
 | The real MPC code and a real chain run the whole lifecycle | `neard` 2.14.0, the signer's deployed 3.18.0 code and two real `mpc-node` 3.18.0 participants with their own key generation, plus anvil as Base: claim, cancel, real signatures, re-price, revert and reopen, reorg, real foreign-transaction settlement and CKD, then six dependency failures injected ([results](docs/evidence/localstack/README.md)) |
-| A funded payout settles and the heir shows `Paid` | On the local stack with the real MPC nodes: `npm run local`, checks d2 and f10 ([summary](docs/evidence/localstack/lifecycle-20261113-102449/SUMMARY.md)). On testnet the vault is 0.000004 ETH short of its fee; a watcher ([finish-payout.sh](scripts/finish-payout.sh)) broadcasts and settles it once topped up |
+| A funded payout settles and the heir shows `Paid` | On testnet: the vault's MPC-signed transfer [landed on Base Sepolia](https://sepolia.basescan.org/tx/0xd0478fdd12d0584fd762ac20d09cd119fb3f665c2bde9e52a6ffad859274ef30) (block 58202176, status 1), and after finality the testnet MPC network's `verify_foreign_transaction` attestation was accepted on-chain: [settle tx](https://testnet.nearblocks.io/txns/Go8jSnTAEiKuZthAT9BcpcvEVPYJ2UGNzC68HfAFeZTC), heir `Paid`. The public verifier rechecks both. Also on the local stack: `npm run local`, checks d2 and f10 ([summary](docs/evidence/localstack/lifecycle-20261113-102449/SUMMARY.md)) |
 | The wishes were sealed before any key existed | Encrypted to the vault's CKD identity from public values; the key came from the [vault's own request](https://testnet.nearblocks.io/txns/8Uw6tGnSf6G49MavWf3LZHKbZ128cVhGzCqSp3XKbuwx) after the trigger |
 | No unaddressed advisory reaches the wasm | `cargo deny check` and `cargo audit` clean; two advisories reach only test builds and are named in [deny.toml](contract/deny.toml) ([logs](docs/evidence/supply-chain/)) |
 
@@ -110,7 +110,6 @@ Exhaustive TLC; `TINY=1` for the one-heir bound. CI for a clean runner, ready on
 
 ## Not proven
 
-- **A funded payout on Base Sepolia, settled by the testnet MPC network.** The deployed vault holds 0 ETH, so its signed payout cannot land. A watcher broadcasts and settles it the moment it is funded. The full path, including real settlement, ran on the local stack instead.
 - **v3 on testnet.** It needs a new account, which only the human can create; until then v3 is proven on the local stack, in the model and in tests, not on testnet.
 - **An attested NEAR AI decision accepted on-chain.** No API key was available, so the agent path is covered by unit tests with a locally generated key, and every live and local-stack payout used the no-AI fallback.
 - **The wishes key inside an enclave.** It is unwrapped on the operator's machine.

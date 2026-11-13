@@ -1,0 +1,61 @@
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+    import sys,json;print(int(json.load(sys.stdin)['result'],16))
+                              ~~~~~~~~~^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.15/3.15.0/Frameworks/Python.framework/Versions/3.15/lib/python3.15/json/__init__.py", line 306, in load
+    return loads(fp.read(),
+        cls=cls, object_hook=object_hook,
+        parse_float=parse_float, parse_int=parse_int,
+        parse_constant=parse_constant, object_pairs_hook=object_pairs_hook,
+        array_hook=array_hook, **kw)
+  File "/opt/homebrew/Cellar/python@3.15/3.15.0/Frameworks/Python.framework/Versions/3.15/lib/python3.15/json/__init__.py", line 371, in loads
+    return _default_decoder.decode(s)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^
+  File "/opt/homebrew/Cellar/python@3.15/3.15.0/Frameworks/Python.framework/Versions/3.15/lib/python3.15/json/decoder.py", line 358, in decode
+    obj, end = self.raw_decode(s, idx=_w(s, 0).end())
+               ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.15/3.15.0/Frameworks/Python.framework/Versions/3.15/lib/python3.15/json/decoder.py", line 376, in raw_decode
+    raise JSONDecodeError("Expecting value", s, err.value) from None
+json.decoder.JSONDecodeError: Expecting value: line 1 column 1 (char 0)
+funded: 6000000000000000 wei
+BROADCAST  https://sepolia.basescan.org/tx/0xd0478fdd12d0584fd762ac20d09cd119fb3f665c2bde9e52a6ffad859274ef30
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+    import sys,json;print(json.load(sys.stdin)['heirs'][0]['status'])
+                          ~~~~~~~~~^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.15/3.15.0/Frameworks/Python.framework/Versions/3.15/lib/python3.15/json/__init__.py", line 306, in load
+    return loads(fp.read(),
+        cls=cls, object_hook=object_hook,
+        parse_float=parse_float, parse_int=parse_int,
+        parse_constant=parse_constant, object_pairs_hook=object_pairs_hook,
+        array_hook=array_hook, **kw)
+  File "/opt/homebrew/Cellar/python@3.15/3.15.0/Frameworks/Python.framework/Versions/3.15/lib/python3.15/json/__init__.py", line 371, in loads
+    return _default_decoder.decode(s)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^
+  File "/opt/homebrew/Cellar/python@3.15/3.15.0/Frameworks/Python.framework/Versions/3.15/lib/python3.15/json/decoder.py", line 358, in decode
+    obj, end = self.raw_decode(s, idx=_w(s, 0).end())
+               ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.15/3.15.0/Frameworks/Python.framework/Versions/3.15/lib/python3.15/json/decoder.py", line 376, in raw_decode
+    raise JSONDecodeError("Expecting value", s, err.value) from None
+json.decoder.JSONDecodeError: Expecting value: line 1 column 1 (char 0)
+attempt 1: heir 
+funded: 4999684999999115 wei
+error: Missing or invalid parameters.
+Double check you have provided the correct parameters.
+
+URL: https://base-sepolia-rpc.publicnode.com
+Request body: {"method":"eth_sendRawTransaction","params":["0x02f87383014a348083989680840bebc200825208948fa8d9d4eeefea40b2dff327f1a8e890ae610baf87038d7ea4c6800080c080a07181beb9d514443fb3f03022097e5daa875e2db70b1ccc901f43419a8d562fc7a0349c6ee83aaa7863c1ba04d5af1cc7460507d3d176c0e958f015564289618a85"]}
+
+Details: nonce too low: next nonce 1, tx nonce 0
+Version: viem@2.57.17
+broadcast refused (already landed?), settling anyway
+NOT SETTLED  attempt 1 landed in block 58202176, finalized is 58199800
+attempt 1: heir Pending
+NOT SETTLED  attempt 1 landed in block 58202176, finalized is 58199800
+attempt 2: heir Pending
+NOT SETTLED  attempt 1 landed in block 58202176, finalized is 58201745
+attempt 3: heir Pending
+NOT SETTLED  attempt 1 landed in block 58202176, finalized is 58201745
+attempt 4: heir Pending
+SETTLED  heir marked Paid
+attempt 5: heir Paid

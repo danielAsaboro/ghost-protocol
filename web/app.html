@@ -8,7 +8,7 @@
 <!-- pinned -->
 <link rel="stylesheet" href="vendor/fonts.css" integrity="sha384-ESrARDNPRv1sHOwyqg4BXx7tPLwwFwRn+VTjBMRGuo2MWD+gbwQ9hFc7DIygTWlT">
 <link rel="stylesheet" href="styles.css" integrity="sha384-fwhgQS43d9fwyazHAtwXcIgMgdKlROH8pC3lfTHlosDencyNfMNIxs+/+JqEfqVI">
-<script type="importmap">{"imports":{"viem":"./vendor/viem-2.57.17.mjs"},"integrity":{"./vendor/viem-2.57.17.mjs":"sha384-HPm91TDNt/sYQZXMdoAmW6emLGJ4FSS29Y/fS1WLuiznn259/FDbeFM+Lo/7rMQg","./verify.mjs":"sha384-ONQsGLyievRrTldXMku7iX09wk3BY2S2yzOu9CNE2fJqBPnHCiY0zZ6RsuOTfCC8","./ui.mjs":"sha384-F79wfqw5QOUsjARtXfvpJ8tGJjvvDhGAW0bHvhbnrcX7Zg9lH8DAmt3DqX++iSVx"}}</script>
+<script type="importmap">{"imports":{"viem":"./vendor/viem-2.57.17.mjs"},"integrity":{"./vendor/viem-2.57.17.mjs":"sha384-HPm91TDNt/sYQZXMdoAmW6emLGJ4FSS29Y/fS1WLuiznn259/FDbeFM+Lo/7rMQg","./verify.mjs":"sha384-Rn6aSyVkYY0Nw/8PePLnsBlrOVOYiXGNZwFwEN8WDXIyPgBCICEuSrnktpmJ+ZFs","./ui.mjs":"sha384-/+pZe4QaxgS5z8kf3XNq0ItfYDnZiexFoy27XbUC5aJH6C7xEsOBu+PLbX22nYUw"}}</script>
 <!-- /pinned -->
 <style>
 body { font-size: 14px }
@@ -240,7 +240,8 @@ function overview() {
   $('t-keys-s').textContent = keys.verdict === 'PASS' ? 'nobody can act as the vault' : 'not locked yet';
   $('t-attacks').textContent = String(t.refusedOk);
   $('t-checks').textContent = `${t.pass}/${t.total}`;
-  $('t-checks-s').textContent = t.fail ? `${t.fail} failed` : t.wait ? `${t.wait} waiting` : 'all verified';
+  $('t-checks-s').textContent = t.fail ? `${t.fail} failed` : t.txFail ? `${t.txFail} transactions failed` : t.wait ? `${t.wait} waiting`
+    : t.txWait ? `${t.txWait} transactions waiting` : `and ${t.txPass}/${t.txTotal} transactions`;
   for (const id of ['t-amount', 't-keys', 't-attacks', 't-checks']) $(id).classList.remove('skel');
   $('recent').innerHTML = [...r.events].sort((a, b) => b.at.localeCompare(a.at)).slice(0, 6).map(txRow).join('');
   $('heir-list').innerHTML = s.heirs.map((h, i) => `<li>${avatar(h.address, 34)}<span class="t">Heir ${i + 1}</span>
@@ -270,11 +271,11 @@ function heirs() {
 function activity() {
   const list = [...r.events].sort((a, b) => a.at.localeCompare(b.at));
   const shown = list.filter((e) => filter === 'all' || e.expect === filter);
-  const total = list.reduce((t, e) => t + (e.tgas ?? 0), 0);
+  const total = shown.reduce((t, e) => t + (e.tgas ?? 0), 0);
+  const noun = { all: 'transactions', fail: 'refused attacks', ok: 'actions' }[filter];
   $('gas-total').textContent = `${total.toFixed(1)} Tgas`;
-  $('gas-sub').textContent = `across ${list.length} transactions, ${list.filter((e) => e.expect === 'fail').length} of them refused attacks`;
-  const last = list.length - 1;
-  $('gas-chart').innerHTML = spark(list.map((e) => e.tgas ?? 0), last, { w: 900, h: 140 });
+  $('gas-sub').textContent = `across ${shown.length} ${noun}${filter === 'all' ? `, ${shown.filter((e) => e.expect === 'fail').length} of them refused attacks` : ''}`;
+  $('gas-chart').innerHTML = shown.length ? spark(shown.map((e) => e.tgas ?? 0), shown.length - 1, { w: 900, h: 140 }) : '';
   $('tx-list').innerHTML = [...shown].reverse().map(txRow).join('') || '<li><span class="s">No transactions in this filter</span></li>';
 }
 
