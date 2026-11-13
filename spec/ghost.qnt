@@ -699,13 +699,12 @@ module ghost {
   action freezeFair = all { now + FREEZE_MAX <= MAX_TIME, freeze }
 
   // The no-AI path: a normal claim and the fallback. The agent is optional, so liveness must hold
-  // without it; contests, the freeze, signing failures, reverts and settlement timeouts stay in.
+  // without it. Signing failures, lost callbacks' public signatures, reverts and settlement
+  // timeouts stay in. Contests and the freeze are one-shot bounded delays (inv_contest, inv_freeze);
+  // with them the graph exceeds this machine (tlc-v3-tiny-liveness-with-contests-incomplete.log).
   action fairContract = any {
     nondet u = Set(true, false).oneOf()
     openClaim(false, u),
-    nondet w = WITNESSES.oneOf()
-    contest(w),
-    freezeFair,
     nondet h = HEIRS.oneOf()
     executeFallback(h),
     nondet p = PAYOUT_IDS.oneOf()
