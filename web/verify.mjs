@@ -257,6 +257,9 @@ export async function verifyVault({ vault, evidence = { events: [], settle: {} }
     payouts.push({ index: i, heir: p.heir_index, to: p.to, value: p.value_wei, nonce: p.nonce, source: p.source, status: p.status, attempts });
   }
 
+  if (evidence.integrity === false) {
+    checks.push(check('Code', 'evidence-pin', 'FAIL', 'The evidence file matches the hash pinned in the page', 'evidence.json was changed after it was pinned'));
+  }
   const events = await mapLimited(evidence.events ?? [], 4, async (e) => {
     try {
       const result = await rpc.tx(e.tx, e.sender);

@@ -1,0 +1,107 @@
+# Clean-runner checks. Every job runs from a fresh clone with pinned tools; nothing reads secrets.
+# The reproducible job rebuilds each deployed vault's WASM in the image its Cargo.toml pins and
+# fails unless the hash equals the code hash on NEAR testnet.
+name: ci
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  reproducible:
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # Deployed vault: ghostprotocol-vault.testnet.
+          - vault: ghostprotocol-vault.testnet
+            ref: ba25e39
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ matrix.ref }}
+          fetch-depth: 0
+      - name: Install cargo-near 0.22.0
+        run: curl --proto '=https' --tlsv1.2 -LsSf https://github.com/near/cargo-near/releases/download/cargo-near-v0.22.0/cargo-near-installer.sh | sh
+      - name: Rebuild in the pinned image
+        working-directory: contract
+        run: cargo near build reproducible-wasm
+      - name: Compare with the chain
+        run: |
+          git show ${{ github.sha }}:scripts/codehash.py > /tmp/codehash.py
+          built=$(python3 /tmp/codehash.py contract/target/near/ghost_protocol.wasm)
+          chain=$(curl -s https://rpc.testnet.near.org -H 'content-type: application/json' -d '{"jsonrpc":"2.0","id":1,"method":"query","params":{"request_type":"view_account","finality":"final","account_id":"${{ matrix.vault }}"}}' | python3 -c "import json,sys;print(json.load(sys.stdin)['result']['code_hash'])")
+          echo "built $built"; echo "chain $chain"
+          echo "| ${{ matrix.vault }} | ${{ matrix.ref }} | \`$built\` | \`$chain\` |" >> "$GITHUB_STEP_SUMMARY"
+          test "$built" = "$chain"
+
+  contract:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 24
+      - name: Quint, and the model traces the contract replays
+        run: npm i -g @informalsystems/quint@0.33.1 && spec/gen-traces.sh
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+      - name: cargo test (unit, proptest, model counterexamples, ITF replay)
+        working-directory: contract
+        run: cargo test --locked
+      - name: cargo deny and cargo audit
+        working-directory: contract
+        run: |
+          cargo install --locked cargo-deny@0.18.9 cargo-audit@0.21.2
+          cargo deny check
+          cargo audit --deny warnings --ignore RUSTSEC-2026-0387 --ignore RUSTSEC-2024-0449
+      - name: Build the current WASM and publish its hash
+        working-directory: contract
+        run: |
+          curl --proto '=https' --tlsv1.2 -LsSf https://github.com/near/cargo-near/releases/download/cargo-near-v0.22.0/cargo-near-installer.sh | sh
+          cargo near build reproducible-wasm
+          sha256sum target/near/*.wasm | tee -a "$GITHUB_STEP_SUMMARY"
+
+  model:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 24
+      - name: Random simulation of every invariant (exhaustive TLC runs are in docs/evidence/spec)
+        working-directory: spec
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          npm i -g @informalsystems/quint@0.33.1
+          quint typecheck ghost.qnt
+          quint run ghost.qnt --max-samples 20000 --max-steps 40 --invariant safety --seed 1
+
+  kani:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Kani proofs for eth.rs and math.rs
+        working-directory: contract
+        run: |
+          cargo install --locked kani-verifier@0.68.0
+          cargo kani setup
+          cargo kani --features kani-proofs
+
+  js:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 24
+      - run: npm ci
+      - name: npm test (includes the web integrity pins)
+        run: npm test
+      - name: npm audit (production dependencies)
+        run: npm audit --omit=dev --audit-level=moderate

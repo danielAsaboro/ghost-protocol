@@ -74,11 +74,17 @@ export const tally = (r) => {
   return { total: all.length, pass: all.length - fail - wait, fail, wait, refused: refused.length, refusedOk: refused.filter((e) => e.verdict === 'PASS').length };
 };
 
+// Written by scripts/sri.mjs. A mismatch makes the browser refuse the file, and the verifier fails.
+export const EVIDENCE_SRI = 'sha384-XImd6tVQT2jXQ3aCpAui5eeXAF49sNhs+6GwbFQwxCwKaQ4Yh3zYsryHX92xVIUu';
+
 export async function loadEvidence() {
+  let res;
   try {
-    const res = await fetch('evidence.json');
-    return res.ok ? await res.json() : { events: [], settle: {} };
+    res = await fetch('evidence.json', { integrity: EVIDENCE_SRI });
   } catch {
-    return { events: [], settle: {} };
+    // Integrity mismatch or network failure: tell them apart with a plain fetch.
+    const plain = await fetch('evidence.json').catch(() => null);
+    return plain?.ok ? { events: [], settle: {}, integrity: false } : { events: [], settle: {} };
   }
+  return res.ok ? await res.json() : { events: [], settle: {} };
 }

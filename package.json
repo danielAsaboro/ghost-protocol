@@ -9,8 +9,9 @@
   "scripts": {
     "ghost": "node scripts/ghost.mjs",
     "web": "python3 -m http.server 4173 -d web",
-    "test": "node --test test/agent.test.js test/relay.test.js test/seal.test.js test/near.test.js test/lock.test.js",
-    "test:live": "node --test test/live.test.js"
+    "test": "node scripts/sri.mjs --check && node --test test/agent.test.js test/relay.test.js test/seal.test.js test/near.test.js test/lock.test.js",
+    "test:live": "node --test test/live.test.js",
+    "sri": "node scripts/sri.mjs"
   },
   "dependencies": {
     "@nearai/inference-sdk": "^0.1.0",
