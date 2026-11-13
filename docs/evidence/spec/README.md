@@ -1,0 +1,31 @@
+# Formal spec results (step 2)
+
+Spec: [spec/ghost.qnt](../../../spec/ghost.qnt), Quint 0.33.1, TLC through `quint verify --backend=tlc` (Apalache 0.62.4 for the translation, OpenJDK 21).
+
+Actors, the clock, Base (inclusion, revert, reorg before finality, finality, fee moves), the MPC network's answers and every dependency failure from [step 1](../../threat-model.md#dependencies-over-20-years) are nondeterministic steps. Witnesses become adversarial at a nondeterministic moment; after that any quorum signs anything the contract accepts.
+
+## Against the deployed contract (v2)
+
+| # | Invariant | Found by | What happened | Test |
+|---|---|---|---|---|
+| 1 | `inv_wishes` (I15) | `quint run`, seed `0xefafe` | Claim matures, the wishes key is requested, then the owner's check-in (or the recovery key, for an override) cancels the claim. The wishes are out while the vault says nobody died | `cex1_*` in [counterexamples.rs](../../../contract/src/counterexamples.rs) |
+| 2 | `inv_signing_has_callback` (I19) | `quint run`, seed 7 | `on_signed` is lost (out of gas or storage; its changes roll back). `signing` stays true, `request_signature` refuses forever, that nonce and every later one are dead | `cex2_*` |
+| 3 | `inv_budget` (I7) | TLC, [log](tlc-v2-cex-committed.log) | A lying quorum reopens a payout that landed. The MPC network then attests it; `committed_wei` still excludes the value that left, so later payouts are signed against money that is gone | `cex3_*` |
+| 4 | `inv_reopen` (I17), honest witnesses | TLC, [log](tlc-v2-cex-reorg-revert.log) | Witnesses sign a revert before Base finality. A reorg turns it into a success, and the retry also lands: the heir is paid twice | Procedure D23: witnesses must wait for finality. The model's honest witnesses now do |
+| 5 | `inv_paid_once` (I3) | TLC, [log](tlc-v2-cex-stated-overpay.log) | A lying quorum's reopen is disproved after the retry exists: the heir is `Paid` with a live retry | Already a stated limit of I17; the invariant now states it exactly |
+
+All four tests fail on the deployed code: [counterexamples-v2-failing.txt](counterexamples-v2-failing.txt).
+
+## Trace replay (ITF)
+
+`spec/gen-traces.sh` writes 600 traces with fixed seeds (400 without dependency failures, 200 with). [itf_replay.rs](../../../contract/src/itf_replay.rs) runs each step on the Rust contract and compares the contract's state, projected onto the model's variables, after every step. On the deployed code: 600 traces, 24,000 steps, every state equal. A one-character bug injected into `contest_claim` (`+ 1` on the contest delay) fails the replay at its first contest.
+
+Run: `spec/gen-traces.sh && (cd contract && cargo test --lib itf_replay -- --nocapture)`.
+
+## Bounds
+
+| Run | Bound |
+|---|---|
+| Simulation, `quint run` | 20,000 to 30,000 random traces of 40 to 50 steps per seed, full constants |
+| TLC, full constants (2 heirs, 3 witnesses, time to 12) | Exceeds this machine: about 50 million distinct states at depth 17 with the queue still growing. Used to find counterexamples 3 to 5, not to show their absence |
+| TLC, `TINY=1` (1 heir, 1 claim, time to 9) | See below once the run completes |

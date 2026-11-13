@@ -854,3 +854,9 @@ mod proptests;
 #[cfg(test)]
 #[allow(unused_must_use)]
 mod test_support;
+#[cfg(test)]
+#[allow(unused_must_use)]
+mod itf_replay;
+#[cfg(test)]
+#[allow(unused_must_use)]
+mod counterexamples;

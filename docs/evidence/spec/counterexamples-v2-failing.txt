@@ -1,0 +1,44 @@
+
+running 4 tests
+test counterexamples::cex1_wishes_release_makes_an_override_claim_permanent ... FAILED
+test counterexamples::cex1_wishes_release_makes_a_normal_claim_permanent ... FAILED
+test counterexamples::cex3_a_disproved_revert_restores_committed_value ... FAILED
+test counterexamples::cex2_a_lost_sign_callback_does_not_strand_the_payout ... FAILED
+
+failures:
+
+---- counterexamples::cex1_wishes_release_makes_an_override_claim_permanent stdout ----
+
+thread 'counterexamples::cex1_wishes_release_makes_an_override_claim_permanent' (430995) panicked at src/counterexamples.rs:30:5:
+the recovery key cancelled the claim after the wishes key was released
+
+---- counterexamples::cex1_wishes_release_makes_a_normal_claim_permanent stdout ----
+
+thread 'counterexamples::cex1_wishes_release_makes_a_normal_claim_permanent' (430994) panicked at src/counterexamples.rs:16:5:
+a check-in cancelled the claim after the wishes key was released
+
+---- counterexamples::cex3_a_disproved_revert_restores_committed_value stdout ----
+
+thread 'counterexamples::cex3_a_disproved_revert_restores_committed_value' (430997) panicked at src/counterexamples.rs:69:5:
+assertion `left == right` failed: the value that landed is not counted as committed
+  left: 33600000
+ right: 33601000
+
+---- counterexamples::cex2_a_lost_sign_callback_does_not_strand_the_payout stdout ----
+
+thread 'counterexamples::cex2_a_lost_sign_callback_does_not_strand_the_payout' (430996) panicked at src/lib.rs:517:9:
+signature already in flight
+
+thread 'counterexamples::cex2_a_lost_sign_callback_does_not_strand_the_payout' (430996) panicked at src/counterexamples.rs:48:44:
+payout stranded: no new signature can ever be requested
+
+
+failures:
+    counterexamples::cex1_wishes_release_makes_a_normal_claim_permanent
+    counterexamples::cex1_wishes_release_makes_an_override_claim_permanent
+    counterexamples::cex2_a_lost_sign_callback_does_not_strand_the_payout
+    counterexamples::cex3_a_disproved_revert_restores_committed_value
+
+test result: FAILED. 0 passed; 4 failed; 0 ignored; 0 measured; 84 filtered out; finished in 0.11s
+
+error: test failed, to rerun pass `--lib`
