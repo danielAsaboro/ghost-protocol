@@ -219,25 +219,25 @@ export async function verifyVault({ vault, evidence = { events: [], settle: {} }
         item.txHash = txHash;
         const ok = hash.slice(2) === a.payload_hex && recovered === vaultAddress && BigInt(sig.s) <= HALF_N && txHash.slice(2) === a.tx_hash_hex;
         checks.push(check('Payout', `sig-${i}-${j}`, ok ? 'PASS' : 'FAIL',
-          `Payout ${i}, attempt ${j}: the MPC signature recovers to the vault and covers exactly this transfer`,
+          `Payout ${i + 1}, attempt ${j + 1}: the MPC signature recovers to the vault and covers exactly this transfer`,
           `${p.value_wei} wei to ${p.to} · nonce ${p.nonce} · fee ${a.max_fee_per_gas}`));
         const receipt = await rpc.base('eth_getTransactionReceipt', [txHash]);
         item.landed = receipt ? receipt.status === '0x1' : null;
         checks.push(check('Payout', `landed-${i}-${j}`, !receipt ? 'WAIT' : item.landed && getAddress(receipt.from) === vaultAddress ? 'PASS' : 'FAIL',
-          `Payout ${i}, attempt ${j}: included on Base Sepolia`, receipt ? `block ${parseInt(receipt.blockNumber, 16)} · status ${receipt.status}` : `${txHash} not mined`));
+          `Payout ${i + 1}, attempt ${j + 1}: included on Base Sepolia`, receipt ? `block ${parseInt(receipt.blockNumber, 16)} · status ${receipt.status}` : `${txHash} not mined`));
       }
       attempts.push(item);
     }
     const nonces = new Set(p.attempts.map(() => p.nonce));
     if (p.attempts.length > 1) {
       checks.push(check('Payout', `one-nonce-${i}`, nonces.size === 1 ? 'PASS' : 'FAIL',
-        `Payout ${i}: every re-signed attempt reuses nonce ${p.nonce}, so at most one can land`, `${p.attempts.length} attempts`));
+        `Payout ${i + 1}: every re-signed attempt reuses nonce ${p.nonce}, so at most one can land`, `${p.attempts.length} attempts`));
     }
     const key = `${i}:${p.settled_attempt}`;
     if (p.status === 'Settled') {
       const settleTx = evidence.settle?.[key];
       if (!settleTx) {
-        checks.push(check('Payout', `settled-${i}`, 'FAIL', `Payout ${i}: MPC attestation`, 'settled on-chain, but its settlement transaction is not listed'));
+        checks.push(check('Payout', `settled-${i}`, 'FAIL', `Payout ${i + 1}: MPC attestation`, 'settled on-chain, but its settlement transaction is not listed'));
       } else {
         const result = await rpc.tx(settleTx.tx, settleTx.sender);
         const reply = result.receipts_outcome.map((r) => r.outcome).find((o) => o.executor_id === SIGNER && o.status.SuccessValue);
@@ -249,10 +249,10 @@ export async function verifyVault({ vault, evidence = { events: [], settle: {} }
           signer = await recoverAddress({ hash: `0x${att.payload_hash}`, signature: { r: `0x${s.big_r.affine_point.slice(2)}`, s: `0x${s.s.scalar}`, yParity: s.recovery_id } });
         }
         checks.push(check('Payout', `settled-${i}`, att?.payload_hash === expected && signer === rootAddress ? 'PASS' : 'FAIL',
-          `Payout ${i}: the MPC network attested that this exact transaction succeeded`, `payload ${expected.slice(0, 16)}… · signer ${signer}`));
+          `Payout ${i + 1}: the MPC network attested that this exact transaction succeeded`, `payload ${expected.slice(0, 16)}… · signer ${signer}`));
       }
     } else {
-      checks.push(check('Payout', `settled-${i}`, 'WAIT', `Payout ${i}: the MPC network attests the payment landed`, `heir ${heir.status}`));
+      checks.push(check('Payout', `settled-${i}`, 'WAIT', `Payout ${i + 1}: the MPC network attests the payment landed`, `heir ${heir.status}`));
     }
     payouts.push({ index: i, heir: p.heir_index, to: p.to, value: p.value_wei, nonce: p.nonce, source: p.source, status: p.status, attempts });
   }
