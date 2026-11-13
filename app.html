@@ -7,8 +7,8 @@
 <meta name="description" content="The live GhostProtocol test vault, read from NEAR testnet and Base Sepolia in your browser.">
 <!-- pinned -->
 <link rel="stylesheet" href="vendor/fonts.css" integrity="sha384-ESrARDNPRv1sHOwyqg4BXx7tPLwwFwRn+VTjBMRGuo2MWD+gbwQ9hFc7DIygTWlT">
-<link rel="stylesheet" href="styles.css" integrity="sha384-deOD8m1cBfBJuilyBDpzjWrCvMBv0vEbW3IHaC3vH7IgTt3heytUfB7fLmJQ/Nyl">
-<script type="importmap">{"imports":{"viem":"./vendor/viem-2.57.17.mjs"},"integrity":{"./vendor/viem-2.57.17.mjs":"sha384-HPm91TDNt/sYQZXMdoAmW6emLGJ4FSS29Y/fS1WLuiznn259/FDbeFM+Lo/7rMQg","./verify.mjs":"sha384-rl6f9ZKwJT0s0hjC+Tx53E273/GhXhwOftpupTzdqIQIotObq7WGktJR4k2pXqAt","./ui.mjs":"sha384-iy6qIZBf51kHSgIquz3sOF7RZMj+IqYBXznjRYA02U6U2vjcf2EpakUC/DxjG1B+"}}</script>
+<link rel="stylesheet" href="styles.css" integrity="sha384-fwhgQS43d9fwyazHAtwXcIgMgdKlROH8pC3lfTHlosDencyNfMNIxs+/+JqEfqVI">
+<script type="importmap">{"imports":{"viem":"./vendor/viem-2.57.17.mjs"},"integrity":{"./vendor/viem-2.57.17.mjs":"sha384-HPm91TDNt/sYQZXMdoAmW6emLGJ4FSS29Y/fS1WLuiznn259/FDbeFM+Lo/7rMQg","./verify.mjs":"sha384-ONQsGLyievRrTldXMku7iX09wk3BY2S2yzOu9CNE2fJqBPnHCiY0zZ6RsuOTfCC8","./ui.mjs":"sha384-F79wfqw5QOUsjARtXfvpJ8tGJjvvDhGAW0bHvhbnrcX7Zg9lH8DAmt3DqX++iSVx"}}</script>
 <!-- /pinned -->
 <style>
 body { font-size: 14px }
@@ -231,7 +231,7 @@ function overview() {
   $('st-title').textContent = st.list.every((x) => x.done) ? 'Every heir is paid' : cur.doing;
   $('st-title').classList.remove('skel');
   $('st-note').textContent = cur.note;
-  $('st-pill').textContent = `Step ${st.current + 1} of ${st.list.length}`;
+  $('st-pill').textContent = `${st.list.filter((x) => x.done).length} of ${st.list.length} done`;
   $('stepper').innerHTML = st.list.map((x, i) => `<div class="${x.done ? 'on' : i === st.current ? 'now' : ''}"><i></i><span>${x.title}</span></div>`).join('');
   const keys = r.checks.find((c) => c.id === 'no-keys');
   $('t-amount').textContent = eth(s.heirs.reduce((a, h) => a + BigInt(h.cap_wei), 0n));
@@ -296,7 +296,13 @@ function verify() {
   $('cmd-test').innerHTML = `${esc(test)}\n<span class="c"># expect every test to pass</span>`;
   $('copy').onclick = async () => {
     try { await navigator.clipboard.writeText([keys, build, test].join('\n\n')); $('copy').textContent = 'Copied'; }
-    catch { $('copy').textContent = 'Copy failed, select the text above'; }
+    catch {
+      // No clipboard permission: select the commands so Cmd/Ctrl+C copies them.
+      const range = document.createRange();
+      range.setStartBefore($('cmd-keys')); range.setEndAfter($('cmd-test'));
+      getSelection().removeAllRanges(); getSelection().addRange(range);
+      $('copy').textContent = 'Selected: press Cmd/Ctrl+C';
+    }
     setTimeout(() => { $('copy').textContent = 'Copy all commands'; }, 1800);
   };
 }

@@ -51,6 +51,15 @@ export function spark(values, at, { w = 240, h = 64 } = {}) {
 }
 
 /** Where the vault is in its life, from on-chain state. */
+// Why a signed payment has not landed: the address must hold the amount plus gas at the attempt's fee cap.
+function shortfall(r, p) {
+  const signed = p?.attempts.filter((a) => a.r_hex) ?? [];
+  if (!signed.length) return 'Waiting for a signed payment';
+  const need = BigInt(p.value_wei) + BigInt(p.gas_limit) * signed.map((a) => BigInt(a.max_fee_per_gas)).reduce((m, f) => (f < m ? f : m));
+  const have = BigInt(r.balance ?? 0);
+  return have >= need ? 'Funded: anyone can broadcast the signed payment now' : `Needs ${eth(need - have)} more on Base Sepolia: ${eth(need)} for the amount plus gas, ${eth(have)} held`;
+}
+
 export function stages(r) {
   const s = r.state, c = s.claim, p = s.payouts[0], now = Math.floor(Date.now() / 1000);
   const locked = r.checks.find((x) => x.id === 'no-keys')?.verdict === 'PASS';
@@ -61,7 +70,7 @@ export function stages(r) {
     { title: 'Claimed', doing: 'Owner is alive', note: c ? `Witnesses confirmed a death, ${ago(c.opened_at)}` : 'The owner keeps checking in', done: Boolean(c) },
     { title: 'Grace', doing: 'Grace period', note: c ? (now < c.pay_after ? `${c.pay_after - now}s left for the owner to cancel` : 'Over, the owner did not cancel') : 'Not started', done: Boolean(c) && now >= c.pay_after },
     { title: 'Paying', doing: 'Ready to pay', note: p ? `Payment signed by the MPC network, ${p.attempts.filter((a) => a.r_hex).length} attempts` : 'Waiting for the agent or the fallback', done: Boolean(p) },
-    { title: 'Settled', doing: 'Payment signed, not yet landed', note: paid ? 'Every heir paid and confirmed' : 'The vault needs Base Sepolia ETH before the signed payment can land', done: paid },
+    { title: 'Settled', doing: 'Payment signed, not yet landed', note: paid ? 'Every heir paid and confirmed' : shortfall(r, p), done: paid },
   ];
   const current = list.findIndex((x) => !x.done);
   return { list, current: current < 0 ? list.length - 1 : current };

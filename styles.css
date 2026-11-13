@@ -53,3 +53,6 @@ img, svg { display: block; max-width: 100% }
 .skel { color: var(--ink-3) }
 @media (prefers-reduced-motion: no-preference) { .skel { animation: pulse 1.4s ease-in-out infinite } @keyframes pulse { 50% { opacity: .4 } } }
 [hidden] { display: none !important }
+
+/* Long commands wrap inside their box instead of scrolling sideways. */
+.cmd pre { white-space: pre-wrap; overflow-wrap: anywhere }
