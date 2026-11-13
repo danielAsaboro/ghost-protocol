@@ -20,9 +20,9 @@ Rechecks the deployed vault against the live chains. Or run the site with `npm r
 
 | | Deployed vault (v2) | v3 |
 |---|---|---|
-| Account | [`ghostprotocol-vault.testnet`](https://testnet.nearblocks.io/address/ghostprotocol-vault.testnet) | `ghostprotocol-v3.testnet` (V3_STATUS) |
+| Account | [`ghostprotocol-vault.testnet`](https://testnet.nearblocks.io/address/ghostprotocol-vault.testnet) | `ghostprotocol-v3.testnet`: not deployed yet; the account needs the human. Keys, sealed wishes and the Base address `0x5e5E2B74258a8ac3E2A32bda02cFcF1C102117ea` are prepared |
 | Code | `DBRswoeb9syKVRZJrCpjbw62E3Z6ZL48MAoLN8KfU4E8`, reproducible at `ba25e39` ([log](docs/evidence/live/clean-rebuild.txt)) | `Gakhf4AxBppPcnXEjpuBgKNPqWojwM4gabLeGrVuGWNm`, reproducible at `ceedcd4` ([log](docs/evidence/live/v3-reproducible-build.log)) |
-| Keys | None: `view_access_key_list` returns `[]` after the [lock](https://testnet.nearblocks.io/txns/2AwB18KpkUaPoBAJhJUSVtyHDW5jPGJtZvCDBDn2pUAa) | V3_LOCK |
+| Keys | None: `view_access_key_list` returns `[]` after the [lock](https://testnet.nearblocks.io/txns/2AwB18KpkUaPoBAJhJUSVtyHDW5jPGJtZvCDBDn2pUAa) | Locked the same way once deployed |
 | Known bugs | The ten below. It can never be changed | Fixed; each is a regression test |
 
 Base Sepolia address of the deployed vault: [`0xAf8105c7e876f38Bf0A9f09e4c97029BCf74d0Cc`](https://sepolia.basescan.org/address/0xAf8105c7e876f38Bf0A9f09e4c97029BCf74d0Cc).
@@ -42,7 +42,7 @@ Base Sepolia address of the deployed vault: [`0xAf8105c7e876f38Bf0A9f09e4c97029B
 | A stuck transaction is replaced, not abandoned | [Re-price tx](https://testnet.nearblocks.io/txns/niToN6tTZiQ7VcAG53xxCUggQ8gNHerUHPWQU8E12R1): same nonce, recipient and amount |
 | A signature is not a payment | [Settle tx](https://testnet.nearblocks.io/txns/9EivMJaKZbAjB6yih8CA8YVsx6FENebo9Fu9vQ1o9wmh) on an unbroadcast transaction: no attestation, heir stays `Pending` |
 | The real MPC code and a real chain run the whole lifecycle | `neard` 2.14.0, the signer's deployed 3.18.0 code and two real `mpc-node` 3.18.0 participants with their own key generation, plus anvil as Base: claim, cancel, real signatures, re-price, revert and reopen, reorg, real foreign-transaction settlement and CKD, then six dependency failures injected ([results](docs/evidence/localstack/README.md)) |
-| A funded payout settles and the heir shows `Paid` | STEP8 |
+| A funded payout settles and the heir shows `Paid` | Not yet on testnet: the vault holds 0 ETH. Proven on the local stack ([d](docs/evidence/localstack/README.md)). A watcher settles it when funded ([log](docs/evidence/live/finish-payout.log)) |
 | The wishes were sealed before any key existed | Encrypted to the vault's CKD identity from public values; the key came from the [vault's own request](https://testnet.nearblocks.io/txns/8Uw6tGnSf6G49MavWf3LZHKbZ128cVhGzCqSp3XKbuwx) after the trigger |
 | No unaddressed advisory reaches the wasm | `cargo deny check` and `cargo audit` clean; two advisories reach only test builds and are named in [deny.toml](contract/deny.toml) ([logs](docs/evidence/supply-chain/)) |
 
