@@ -31,6 +31,7 @@ The model was updated with each fix (v3 at `cb86882`, v3.1 after the outside rev
 | `quint run`, 5 seeds (including the two that broke v2) x 20,000 traces x 40 steps | No violation of `safety` |
 | TLC, `TINY=1`, v3 | One more counterexample, [log](tlc-v3-cex-budget-after-false-revert.log): with the restore, committed exceeds the budget by the overpaid value after a disproved revert. That is the stated limit of I17 made visible, so I7 now states it exactly: committed stays within the budget unless a revert was disproved, and then within one cap of it |
 | TLC, `TINY=1`, final v3 model | No violation in any behaviour of up to 17 steps: 81 million distinct states, breadth-first, before TLC stopped at depth 18 without a message (8 GB heap, 12 workers) ([log](tlc-v3-tiny-live-safety.log)) |
+| TLC, two heirs (full constants), final v3 model | No violation in any behaviour of up to 16 steps: 160 million distinct states, breadth-first, stopped by the 25-minute limit at depth 17 ([log](tlc-v3-two-heirs-safety.log)) |
 | Trace replay, v3.1 | 600 traces, 24,000 steps, identical state after every step |
 | Liveness, `TINY=1`, no-AI fair world | Holds: the complete state graph, 1,224,072 distinct states, depth 41, no violation ([log](tlc-v3-tiny-liveness.log)). Fair world: the owner has died, witnesses are honest, no dependency fails, the fee stays under the ceiling, no endless reorg; signing failures, lost callbacks, reverts and settlement timeouts stay in. Contests and the freeze are left out: with them the graph exceeds this machine ([incomplete run](tlc-v3-tiny-liveness-with-contests-incomplete.log)) |
 
@@ -41,6 +42,6 @@ One liveness counterexample was real ([log](tlc-v3-tiny-liveness-cex-public-sign
 | Run | Bound |
 |---|---|
 | Simulation, `quint run` | 20,000 to 30,000 random traces of 40 to 50 steps per seed, full constants |
-| TLC, full constants (2 heirs, 3 witnesses, time to 12) | Exceeds this machine: about 50 million distinct states at depth 17 with the queue still growing. Used to find counterexamples 3 to 5, not to show their absence |
+| TLC, full constants (2 heirs, 3 witnesses, time to 12) | v2: used to find counterexamples 3 to 5. Final v3: all behaviours up to 16 steps |
 | TLC, `TINY=1` (1 heir, 1 claim, inactivity 1, time to 12) | Safety: all behaviours up to 17 steps. Liveness: the complete fair graph |
 | Apalache | Not used: its translation of this spec fails with `undeclared operator OVERRIDE_GRACE` in Apalache 0.62.4, which the TLC route through the same translator does not hit |

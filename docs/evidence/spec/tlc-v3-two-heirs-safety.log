@@ -1,0 +1,71 @@
+[TLC] Compiling to TLA+ (via Apalache)...
+# Usage statistics is OFF. We care about your privacy.
+# If you want to help our project, consider enabling statistics with config --enable-stats=true.
+
+Output directory: /Users/MAC/development/afterlife-clause/spec/_check/_apalache-out/server/2026-11-13T10-47-58_7710427458169702638
+# APALACHE version: 0.62.4 | build: 7954daf                       I@10:47:58.152
+Starting checker server on port 8822...                           I@10:47:58.155
+The Apalache server is running on port 8822. Press Ctrl-C to stop.
+Nov 13, 2026 10:48:00 AM com.google.protobuf.GeneratedMessage warnPre22Gencode
+WARNING: Vulnerable protobuf generated type in use: io.grpc.reflection.v1alpha.ServerReflectionRequest
+As of 2022/09/29 (release 21.7) makeExtensionsImmutable should not be called from protobuf gencode. If you are seeing this message, your gencode is vulnerable to a denial of service attack. You should regenerate your code using protobuf 25.6 or later. Use the latest version that meets your needs. However, if you understand the risks and wish to continue with vulnerable gencode, you can set the system property `-Dcom.google.protobuf.use_unsafe_pre22_gencode` on the command line to silence this warning. You also can set `-Dcom.google.protobuf.error_on_unsafe_pre22_gencode` to throw an error instead. See security vulnerability: https://github.com/protocolbuffers/protobuf/security/advisories/GHSA-h4h5-3hr4-j3g2
+PASS #0: SanyParser                                               I@10:48:01.260
+[TLC] Running TLC model checker...
+
+TLC2 Version 2026.11.13.094802
+Warning: Please run the Java VM, which executes TLC with a throughput optimized garbage collector, by passing the "-XX:+UseParallelGC" property.
+(Use the -nowarning option to disable this warning.)
+Running breadth-first search Model-Checking with fp 25 and seed -8066406110817074349 with 12 workers on 12 cores with 8192MB heap and 64MB offheap memory [pid: 16071] (Mac OS X 27.2.1 aarch64, Homebrew 21.0.13.0.3 64bit, MSBDiskFPSet, DiskStateQueue).
+Parsing file /Users/MAC/development/afterlife-clause/spec/_check/tmp/quint-tlc-qfyF0b/ghost.tla
+Parsing file /Users/MAC/development/afterlife-clause/spec/_check/tmp/quint-tlc-qfyF0b/tlc-12411362220278077494/Integers.tla (jar:file:/Users/MAC/.quint/apalache-dist-0.62.4/apalache/lib/apalache.jar!/tla2sany/StandardModules/Integers.tla)
+Parsing file /Users/MAC/development/afterlife-clause/spec/_check/tmp/quint-tlc-qfyF0b/tlc-12411362220278077494/Sequences.tla (jar:file:/Users/MAC/.quint/apalache-dist-0.62.4/apalache/lib/apalache.jar!/tla2sany/StandardModules/Sequences.tla)
+Parsing file /Users/MAC/development/afterlife-clause/spec/_check/tmp/quint-tlc-qfyF0b/tlc-12411362220278077494/FiniteSets.tla (jar:file:/Users/MAC/.quint/apalache-dist-0.62.4/apalache/lib/apalache.jar!/tla2sany/StandardModules/FiniteSets.tla)
+Parsing file /Users/MAC/development/afterlife-clause/spec/_check/tmp/quint-tlc-qfyF0b/tlc-12411362220278077494/TLC.tla (jar:file:/Users/MAC/.quint/apalache-dist-0.62.4/apalache/lib/apalache.jar!/tla2sany/StandardModules/TLC.tla)
+Parsing file /Users/MAC/development/afterlife-clause/spec/_check/tmp/quint-tlc-qfyF0b/tlc-12411362220278077494/Apalache.tla (jar:file:/Users/MAC/.quint/apalache-dist-0.62.4/apalache/lib/apalache.jar!/tla2sany/StandardModules/Apalache.tla)
+Parsing file /Users/MAC/development/afterlife-clause/spec/_check/tmp/quint-tlc-qfyF0b/tlc-12411362220278077494/Variants.tla (jar:file:/Users/MAC/.quint/apalache-dist-0.62.4/apalache/lib/apalache.jar!/tla2sany/StandardModules/Variants.tla)
+Parsing file /Users/MAC/development/afterlife-clause/spec/_check/tmp/quint-tlc-qfyF0b/tlc-12411362220278077494/_TLCTrace.tla (jar:file:/Users/MAC/.quint/apalache-dist-0.62.4/apalache/lib/apalache.jar!/tla2sany/StandardModules/_TLCTrace.tla)
+Parsing file /Users/MAC/development/afterlife-clause/spec/_check/tmp/quint-tlc-qfyF0b/tlc-12411362220278077494/Naturals.tla (jar:file:/Users/MAC/.quint/apalache-dist-0.62.4/apalache/lib/apalache.jar!/tla2sany/StandardModules/Naturals.tla)
+Parsing file /Users/MAC/development/afterlife-clause/spec/_check/tmp/quint-tlc-qfyF0b/tlc-12411362220278077494/TLCExt.tla (jar:file:/Users/MAC/.quint/apalache-dist-0.62.4/apalache/lib/apalache.jar!/tla2sany/StandardModules/TLCExt.tla)
+Semantic processing of module Naturals
+Semantic processing of module Integers
+Semantic processing of module Sequences
+Semantic processing of module FiniteSets
+Semantic processing of module TLC
+Semantic processing of module Apalache
+Semantic processing of module Variants
+Semantic processing of module TLCExt
+Semantic processing of module _TLCTrace
+Semantic processing of module ghost
+Linting of module Apalache
+Linting of module Variants
+Linting of module TLCExt
+Linting of module _TLCTrace
+Linting of module ghost
+Starting... (2026-11-13 10:48:02)
+Computing initial states...
+Finished computing initial states: 1 distinct state generated at 2026-11-13 10:48:02.
+Progress(11) at 2026-11-13 10:48:05: 678,613 states generated (678,613 s/min), 159,793 distinct states found (159,793 ds/min), 96,274 states left on queue.
+Progress(15) at 2026-11-13 10:49:05: 23,421,174 states generated (22,742,561 s/min), 6,553,006 distinct states found (6,393,213 ds/min), 4,654,136 states left on queue.
+Progress(15) at 2026-11-13 10:50:05: 45,192,776 states generated (21,771,602 s/min), 13,247,730 distinct states found (6,694,724 ds/min), 9,934,241 states left on queue.
+Progress(16) at 2026-11-13 10:51:05: 67,747,228 states generated (22,554,452 s/min), 19,778,153 distinct states found (6,530,423 ds/min), 14,871,692 states left on queue.
+Progress(16) at 2026-11-13 10:52:05: 88,460,625 states generated (20,713,397 s/min), 26,422,267 distinct states found (6,644,114 ds/min), 20,014,500 states left on queue.
+Progress(16) at 2026-11-13 10:53:05: 110,055,556 states generated (21,594,931 s/min), 32,817,180 distinct states found (6,394,913 ds/min), 25,071,718 states left on queue.
+Progress(16) at 2026-11-13 10:54:05: 133,733,008 states generated (23,677,452 s/min), 39,539,896 distinct states found (6,722,716 ds/min), 30,375,415 states left on queue.
+Progress(16) at 2026-11-13 10:55:05: 156,572,479 states generated (22,839,471 s/min), 46,644,089 distinct states found (7,104,193 ds/min), 35,996,093 states left on queue.
+Progress(16) at 2026-11-13 10:56:05: 178,930,687 states generated (22,358,208 s/min), 53,684,898 distinct states found (7,040,809 ds/min), 41,571,628 states left on queue.
+Progress(16) at 2026-11-13 10:57:05: 203,268,398 states generated (24,337,711 s/min), 60,189,609 distinct states found (6,504,711 ds/min), 46,692,013 states left on queue.
+Progress(16) at 2026-11-13 10:58:05: 225,379,318 states generated (22,110,920 s/min), 66,434,340 distinct states found (6,244,731 ds/min), 51,569,702 states left on queue.
+Progress(16) at 2026-11-13 10:59:05: 246,701,253 states generated (21,321,935 s/min), 73,211,361 distinct states found (6,777,021 ds/min), 56,878,580 states left on queue.
+Progress(16) at 2026-11-13 11:00:05: 270,124,256 states generated (23,423,003 s/min), 80,031,220 distinct states found (6,819,859 ds/min), 62,176,460 states left on queue.
+Progress(17) at 2026-11-13 11:01:05: 293,300,736 states generated (23,176,480 s/min), 86,545,965 distinct states found (6,514,745 ds/min), 67,249,802 states left on queue.
+Progress(17) at 2026-11-13 11:02:05: 315,409,962 states generated (22,109,226 s/min), 93,490,060 distinct states found (6,944,095 ds/min), 72,691,208 states left on queue.
+Progress(17) at 2026-11-13 11:03:05: 337,835,541 states generated (22,425,579 s/min), 100,521,205 distinct states found (7,031,145 ds/min), 78,147,892 states left on queue.
+Progress(17) at 2026-11-13 11:04:05: 360,462,296 states generated (22,626,755 s/min), 107,610,599 distinct states found (7,089,394 ds/min), 83,673,438 states left on queue.
+Progress(17) at 2026-11-13 11:05:05: 382,913,465 states generated (22,451,169 s/min), 114,784,666 distinct states found (7,174,067 ds/min), 89,343,812 states left on queue.
+Progress(17) at 2026-11-13 11:06:05: 405,154,308 states generated (22,240,843 s/min), 121,262,405 distinct states found (6,477,739 ds/min), 94,333,753 states left on queue.
+Progress(17) at 2026-11-13 11:07:05: 429,489,576 states generated (24,335,268 s/min), 128,211,016 distinct states found (6,948,611 ds/min), 99,787,148 states left on queue.
+Progress(17) at 2026-11-13 11:08:05: 452,158,102 states generated (22,668,526 s/min), 134,489,012 distinct states found (6,277,996 ds/min), 104,752,517 states left on queue.
+Progress(17) at 2026-11-13 11:09:05: 474,917,025 states generated (22,758,923 s/min), 140,956,589 distinct states found (6,467,577 ds/min), 109,872,816 states left on queue.
+Progress(17) at 2026-11-13 11:10:05: 497,817,806 states generated (22,900,781 s/min), 147,558,482 distinct states found (6,601,893 ds/min), 115,109,810 states left on queue.
+Progress(17) at 2026-11-13 11:11:05: 521,115,645 states generated (23,297,839 s/min), 153,588,492 distinct states found (6,030,010 ds/min), 119,878,048 states left on queue.
+Progress(17) at 2026-11-13 11:12:05: 547,250,761 states generated (26,135,116 s/min), 159,929,390 distinct states found (6,340,898 ds/min), 124,884,587 states left on queue.

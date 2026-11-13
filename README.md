@@ -39,7 +39,7 @@ Base Sepolia address of the deployed vault: [`0xAf8105c7e876f38Bf0A9f09e4c97029B
 
 | Claim | Proof |
 |---|---|
-| The state machine keeps every invariant in the threat model | Quint model of the vault, its actors, Base (reverts, reorgs, finality, fees) and every dependency failure. v3: TLC finds no counterexample in any behaviour of up to 17 steps of a one-heir configuration (81 million distinct states), nor does simulation in 100,000 random traces of 40 steps with two heirs ([results](docs/evidence/spec/README.md)) |
+| The state machine keeps every invariant in the threat model | Quint model of the vault, its actors, Base (reverts, reorgs, finality, fees) and every dependency failure. v3: TLC finds no counterexample in any behaviour of up to 16 steps with two heirs (160 million distinct states) or 17 steps with one heir (81 million), nor does simulation in 100,000 random traces of 40 steps ([results](docs/evidence/spec/README.md)) |
 | The Rust contract is the model | 600 model traces, 24,000 steps, replayed on the contract with identical state after every step ([itf_replay.rs](contract/src/itf_replay.rs)). A one-character bug fails the replay |
 | Heirs are eventually paid, or reopened after a real revert, with no AI | TLC over the complete fair-world graph of a one-heir configuration, 1.2 million states, under stated fairness: signing failures, lost callbacks, reverts and settlement timeouts included ([log](docs/evidence/spec/tlc-v3-tiny-liveness.log)) |
 | Arithmetic cannot overflow for any config the vault accepts; the fee rule only raises and can always reach the ceiling; the tip rises with the fee | Kani, all inputs ([results](docs/evidence/kani/README.md)) |
@@ -114,7 +114,7 @@ Exhaustive TLC; `TINY=1` for the one-heir bound. CI for a clean runner, ready on
 - **An attested NEAR AI decision accepted on-chain.** No API key was available, so the agent path is covered by unit tests with a locally generated key, and every live and local-stack payout used the no-AI fallback.
 - **The wishes key inside an enclave.** It is unwrapped on the operator's machine.
 - **Kani for the whole EIP-1559 encoding and for `parse_address`.** Those harnesses exceeded this machine's memory (CBMC above 6 GB). The RLP pieces they are built from are proved; the full encodings are covered by 1,500 viem vectors, alloy and 2.5 million fuzz runs.
-- **Exhaustive model checking with two heirs, and liveness with contests and the freeze.** Both exceed this machine; the stated bounds above are what ran.
+- **Unbounded model checking, and liveness with two heirs or with contests and the freeze.** These exceed this machine; the stated bounds above are what ran.
 - **Mempool replacement on Base itself.** The tip fix follows geth's and reth's replacement rule from their source; the local stack ran anvil, not Base's node.
 - **An outside human review.** The brief is ready ([one page](docs/review/one-page.md)); no objection is recorded yet ([record](docs/evidence/outside/reviewer-objections.md)).
 - **CI on a clean public runner.** The workflow is ready and runs once the repository is public.
