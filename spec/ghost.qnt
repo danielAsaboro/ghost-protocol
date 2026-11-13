@@ -594,9 +594,11 @@ module ghost {
     landings.indices().forall(i => payouts[landings[i].payout].nonce == i),
   }
 
-  // I7
+  // I7. After a disproved revert the overpaid value counts again, so committed may pass the budget
+  // by that one payout: the stated limit of I17, made visible (tlc-v3-cex-budget-after-false-revert.log).
   val inv_budget = and {
-    committed <= BUDGET,
+    committed <= BUDGET + (if (falseRevert) CAP else 0),
+    honestWitnesses implies committed <= BUDGET,
     committed == payoutIdx.fold(0, (s, p) => s + payouts[p].value + CEILING - (if (payouts[p].status == "Reverted") payouts[p].value else 0)),
   }
 
