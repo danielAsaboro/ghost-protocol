@@ -8,7 +8,7 @@
 <!-- pinned -->
 <link rel="stylesheet" href="vendor/fonts.css" integrity="sha384-ESrARDNPRv1sHOwyqg4BXx7tPLwwFwRn+VTjBMRGuo2MWD+gbwQ9hFc7DIygTWlT">
 <link rel="stylesheet" href="styles.css" integrity="sha384-fwhgQS43d9fwyazHAtwXcIgMgdKlROH8pC3lfTHlosDencyNfMNIxs+/+JqEfqVI">
-<script type="importmap">{"imports":{"viem":"./vendor/viem-2.57.17.mjs"},"integrity":{"./vendor/viem-2.57.17.mjs":"sha384-HPm91TDNt/sYQZXMdoAmW6emLGJ4FSS29Y/fS1WLuiznn259/FDbeFM+Lo/7rMQg","./verify.mjs":"sha384-Rn6aSyVkYY0Nw/8PePLnsBlrOVOYiXGNZwFwEN8WDXIyPgBCICEuSrnktpmJ+ZFs","./ui.mjs":"sha384-/+pZe4QaxgS5z8kf3XNq0ItfYDnZiexFoy27XbUC5aJH6C7xEsOBu+PLbX22nYUw"}}</script>
+<script type="importmap">{"imports":{"viem":"./vendor/viem-2.57.17.mjs"},"integrity":{"./vendor/viem-2.57.17.mjs":"sha384-HPm91TDNt/sYQZXMdoAmW6emLGJ4FSS29Y/fS1WLuiznn259/FDbeFM+Lo/7rMQg","./verify.mjs":"sha384-8upyTO/f2sEwte9+afOZ19loAfF0YZcJNGQzu3eYxBtDZt5EvFXAFJY1SxzzhJL4","./ui.mjs":"sha384-/+pZe4QaxgS5z8kf3XNq0ItfYDnZiexFoy27XbUC5aJH6C7xEsOBu+PLbX22nYUw"}}</script>
 <!-- /pinned -->
 <style>
 body { font-size: 14px }
@@ -263,7 +263,7 @@ function heirs() {
     <div class="head">${avatar(p.to, 40)}<div><b>Payout ${p.index + 1}</b><small>${p.source === 'fallback' ? 'Started by the no-AI fallback' : 'Proposed by the attested agent'}</small></div><span class="pill ${p.status === 'Settled' ? 'ok' : 'live'}">${p.status === 'Active' ? 'Signed' : p.status}</span></div>
     <div class="amt">${eth(p.value)}<small>to heir ${p.heir + 1}</small></div>
     <dl><div><dt>Nonce</dt><dd>${p.nonce}</dd></div><div><dt>Attempts</dt><dd>${p.attempts.length}, same nonce</dd></div></dl>
-    ${p.attempts.map((a) => `<div class="attempt"><span>${Number(a.fee) / 1e9} gwei</span><span>${a.txHash ? `<a class="mono" href="https://sepolia.basescan.org/tx/${a.txHash}" target="_blank" rel="noopener">${short(a.txHash)}</a> · ${a.landed === null ? 'waiting for funds' : a.landed ? 'landed' : 'reverted'}` : 'signing'}</span></div>`).join('')}
+    ${p.attempts.map((a) => `<div class="attempt"><span>${Number(a.fee) / 1e9} gwei</span><span>${a.txHash ? `<a class="mono" href="https://sepolia.basescan.org/tx/${a.txHash}" target="_blank" rel="noopener">${short(a.txHash)}</a> · ${a.landed === null ? (a.replaced ? 'replaced, same nonce' : 'waiting for funds') : a.landed ? 'landed' : 'reverted'}` : 'signing'}</span></div>`).join('')}
   </article>`);
   $('heir-cards').innerHTML = [...heirCards, ...payCards].join('');
 }

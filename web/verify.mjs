@@ -60,6 +60,17 @@ const cache = {
   },
 };
 
+// In a browser, an archival node that rate-limits answers without a CORS header, so each refused request logs a CORS error.
+// The browser therefore sends one archival request at a time and rests a node that refused, instead of retrying it at once.
+const BROWSER = typeof window !== 'undefined';
+const resting = new Map();
+let lane = Promise.resolve();
+const single = (fn) => {
+  const run = lane.then(fn, fn);
+  lane = run.catch(() => {});
+  return run;
+};
+
 async function mapLimited(items, limit, fn) {
   const out = new Array(items.length);
   let next = 0;
@@ -101,11 +112,14 @@ export function makeRpc(fetchImpl = fetch) {
     tx: async (hash, sender) => {
       const cached = cache.get(hash);
       if (cached) return cached;
+      const body = { jsonrpc: '2.0', id: 1, method: 'tx', params: { tx_hash: hash, sender_account_id: sender, wait_until: 'NONE' } };
+      const awake = (url) => !(resting.get(url) > Date.now());
       let last;
       for (let attempt = 0; attempt < 4; attempt++) {
         for (const url of ARCHIVAL_RPC) {
+          if (BROWSER && !awake(url)) continue;
           try {
-            const j = await post(url, { jsonrpc: '2.0', id: 1, method: 'tx', params: { tx_hash: hash, sender_account_id: sender, wait_until: 'NONE' } });
+            const j = await (BROWSER ? single(() => (awake(url) ? post(url, body) : { error: 'resting after a refused request' })) : post(url, body));
             if (j.result?.transaction) {
               cache.set(hash, j.result);
               return j.result;
@@ -113,6 +127,7 @@ export function makeRpc(fetchImpl = fetch) {
             last = j.error?.data ?? j.error;
           } catch (e) {
             last = e.message;
+            if (BROWSER) resting.set(url, Date.now() + 1000 * 2 ** attempt);
           }
         }
         await new Promise((r) => setTimeout(r, 500 * 2 ** attempt));
@@ -223,10 +238,22 @@ export async function verifyVault({ vault, evidence = { events: [], settle: {} }
           `${p.value_wei} wei to ${p.to} · nonce ${p.nonce} · fee ${a.max_fee_per_gas}`));
         const receipt = await rpc.base('eth_getTransactionReceipt', [txHash]);
         item.landed = receipt ? receipt.status === '0x1' : null;
-        checks.push(check('Payout', `landed-${i}-${j}`, !receipt ? 'WAIT' : item.landed && getAddress(receipt.from) === vaultAddress ? 'PASS' : 'FAIL',
-          `Payout ${i + 1}, attempt ${j + 1}: included on Base Sepolia`, receipt ? `block ${parseInt(receipt.blockNumber, 16)} · status ${receipt.status}` : `${txHash} not mined`));
+        const landed = check('Payout', `landed-${i}-${j}`, !receipt ? 'WAIT' : item.landed && getAddress(receipt.from) === vaultAddress ? 'PASS' : 'FAIL',
+          `Payout ${i + 1}, attempt ${j + 1}: included on Base Sepolia`, receipt ? `block ${parseInt(receipt.blockNumber, 16)} · status ${receipt.status}` : `${txHash} not mined`);
+        checks.push(landed);
+        item.check = landed;
       }
       attempts.push(item);
+    }
+    // Every attempt reuses one nonce, so once one lands the others can never be mined.
+    const winner = attempts.find((a) => a.check?.verdict === 'PASS');
+    for (const a of attempts) {
+      if (winner && a.check?.verdict === 'WAIT') {
+        a.check.verdict = 'PASS';
+        a.check.detail = `replaced by attempt ${winner.index + 1} on the same nonce`;
+        a.replaced = true;
+      }
+      delete a.check;
     }
     const nonces = new Set(p.attempts.map(() => p.nonce));
     if (p.attempts.length > 1) {
