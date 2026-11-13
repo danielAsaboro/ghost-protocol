@@ -16,6 +16,5 @@ From the second deep pass brief. Each check has a recorded result or the reason 
 ## Cut, and why
 
 - **v3 on testnet**: needs a new account only the human can create. Keys and sealed wishes are prepared, so deploy and lock take minutes once it exists.
-- **The RUFADAA and probate comparison and the QuadrigaCX filings**: cut for time; no claim in the README depends on them.
 - **Commitments for heirs**: measured instead; no clear value can be committed without weakening the no-AI fallback ([privacy/README.md](privacy/README.md)).
 - **A stateful `cargo-fuzz` target**: the existing 256-sequence proptest and the model's trace replay cover operation sequences; no new fuzz target was added.

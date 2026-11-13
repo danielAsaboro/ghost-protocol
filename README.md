@@ -119,7 +119,7 @@ Exhaustive TLC; `TINY=1` for the one-heir bound. CI for a clean runner, ready on
 - **Mempool replacement on Base itself.** The tip fix follows geth's and reth's replacement rule from their source; the local stack ran anvil, not Base's node.
 - **An outside human review.** The brief is ready ([one page](docs/review/one-page.md)); no objection is recorded yet ([record](docs/evidence/outside/reviewer-objections.md)).
 - **CI on a clean public runner.** The workflow is ready and runs once the repository is public.
-- **Comparison with probate law.** The RUFADAA and proof-of-death reading planned for this pass was cut.
+- **Legal sufficiency.** Read against RUFADAA, the Uniform Probate Code and the QuadrigaCX court record ([law](docs/evidence/law/README.md)): the vault is arguably not a RUFADAA "online tool", and it does not provide a death certificate, letters of appointment, the 120-hour survival rule, creditor protection or a court that can stop a payout. Not legal advice.
 
 ## Limits
 
