@@ -14,7 +14,7 @@ Every claim below links to a model-checker result, a proof, a test, a transactio
 npm install && npm run test:live
 ```
 
-Rechecks the deployed vault against the live chains. Or run the site with `npm run web` and open http://localhost:4173: the pages read NEAR testnet and Base Sepolia from your browser and replay every recorded transaction from its receipt. A failing claim shows as failed. A node that does not answer shows as waiting, never as passed. Every script, stylesheet and evidence file the pages load is pinned by hash ([sri.mjs](scripts/sri.mjs)).
+Rechecks the deployed vault against the live chains. Or open the verifier at https://danielasaboro.github.io/ghost-protocol/ (or `npm run web` and http://localhost:4173): the pages read NEAR testnet and Base Sepolia from your browser and replay every recorded transaction from its receipt. A failing claim shows as failed. A node that does not answer shows as waiting, never as passed. Every script, stylesheet and evidence file the pages load is pinned by hash ([sri.mjs](scripts/sri.mjs)).
 
 ## Run the whole payout yourself, locally
 
@@ -28,7 +28,7 @@ Brings up a NEAR localnet with the signer's deployed 3.18.0 code and two real `m
 
 | | Deployed vault (v2) | v3 |
 |---|---|---|
-| Account | [`ghostprotocol-vault.testnet`](https://testnet.nearblocks.io/address/ghostprotocol-vault.testnet) | `ghostprotocol-v3.testnet`: not deployed yet; the account needs the human. Keys, sealed wishes and the Base address `0x5e5E2B74258a8ac3E2A32bda02cFcF1C102117ea` are prepared |
+| Account | [`ghostprotocol-vault.testnet`](https://testnet.nearblocks.io/address/ghostprotocol-vault.testnet) | [`ghostprotocol-v3.testnet`](https://testnet.nearblocks.io/address/ghostprotocol-v3.testnet): deployed and locked, attacks refused ([record](docs/evidence/live/v3/README.md)); its Base address `0x5e5E2B74258a8ac3E2A32bda02cFcF1C102117ea` is unfunded |
 | Code | `DBRswoeb9syKVRZJrCpjbw62E3Z6ZL48MAoLN8KfU4E8`, reproducible at `ba25e39` ([log](docs/evidence/live/clean-rebuild.txt)) | `Gakhf4AxBppPcnXEjpuBgKNPqWojwM4gabLeGrVuGWNm`, reproducible at `ceedcd4` ([log](docs/evidence/live/v3-reproducible-build.log)) |
 | Keys | None: `view_access_key_list` returns `[]` after the [lock](https://testnet.nearblocks.io/txns/2AwB18KpkUaPoBAJhJUSVtyHDW5jPGJtZvCDBDn2pUAa) | Locked the same way once deployed |
 | Known bugs | The ten below. It can never be changed | Fixed; each is a regression test |
@@ -110,7 +110,7 @@ Exhaustive TLC; `TINY=1` for the one-heir bound. CI for a clean runner, ready on
 
 ## Not proven
 
-- **v3 on testnet.** It needs a new account, which only the human can create; until then v3 is proven on the local stack, in the model and in tests, not on testnet.
+- **A v3 payout on testnet.** v3 is deployed and locked on testnet, but its Base address is unfunded, so its full payout is proven on the local stack with real MPC nodes, not on testnet; the funded testnet payout is the deployed v2 vault's.
 - **An attested NEAR AI decision accepted on-chain.** No API key was available, so the agent path is covered by unit tests with a locally generated key, and every live and local-stack payout used the no-AI fallback.
 - **The wishes key inside an enclave.** It is unwrapped on the operator's machine.
 - **Kani for the whole EIP-1559 encoding and for `parse_address`.** Those harnesses exceeded this machine's memory (CBMC above 6 GB). The RLP pieces they are built from are proved; the full encodings are covered by 1,500 viem vectors, alloy and 2.5 million fuzz runs.

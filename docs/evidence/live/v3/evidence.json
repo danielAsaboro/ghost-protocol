@@ -1,5 +1,112 @@
 {
   "vault": "ghostprotocol-v3.testnet",
-  "events": [],
+  "events": [
+    {
+      "label": "Agent pays an unlisted recipient",
+      "method": "propose_payout",
+      "tx": "46XiU64uNSqzbacL7vU5j7bo8U7QWBzXFgYLZ3JU8H3Z",
+      "sender": "agent.ghostprotocol-v3.testnet",
+      "expect": "fail",
+      "error": "recipient is not an heir",
+      "at": "2026-11-14T13:35:00.164Z"
+    },
+    {
+      "label": "Agent pays an heir already being paid",
+      "method": "propose_payout",
+      "tx": "CSA4dntNxhQoYsQW65JvH8KzQRT4rfurM6p7igzttryF",
+      "sender": "agent.ghostprotocol-v3.testnet",
+      "expect": "fail",
+      "error": "no proven claim",
+      "at": "2026-11-14T13:35:08.588Z"
+    },
+    {
+      "label": "Owner account poses as the agent",
+      "method": "propose_payout",
+      "tx": "Chj8HLio37HKxUZ1bjvMPphmzZgTgayETGxeHwtW5sE9",
+      "sender": "owner.ghostprotocol-v3.testnet",
+      "expect": "fail",
+      "error": "only the agent can propose",
+      "at": "2026-11-14T13:35:16.951Z"
+    },
+    {
+      "label": "Agent freezes the vault",
+      "method": "freeze",
+      "tx": "D7a89K2aPddtUDFnQdtWcPu6zQ3JusxtXUNDQuzHbusb",
+      "sender": "agent.ghostprotocol-v3.testnet",
+      "expect": "fail",
+      "error": "only the legal authority can freeze",
+      "at": "2026-11-14T13:35:24.696Z"
+    },
+    {
+      "label": "Owner checks in (no payout exists on a fresh vault, so this is a legitimate call)",
+      "method": "check_in",
+      "tx": "6P3uYPyWyvq21AzFsfZWKQ3AyDUB7qHFW1W3oKXLctH9",
+      "sender": "owner.ghostprotocol-v3.testnet",
+      "expect": "ok",
+      "at": "2026-11-14T13:35:33.284Z"
+    },
+    {
+      "label": "Anyone fakes the MPC settlement callback",
+      "method": "on_settled",
+      "tx": "36VfcXiprstNqm1Mh5UzV9ME3qiD5skTahfhD7z6W2ou",
+      "sender": "agent.ghostprotocol-v3.testnet",
+      "expect": "fail",
+      "error": "Method on_settled is private",
+      "at": "2026-11-14T13:35:41.870Z"
+    },
+    {
+      "label": "Anyone fakes the MPC signature callback",
+      "method": "on_signed",
+      "tx": "BWH9JzEA6i27H7dHfkfjD7Jj8nKqV58PXkNuJVYLCSsK",
+      "sender": "agent.ghostprotocol-v3.testnet",
+      "expect": "fail",
+      "error": "Method on_signed is private",
+      "at": "2026-11-14T13:35:50.088Z"
+    },
+    {
+      "label": "Forged witnesses reopen a payout",
+      "method": "reopen_reverted",
+      "tx": "4gire6qj3jBbXWK6UNPSdpFMWhR1P3TUTSTHZmAxxBzw",
+      "sender": "agent.ghostprotocol-v3.testnet",
+      "expect": "fail",
+      "error": "unknown payout",
+      "at": "2026-11-14T13:35:57.318Z"
+    },
+    {
+      "label": "Forged witnesses register a signing key",
+      "method": "register_signer",
+      "tx": "3KCxfFU7KsyH9bpLtLBNWrHYKZyiXnpe4guaEM2Q7z9Z",
+      "sender": "agent.ghostprotocol-v3.testnet",
+      "expect": "fail",
+      "error": "invalid witness signature",
+      "at": "2026-11-14T13:36:05.396Z"
+    },
+    {
+      "label": "Registrar proves heir 1 adult (first use of this proof)",
+      "method": "prove_adult",
+      "tx": "Bk4UxQEEgomNTxNbtshJgwwBnrBbS8g4LWAwpDGhTSZ3",
+      "sender": "agent.ghostprotocol-v3.testnet",
+      "expect": "ok",
+      "at": "2026-11-14T13:36:13.967Z"
+    },
+    {
+      "label": "Second claim while one is open",
+      "method": "open_claim",
+      "tx": "FaEbhaqfJoN73sUW2yyGXq5F4jU4bXgN1R9BkjEAbmB8",
+      "sender": "agent.ghostprotocol-v3.testnet",
+      "expect": "fail",
+      "error": "owner is not inactive",
+      "at": "2026-11-14T13:36:22.381Z"
+    },
+    {
+      "label": "Registrar proof replayed",
+      "method": "prove_adult",
+      "tx": "5pJqXz36yAST27grqHKrcEEiqaryafekP49DeK44GRqS",
+      "sender": "agent.ghostprotocol-v3.testnet",
+      "expect": "fail",
+      "error": "heir age already proven",
+      "at": "2026-11-14T13:36:51.607Z"
+    }
+  ],
   "settle": {}
 }
